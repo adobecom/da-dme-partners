@@ -6,6 +6,7 @@ import {
   updateIMSConfig,
   preloadResources,
   getRenewBanner,
+  getSanctionedBanner,
   updateNavigation,
   updateFooter,
   enableGeoPopup,
@@ -61,6 +62,7 @@ const CONFIG = {
   codeRoot: '/edsdme',
   contentRoot: '/edsdme/partners-shared',
   imsClientId,
+  imsScope: 'AdobeID,openid,gnav,pps.read,firefly_api,additional_info.roles,read_organizations,account_cluster.read',
   clientEnv: prodHosts.includes(window.location.host) ? 'prod' : null,
   geoRouting: enableGeoPopup(),
   // fallbackRouting: 'off',
@@ -128,6 +130,7 @@ function setUpPage() {
   setConfig({ ...CONFIG, miloLibs });
   await setFeedback(getConfig);
   await getRenewBanner(getConfig);
+  await getSanctionedBanner(getConfig);
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);
@@ -139,4 +142,10 @@ function setUpPage() {
   window.addEventListener('pageshow', () => {
     loadPageToAnchor();
   });
+}());
+
+(async function loadDa() {
+  if (!new URL(window.location.href).searchParams.get('dapreview')) return;
+  // eslint-disable-next-line import/no-unresolved
+  import('https://da.live/scripts/dapreview.js').then(({ default: daPreview }) => daPreview(loadPage));
 }());

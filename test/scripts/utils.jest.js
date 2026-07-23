@@ -23,6 +23,7 @@ import {
   isRenew,
   hasSalesCenterAccess,
   getRenewBanner,
+  getSanctionedBanner,
   updateIMSConfig,
   getLocale,
   preloadResources,
@@ -388,6 +389,151 @@ describe('Test utils.js', () => {
     const main = document.createElement('main');
     document.body.appendChild(main);
     expect(await getRenewBanner(getConfig)).toEqual(null);
+  });
+  it('Don\'t show renew banner if partner has countryCode RU', async () => {
+    const expiredDate = new Date();
+    expiredDate.setDate(expiredDate.getDate() + 30);
+    const cookieObject = {
+      CPP: {
+        primaryContact: true,
+        status: 'MEMBER',
+        level: 'gold',
+        accountAnniversary: expiredDate,
+        countryCode: 'RU',
+      },
+    };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    const getConfig = () => ({ locale: '' });
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: true,
+      text: () => Promise.resolve('<div class="notification">Test</div>'),
+    }));
+    const main = document.createElement('main');
+    document.body.appendChild(main);
+    await getRenewBanner(getConfig);
+    const banner = document.querySelector('.notification');
+    expect(banner).toBeFalsy();
+  });
+  it('Don\'t show renew banner if partner has countryCode BY', async () => {
+    const expiredDate = new Date();
+    expiredDate.setDate(expiredDate.getDate() + 30);
+    const cookieObject = {
+      CPP: {
+        primaryContact: true,
+        status: 'MEMBER',
+        level: 'gold',
+        accountAnniversary: expiredDate,
+        countryCode: 'BY',
+      },
+    };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    const getConfig = () => ({ locale: '' });
+    global.fetch = jest.fn(() => Promise.resolve({
+      ok: true,
+      text: () => Promise.resolve('<div class="notification">Test</div>'),
+    }));
+    const main = document.createElement('main');
+    document.body.appendChild(main);
+    await getRenewBanner(getConfig);
+    const banner = document.querySelector('.notification');
+    expect(banner).toBeFalsy();
+  });
+  describe('getSanctionedBanner', () => {
+    it('Don\'t show sanctioned banner if partner has countryCode US', async () => {
+      const cookieObject = { CPP: { countryCode: 'US' } };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const getConfig = jest.fn(() => ({ locale: { prefix: '' } }));
+      global.fetch = jest.fn();
+
+      const main = document.createElement('main');
+      document.body.appendChild(main);
+
+      await getSanctionedBanner(getConfig);
+
+      const banner = document.querySelector('.notification');
+      expect(banner).toBeFalsy();
+      expect(getConfig).not.toHaveBeenCalled();
+      expect(global.fetch).not.toHaveBeenCalled();
+    });
+
+    it('Show sanctioned banner if partner has countryCode RU', async () => {
+      const cookieObject = { CPP: { countryCode: 'RU' } };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const getConfig = () => ({ locale: { prefix: '' } });
+      global.fetch = jest.fn(() => Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve('<div class="notification">Sanctioned Banner Test</div>'),
+      }));
+
+      const main = document.createElement('main');
+      document.body.appendChild(main);
+
+      await getSanctionedBanner(getConfig);
+
+      const banner = document.querySelector('.notification');
+      expect(banner).toBeTruthy();
+      expect(banner.textContent).toEqual('Sanctioned Banner Test');
+    });
+
+    it('Show sanctioned banner if partner has countryCode BY', async () => {
+      const cookieObject = { CPP: { countryCode: 'BY' } };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const getConfig = () => ({ locale: { prefix: '/de' } });
+      global.fetch = jest.fn(() => Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve('<div class="notification">Sanctioned BY Test</div>'),
+      }));
+
+      const main = document.createElement('main');
+      document.body.appendChild(main);
+
+      await getSanctionedBanner(getConfig);
+
+      const banner = document.querySelector('.notification');
+      expect(banner).toBeTruthy();
+      expect(banner.textContent).toEqual('Sanctioned BY Test');
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/de/edsdme/partners-shared/fragments/banner-account-sanctioned.plain.html');
+    });
+
+    it('Use custom metadata path for sanctioned banner if present', async () => {
+      const cookieObject = { CPP: { countryCode: 'RU' } };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+
+      const metaTag = document.createElement('meta');
+      metaTag.name = 'banner-account-sanctioned';
+      metaTag.content = '/custom/path/to/sanctioned-banner';
+      document.head.appendChild(metaTag);
+
+      const getConfig = () => ({ locale: { prefix: '' } });
+      global.fetch = jest.fn(() => Promise.resolve({
+        ok: true,
+        text: () => Promise.resolve('<div class="notification">Custom Path Banner</div>'),
+      }));
+
+      const main = document.createElement('main');
+      document.body.appendChild(main);
+
+      await getSanctionedBanner(getConfig);
+
+      const banner = document.querySelector('.notification');
+      expect(banner).toBeTruthy();
+      expect(global.fetch).toHaveBeenCalledWith('http://localhost/custom/path/to/sanctioned-banner.plain.html');
+    });
+
+    it('Sanctioned banner fetch error', async () => {
+      const cookieObject = { CPP: { countryCode: 'RU' } };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+      const getConfig = () => ({ locale: { prefix: '' } });
+      global.fetch = jest.fn(() => Promise.resolve({ ok: false, statusText: 'Not Found' }));
+
+      const main = document.createElement('main');
+      document.body.appendChild(main);
+
+      const result = await getSanctionedBanner(getConfig);
+      expect(result).toBeNull();
+      const banner = document.querySelector('.notification');
+      expect(banner).toBeFalsy();
+    });
   });
   it('Update ims config if user is signed in', () => {
     jest.useFakeTimers();

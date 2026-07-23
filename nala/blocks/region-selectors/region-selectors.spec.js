@@ -5,7 +5,7 @@ export default {
       tcid: '1',
       name: '@desc-regression-region-selectors-north-america',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/na/channelpartners/',
@@ -16,7 +16,7 @@ export default {
       tcid: '2',
       name: '@desc-regression-region-selectors-latin-america',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/latam/channelpartners/',
@@ -28,7 +28,7 @@ export default {
       tcid: '3',
       name: '@desc-regression-region-selectors-europe-middle-east-africa',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/emea/channelpartners/',
@@ -39,7 +39,7 @@ export default {
       tcid: '4',
       name: '@desc-regression-region-selectors-france',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/fr/channelpartners/',
@@ -50,7 +50,7 @@ export default {
       tcid: '5',
       name: '@desc-regression-region-selectors-germany',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/de/channelpartners/',
@@ -61,7 +61,7 @@ export default {
       tcid: '6',
       name: '@desc-regression-region-selectors-italy',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/it/channelpartners/',
@@ -72,7 +72,7 @@ export default {
       tcid: '7',
       name: '@desc-regression-region-selectors-asia-pacific',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/apac/channelpartners/',
@@ -83,7 +83,7 @@ export default {
       tcid: '8',
       name: '@desc-regression-region-selectors-korea',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/kr/channelpartners/',
@@ -94,7 +94,7 @@ export default {
       tcid: '9',
       name: '@desc-regression-region-selectors-china',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/cn/channelpartners/',
@@ -105,7 +105,7 @@ export default {
       tcid: '10',
       name: '@desc-regression-region-selectors-japan',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/jp/channelpartners/',
@@ -116,7 +116,7 @@ export default {
       tcid: '11',
       name: '@desc-regression-region-selectors-japan-second-link',
       path: '/channelpartners/?georouting=off&martech=off',
-      tags: '@dme-region-selector @regression @anonymous',
+      tags: '@dme-region-selector @regression @anonymous @dme-main',
       data: {
         changeRegionEng: 'Change region',
         localeSwitchUrl: '/jp/channelpartners/',

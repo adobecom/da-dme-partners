@@ -5,7 +5,7 @@ export default {
       tcid: '1',
       name: '@desc-regression-banners-logged-in-non-member-user',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'SPP',
@@ -18,7 +18,7 @@ export default {
       tcid: '2',
       name: '@desc-regression-banners-logged-in-member-platinum-user-anniversary-date-out-of-range',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -32,7 +32,7 @@ export default {
       tcid: '3',
       name: '@desc-regression-banners-logged-in-member-distributor-user-anniversary-date-out-of-range',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -46,7 +46,7 @@ export default {
       tcid: '4',
       name: '@desc-regression-banners-logged-in-member-gold-user-anniversary-date-out-of-range',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -60,7 +60,7 @@ export default {
       tcid: '5',
       name: '@desc-regression-banners-logged-in-member-certified-user-anniversary-date-out-of-range',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -74,7 +74,7 @@ export default {
       tcid: '6',
       name: '@desc-regression-banners-logged-in-member-registered-user-anniversary-date-out-of-range',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -88,7 +88,7 @@ export default {
       tcid: '7',
       name: '@desc-regression-banners-logged-in-member-platinum-user-anniversary-date-last-90-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -102,7 +102,7 @@ export default {
       tcid: '8',
       name: '@desc-regression-banners-logged-in-member-distributor-user-anniversary-date-last-90-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -116,7 +116,7 @@ export default {
       tcid: '9',
       name: '@desc-regression-banners-logged-in-member-platinum-user-anniversary-date-next-30-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -130,7 +130,7 @@ export default {
       tcid: '10',
       name: '@desc-regression-banners-logged-in-member-distributor-user-anniversary-date-next-30-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -144,7 +144,7 @@ export default {
       tcid: '11',
       name: '@desc-regression-banners-logged-in-member-gold-user-anniversary-date-last-90-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -155,14 +155,14 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your account is suspended. You need to renew your membership to be able to continue using your benefits with Adobe in the next 55 days.',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.stage2.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
       },
     },
     {
       tcid: '12',
       name: '@desc-regression-banners-logged-in-member-certified-user-anniversary-date-last-90-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -173,14 +173,14 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your account is suspended. You need to renew your membership to be able to continue using your benefits with Adobe in the next 55 days.',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.stage2.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
       },
     },
     {
       tcid: '13',
       name: '@desc-regression-banners-logged-in-member-registered-user-anniversary-date-last-90-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -191,14 +191,14 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your account is suspended. You need to renew your membership to be able to continue using your benefits with Adobe in the next 55 days.',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.stage2.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
       },
     },
     {
       tcid: '14',
       name: '@desc-regression-banners-logged-in-member-gold-user-anniversary-date-next-30-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -209,14 +209,14 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your membership will expire in 9 days. Make sure to renew so that you don’t lose your benefits with Adobe.',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.stage2.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
       },
     },
     {
       tcid: '15',
       name: '@desc-regression-banners-logged-in-member-certified-user-anniversary-date-next-30-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -227,14 +227,14 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your membership will expire in 9 days. Make sure to renew so that you don’t lose your benefits with Adobe.',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.stage2.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
       },
     },
     {
       tcid: '16',
       name: '@desc-regression-banners-logged-in-member-registered-user-anniversary-date-next-30-days',
       path: '/channelpartners/drafts/automation/regression/public-page?georouting=off&martech=off',
-      tags: '@dme-banners @regression @anonymous',
+      tags: '@dme-banners @regression @anonymous @dme-main',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -245,7 +245,7 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your membership will expire in 9 days. Make sure to renew so that you don’t lose your benefits with Adobe.',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
       },
     },
     {
@@ -258,7 +258,7 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your membership will expire',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.stage2.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
         signInButtonInternationalText: 'Sign In',
       },
     },
@@ -272,7 +272,7 @@ export default {
         paragraphIndex: 1,
         bannerText: 'Your account is suspended',
         renewButtonText: 'Renew now',
-        renewLinkPath: 'https://channelpartners.stage2.adobe.com/s/renewal/',
+        renewLinkPath: '/s/renewal/',
         signInButtonInternationalText: 'Sign In',
       },
     },
@@ -291,7 +291,7 @@ export default {
       tcid: '20',
       name: '@desc-regression-banners-global-banner',
       path: 'https://partners.stage.adobe.com/es/channelpartners/drafts/automation/regression/public-page-with-global-banner?georouting=off&martech=off',
-      tags: '@dme-banners @regression @circleCi',
+      tags: '@dme-banners @regression @circleCi @dme-main',
       data: { bannerTitle: 'Notification without image' },
     },
     {
