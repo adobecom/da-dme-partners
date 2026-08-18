@@ -205,7 +205,6 @@ export function redirectLoggedinPartner(win = window) {
 
 export function isRenew() {
   const programType = getCurrentProgramType();
-
   const countryCode = getPartnerCookieValue(programType, 'countrycode');
   if (SANCTIONED_COUNTRIES.includes(countryCode)) return;
 
