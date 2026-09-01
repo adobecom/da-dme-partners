@@ -272,7 +272,6 @@ export async function getRenewBanner(getConfig) {
     const parser = new DOMParser();
     const doc = parser.parseFromString(componentData, 'text/html');
     const block = doc.querySelector('.notification');
-
     const div = document.createElement('div');
     div.appendChild(block);
 
@@ -288,7 +287,6 @@ export async function getRenewBanner(getConfig) {
 
 export async function getSanctionedBanner(getConfig) {
   const programType = getCurrentProgramType();
-
   const countryCode = getPartnerCookieValue(programType, 'countrycode');
   if (!SANCTIONED_COUNTRIES.includes(countryCode)) return;
 

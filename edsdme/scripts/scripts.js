@@ -118,7 +118,7 @@ function setUpPage() {
   updateFooter(CONFIG.locales);
 }
 
-(async function loadPage() {
+async function loadPage() {
   await prependContent();
   applyPagePersonalization();
   setUpPage();
@@ -134,6 +134,8 @@ function setUpPage() {
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);
+  // eslint-disable-next-line no-console
+  console.log('if window.location.host add sidekickListener');
   if (previewHosts.includes(window.location.host)) {
     sidekickListener(CONFIG.locales);
   }
@@ -142,7 +144,9 @@ function setUpPage() {
   window.addEventListener('pageshow', () => {
     loadPageToAnchor();
   });
-}());
+}
+
+loadPage();
 
 (async function loadDa() {
   if (!new URL(window.location.href).searchParams.get('dapreview')) return;
