@@ -9,17 +9,19 @@ const STAGE_URL = 'https://partners.stage.adobe.com';
 const LOCALHOST_URL = 'http://localhost:3000';
 
 async function getGitHubPRBranchLiveUrl() {
+  console.log('da-dme getGitHubPRBranchLiveUrl');
   // get the pr number
   const prReference = process.env.GITHUB_REF;
   const prNumber = prReference.split('/')[2];
-
+  console.log('da-dme prReference', prReference);
   // get the pr branch name
   const branch = process.env.GITHUB_HEAD_REF;    
   const prBranch = branch.replace(/\//g, '-');
+  console.log('da-dme prBranch', prBranch);
 
   // get the org and repo 
   const repository = process.env.GITHUB_REPOSITORY;
-  const repoParts = repository.split('/');    
+  const repoParts = repository.split('/');
   const toRepoOrg = repoParts[0];  
   const toRepoName = repoParts[1];
  
@@ -29,6 +31,9 @@ async function getGitHubPRBranchLiveUrl() {
   
   const prBranchLiveUrl = `https://${prBranch}--${prFromRepoName}--${prFromOrg}.aem.live`;
   const existingPageLiveUrl = `${prBranchLiveUrl}/channelpartners/home/`;
+  console.log('da-dme prBranchLiveUrl', prBranchLiveUrl);
+  console.log('da-dme existingPageLiveUrl', existingPageLiveUrl);
+
   try {
     if (await isBranchURLValid(existingPageLiveUrl, true)) {
       process.env.PR_BRANCH_LIVE_URL = prBranchLiveUrl;
