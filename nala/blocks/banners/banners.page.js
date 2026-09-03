@@ -7,6 +7,9 @@ export default class BannersPage {
     this.profileIconButton = page.locator('.feds-profile-button');
     this.reEnrollLink = page.locator('.body-m a[href*="/enrollment/"]:has-text("re-enroll")');
     this.abandonedAccountLabel = page.locator('.tracking-header:has-text("Abandoned account")');
+    this.globalBanner = page.getByRole('main').locator('img').first();
+    this.bannerTitle = page.locator('#notification-without-image');
+    this.bannerTitleWithImage = page.locator('#notification-with-an-image');
   }
 
   getBannerParagraphByIndex() {

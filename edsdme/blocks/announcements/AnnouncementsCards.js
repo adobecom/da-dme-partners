@@ -1,5 +1,4 @@
 import { getLibs } from '../../scripts/utils.js';
-import { partnerCardsDateFilterStyles } from '../../components/PartnerCardsStyles.js';
 import PartnerCards, { filterRestrictedCardsByCurrentSite } from '../../components/PartnerCards.js';
 
 const miloLibs = getLibs();
@@ -24,11 +23,6 @@ export function filterExpiredAnnouncements(cards, blockData) {
 }
 
 export default class Announcements extends PartnerCards {
-  static styles = [
-    PartnerCards.styles,
-    partnerCardsDateFilterStyles,
-  ];
-
   static properties = {
     ...PartnerCards.properties,
     selectedDateFilter: { type: Object },
@@ -143,6 +137,16 @@ export default class Announcements extends PartnerCards {
     return { htmlContent, tagsCount };
   }
 
+  get filtersLabel() {
+    const parentLabel = super.filtersLabel;
+    // eslint-disable-next-line max-len
+    const isDateActive = !this.selectedDateFilter.default && Object.keys(this.selectedDateFilter).length;
+    if (!isDateActive) return parentLabel;
+    return parentLabel === 'No Filters'
+      ? this.selectedDateFilter.value
+      : `${this.selectedDateFilter.value}, ${parentLabel}`;
+  }
+
   getDateFilterTags(filter) {
     if (filter.key !== 'date') return;
 
@@ -161,24 +165,61 @@ export default class Announcements extends PartnerCards {
     )}`;
   }
 
+  handleFilterAction() {
+    super.handleFilterAction();
+    // eslint-disable-next-line max-len
+    const isDateActive = !this.selectedDateFilter.default && Object.keys(this.selectedDateFilter).length;
+    if (isDateActive && !this.urlSearchParams.has('filters')) {
+      this.urlSearchParams.append('filters', 'yes');
+    }
+  }
+
   additionalActions() {
     this.handleDateFilterAction();
   }
 
   additionalResetActions() {
     this.initDateTags(this.blockData.dateFilter.tags);
+    this.urlSearchParams.delete('date');
+  }
+
+  initUrlSearchParams() {
+    super.initUrlSearchParams();
+
+    if (!this.blockData.dateFilter || !this.urlSearchParams.has('date')) return;
+    const dateKey = this.urlSearchParams.get('date');
+    const dateTag = this.blockData.dateFilter.tags.find((t) => t.key === dateKey);
+    if (dateTag) {
+      this.initDateTags(this.blockData.dateFilter.tags);
+      dateTag.checked = true;
+      this.selectedDateFilter = dateTag;
+    }
   }
 
   handleDateTag(tags, tag) {
     if (tag.checked) {
       this.initDateTags(tags);
+      this.urlSearchParams.delete('date');
+      if (!Object.keys(this.selectedFilters).length && !this.urlSearchParams.has('term')) {
+        this.urlSearchParams.delete('filters');
+      }
     } else {
       this.selectedDateFilter = tag;
       // eslint-disable-next-line no-return-assign
       tags.forEach((filterTag) => filterTag.checked = filterTag.key === tag.key);
+      if (tag.default) {
+        this.urlSearchParams.delete('date');
+        if (!Object.keys(this.selectedFilters).length && !this.urlSearchParams.has('term')) {
+          this.urlSearchParams.delete('filters');
+        }
+      } else {
+        if (!this.urlSearchParams.has('filters')) this.urlSearchParams.append('filters', 'yes');
+        this.urlSearchParams.set('date', tag.key);
+      }
     }
 
     this.paginationCounter = 1;
+    this.handleUrlSearchParams();
     this.handleActions();
   }
 
@@ -195,6 +236,11 @@ export default class Announcements extends PartnerCards {
 
   handleResetDateTags(tags) {
     this.initDateTags(tags);
+    this.urlSearchParams.delete('date');
+    if (!Object.keys(this.selectedFilters).length && !this.urlSearchParams.has('term')) {
+      this.urlSearchParams.delete('filters');
+    }
+    this.handleUrlSearchParams();
     this.handleActions();
   }
 

@@ -27,6 +27,8 @@ export const RESSELER_LEVELS = [LEVELS.REGISTERED, LEVELS.CERTIFIED, LEVELS.GOLD
 const MAX_PARTNER_ERROR_REDIRECTS_COUNT = 3;
 const PARTNER_ERROR_REDIRECTS_COUNT_COOKIE = 'partner_redirects_count';
 
+const SANCTIONED_COUNTRIES = ['ru', 'by'];
+
 export const [setLibs, getLibs] = (() => {
   let libs;
   return [
@@ -38,6 +40,7 @@ export const [setLibs, getLibs] = (() => {
         }
         const partnerBranch = hostname.startsWith('main') ? 'main' : 'stage';
         const branch = new URLSearchParams(search).get('milolibs') || partnerBranch;
+        if (!/^[a-zA-Z0-9_-]+$/.test(branch)) throw new Error('Invalid branch name.');
         if (branch === 'local') {
           return 'http://localhost:6456/libs';
         }
@@ -184,7 +187,7 @@ export function getMetadata(name) {
   return document.querySelector(`meta[name="${name}"]`);
 }
 
-export function redirectLoggedinPartner() {
+export function redirectLoggedinPartner(win = window) {
   if (!isMember()) return;
   const partnerErrorRedirectsCount = getCookieValue(PARTNER_ERROR_REDIRECTS_COUNT_COOKIE);
   if (partnerErrorRedirectsCount) {
@@ -197,11 +200,14 @@ export function redirectLoggedinPartner() {
   const target = getMetadataContent('adobe-target-after-login');
   if (!target || target === 'NONE') return;
   document.body.style.display = 'none';
-  window.location.assign(target);
+  win.location.assign(target);
 }
 
 export function isRenew() {
   const programType = getCurrentProgramType();
+
+  const countryCode = getPartnerCookieValue(programType, 'countrycode');
+  if (SANCTIONED_COUNTRIES.includes(countryCode)) return;
 
   const primaryContact = getPartnerCookieValue(programType, 'primarycontact');
   if (!primaryContact) return;
@@ -237,6 +243,11 @@ export function isRenew() {
 }
 
 export async function getRenewBanner(getConfig) {
+  const programType = getCurrentProgramType();
+
+  const countryCode = getPartnerCookieValue(programType, 'countrycode');
+  if (SANCTIONED_COUNTRIES.includes(countryCode)) return;
+
   const renew = isRenew();
   if (!renew) return;
   const { accountStatus, daysNum } = renew;
@@ -260,6 +271,40 @@ export async function getRenewBanner(getConfig) {
     const componentData = data.replace('$daysNum', daysNum);
     const parser = new DOMParser();
     const doc = parser.parseFromString(componentData, 'text/html');
+    const block = doc.querySelector('.notification');
+    const div = document.createElement('div');
+    div.appendChild(block);
+
+    const main = document.querySelector('main');
+    if (main) main.insertBefore(div, main.firstChild);
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('There has been a problem with your fetch operation:', error);
+    // eslint-disable-next-line consistent-return
+    return null;
+  }
+}
+
+export async function getSanctionedBanner(getConfig) {
+  const programType = getCurrentProgramType();
+  const countryCode = getPartnerCookieValue(programType, 'countrycode');
+  if (!SANCTIONED_COUNTRIES.includes(countryCode)) return;
+
+  const metadataKey = 'banner-account-sanctioned';
+
+  const config = getConfig();
+  const { prefix } = config.locale;
+  const defaultPath = `${prefix}/edsdme/partners-shared/fragments/${metadataKey}`;
+  const path = getMetadataContent(metadataKey) ?? defaultPath;
+  const url = new URL(path, window.location.origin);
+
+  try {
+    const response = await fetch(`${url}.plain.html`);
+    if (!response.ok) throw new Error(`Network response was not ok ${response.statusText}`);
+
+    const data = await response.text();
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(data, 'text/html');
     const block = doc.querySelector('.notification');
 
     const div = document.createElement('div');
@@ -350,7 +395,11 @@ function preloadLit(miloLibs) {
 
 export function getPermissionSpecializations() {
   const permissionSpecializations = getPartnerCookieValue(getCurrentProgramType(), 'permissionspecializations');
-  return permissionSpecializations.toLowerCase();
+  if (!permissionSpecializations) return [];
+  return permissionSpecializations
+    .split(',')
+    .map((spec) => spec.trim().replace(/\s+/g, '-').toLowerCase())
+    .filter(Boolean);
 }
 
 function getPartnerLevelParams(portal) {
@@ -513,8 +562,8 @@ export function getNodesByXPath(query, context = document) {
   return nodes;
 }
 
-export function enableGeoPopup() {
-  const { hostname, search } = window.location;
+export function enableGeoPopup(win = window) {
+  const { hostname, search } = win.location;
   const enableWithParam = new URLSearchParams(search).get('georouting') === 'on';
   if (hostname === 'partnerspreview.adobe.com') {
     return 'off';
@@ -551,5 +600,17 @@ export async function setFeedback(getConfig) {
     console.error('Error fetching plain html of feedback fragment:', error);
     // eslint-disable-next-line consistent-return
     return null;
+  }
+}
+
+export function loadPageToAnchor() {
+  const urlHash = window.location.hash;
+
+  if (urlHash) {
+    const anchorElement = document.querySelector(urlHash);
+
+    if (anchorElement) {
+      window.scrollTo({ top: anchorElement.offsetTop, behavior: 'smooth' });
+    }
   }
 }

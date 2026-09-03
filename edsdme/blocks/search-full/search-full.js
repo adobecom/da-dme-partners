@@ -13,6 +13,10 @@ export default async function init(el) {
   const miloLibs = getLibs();
   const config = getConfig();
 
+  const { loadStyle } = await import(`${miloLibs}/utils/utils.js`);
+  loadStyle('/edsdme/components/PartnerCards.css');
+  loadStyle('/edsdme/components/SearchCard.css');
+
   const sectionIndex = el.parentNode.getAttribute('data-idx');
 
   const localizedText = {
@@ -57,7 +61,6 @@ export default async function init(el) {
     import(`${miloLibs}/features/spectrum-web-components/dist/checkbox.js`),
     import(`${miloLibs}/features/spectrum-web-components/dist/button.js`),
     import(`${miloLibs}/features/spectrum-web-components/dist/progress-circle.js`),
-    import(`${miloLibs}/features/spectrum-web-components/dist/action-button.js`),
     import(`${miloLibs}/features/spectrum-web-components/dist/icons-workflow.js`),
     import(`${miloLibs}/features/spectrum-web-components/dist/button-group.js`),
   ]);

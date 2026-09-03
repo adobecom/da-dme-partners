@@ -1,4 +1,3 @@
-import { singlePartnerCardStyles } from './PartnerCardsStyles.js';
 import { formatDate, getLibs, prodHosts } from '../scripts/utils.js';
 import { getConfig, transformCardUrl } from '../blocks/utils/utils.js';
 
@@ -9,12 +8,12 @@ const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.j
 const DEFAULT_BACKGROUND_IMAGE_PATH = '/content/dam/solution/en/images/card-collection/sample_default.png';
 
 class SinglePartnerCard extends LitElement {
+  createRenderRoot() { return this; }
+
   static properties = {
     data: { type: Object },
     ietf: { type: String },
   };
-
-  static styles = singlePartnerCardStyles;
 
   get imageUrl() {
     return `${new URL(this.data.styles?.backgroundImage).pathname}?width=400&format=webp&optimize=small`;
@@ -36,7 +35,7 @@ class SinglePartnerCard extends LitElement {
   }
 
   firstUpdated() {
-    this.checkBackgroundImage(this.shadowRoot.querySelector('.card-header'));
+    this.checkBackgroundImage(this.querySelector('.card-header'));
   }
 
   render() {

@@ -107,20 +107,20 @@ describe('search-full block', () => {
     expect(component).to.exist;
 
     const searchCardsWrapper = document.querySelector('.search-cards-wrapper');
-    expect(searchCardsWrapper.shadowRoot).to.exist;
+    expect(searchCardsWrapper).to.exist;
 
-    const searchBoxWrapper = searchCardsWrapper.shadowRoot.querySelector('.search-box-wrapper');
+    const searchBoxWrapper = searchCardsWrapper.querySelector('.search-box-wrapper');
     expect(searchBoxWrapper).to.exist;
 
-    const searchWrapper = searchCardsWrapper.shadowRoot.querySelector('.search-wrapper');
-    expect(searchWrapper.shadowRoot).to.exist;
+    const searchWrapper = searchCardsWrapper.querySelector('.search-wrapper');
+    expect(searchWrapper).to.exist;
     const searchInput = searchWrapper.querySelector('#search');
-    expect(searchInput.shadowRoot).to.exist;
+    expect(searchInput).to.exist;
 
-    const partnerCardsSection = searchCardsWrapper.shadowRoot.querySelector('.partner-cards');
+    const partnerCardsSection = searchCardsWrapper.querySelector('.partner-cards');
     expect(partnerCardsSection).to.exist;
 
-    const partnerCardsContent = searchCardsWrapper.shadowRoot.querySelector('.partner-cards-content');
+    const partnerCardsContent = searchCardsWrapper.querySelector('.partner-cards-content');
     expect(partnerCardsContent).to.exist;
 
     const contentTypeButtons = partnerCardsContent.querySelectorAll('sp-button');
@@ -132,13 +132,13 @@ describe('search-full block', () => {
     return { searchCardsWrapper };
   };
 
-  it('should have shadow root and render search cards for mobile', async () => {
+  it('should render search cards for mobile', async () => {
     const { searchCardsWrapper } = await setupAndCommonTest(500);
 
-    const filtersBtn = searchCardsWrapper.shadowRoot.querySelector('.filters-btn-mobile');
+    const filtersBtn = searchCardsWrapper.querySelector('.filters-btn-mobile');
     expect(filtersBtn).to.exist;
 
-    const searchTitle = searchCardsWrapper.shadowRoot.querySelector('.partner-cards-title');
+    const searchTitle = searchCardsWrapper.querySelector('.partner-cards-title');
     expect(searchTitle).to.exist;
 
     expect(searchCardsWrapper.contentType).to.equal('all');
@@ -207,28 +207,28 @@ describe('SearchCard Unit Tests', () => {
 
       expect(searchCardsWrapper.getAttribute('daa-lh')).to.equal('Search Cards Section');
 
-      const searchBoxWrapper = searchCardsWrapper.shadowRoot.querySelector('.search-box-wrapper');
+      const searchBoxWrapper = searchCardsWrapper.querySelector('.search-box-wrapper');
       expect(searchBoxWrapper.getAttribute('daa-lh')).to.equal('Search Box');
 
-      const searchCardsContent = searchCardsWrapper.shadowRoot.querySelectorAll('.content')[1];
+      const searchCardsContent = searchCardsWrapper.querySelectorAll('.content')[1];
       expect(searchCardsContent.getAttribute('daa-lh')).to.equal('Search Cards Content | Filters: Analytics Target Retail | Search Query: Adobe');
 
-      const firstCard = searchCardsWrapper.shadowRoot.querySelector('search-card');
+      const firstCard = searchCardsWrapper.querySelector('search-card');
       expect(firstCard.getAttribute('daa-lh')).to.equal(`Search Card 1 | ${cards[0].contentArea.title}`);
 
-      const singlePartnerCardBtn = firstCard.shadowRoot.querySelector('sp-action-button');
+      const singlePartnerCardBtn = firstCard.querySelector('.card-btn');
       expect(singlePartnerCardBtn.getAttribute('daa-ll')).to.equal(`Download | ${cards[0].contentArea.title}`);
     });
 
     it('Should contain search cards analytics attributes without filtering and search', async () => {
       const searchCardsWrapper = document.querySelector('.search-cards-wrapper');
-      expect(searchCardsWrapper.shadowRoot).to.exist;
+      expect(searchCardsWrapper).to.exist;
 
       const component = await init(searchCardsWrapper);
       await component.updateComplete;
       expect(component).to.exist;
 
-      const searchCardsContent = searchCardsWrapper.shadowRoot.querySelectorAll('.content')[1];
+      const searchCardsContent = searchCardsWrapper.querySelectorAll('.content')[1];
       expect(searchCardsContent.getAttribute('daa-lh')).to.equal('Search Cards Content | Filters: No Filters | Search Query: None');
     });
   });
@@ -236,12 +236,10 @@ describe('SearchCard Unit Tests', () => {
     it('should update typeahead state and options', async () => {
       const mockDialog = { show: sinon.spy() };
       const mockInput = { focus: sinon.spy() };
-      searchComponent.renderRoot = {
-        querySelector: sinon.stub()
-          .withArgs('dialog#typeahead').returns(mockDialog)
-          .withArgs('#search')
-          .returns(mockInput),
-      };
+      sinon.stub(searchComponent, 'querySelector')
+        .withArgs('dialog#typeahead').returns(mockDialog)
+        .withArgs('#search')
+        .returns(mockInput);
       searchComponent.contentType = 'all';
       searchComponent.searchTerm = 'analytics';
       searchComponent.isTypeaheadOpen = false;
@@ -251,7 +249,7 @@ describe('SearchCard Unit Tests', () => {
 
     it('should not update typeahead when searchTerm is empty', async () => {
       const mockDialog = { show: sinon.spy() };
-      searchComponent.renderRoot = { querySelector: sinon.stub().withArgs('dialog#typeahead').returns(mockDialog) };
+      sinon.stub(searchComponent, 'querySelector').withArgs('dialog#typeahead').returns(mockDialog);
       searchComponent.searchTerm = '';
       searchComponent.typeaheadOptions = ['existing', 'suggestions'];
       await searchComponent.updateTypeaheadDialog();
@@ -262,12 +260,10 @@ describe('SearchCard Unit Tests', () => {
     it('should handle errors gracefully', async () => {
       const mockDialog = { show: sinon.spy() };
       const mockInput = { focus: sinon.spy() };
-      searchComponent.renderRoot = {
-        querySelector: sinon.stub()
-          .withArgs('dialog#typeahead').returns(mockDialog)
-          .withArgs('#search')
-          .returns(mockInput),
-      };
+      sinon.stub(searchComponent, 'querySelector')
+        .withArgs('dialog#typeahead').returns(mockDialog)
+        .withArgs('#search')
+        .returns(mockInput);
       searchComponent.searchTerm = 'test';
       searchComponent.isTypeaheadOpen = false;
       const getSuggestionsStub = sinon.stub(searchComponent, 'getSuggestions').rejects(new Error('API Error'));

@@ -8,7 +8,7 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'Diese Adobe-Site passt nicht zu Ihrem Standort',
-        buttonType: 'Switch:de-us|Geo_Routing_Modal',
+        buttonType: 'Switch:de-us|Geo_Routing_Modal|locale:us|country:de|intl:none',
         switchLocaleUrl: '/de/channelpartners/?akamaiLocale=de',
       },
     },
@@ -19,7 +19,7 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'Este sitio de Adobe no coincide con tu ubicación',
-        buttonType: 'Switch:es-us|Geo_Routing_Modal',
+        buttonType: 'Switch:es-us|Geo_Routing_Modal|locale:us|country:es|intl:none',
         switchLocaleUrl: '/es/channelpartners/?akamaiLocale=es',
       },
     },
@@ -30,7 +30,7 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'Ce site Adobe ne correspond pas à votre zone géographique',
-        buttonType: 'Switch:fr-us|Geo_Routing_Modal',
+        buttonType: 'Switch:fr-us|Geo_Routing_Modal|locale:us|country:fr|intl:none',
         switchLocaleUrl: '/fr/channelpartners/?akamaiLocale=fr',
       },
     },
@@ -41,7 +41,7 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'Questo sito Adobe non corrisponde alla tua posizione geografica',
-        buttonType: 'Switch:it-us|Geo_Routing_Modal',
+        buttonType: 'Switch:it-us|Geo_Routing_Modal|locale:us|country:it|intl:none',
         switchLocaleUrl: '/it/channelpartners/?akamaiLocale=it',
       },
     },
@@ -52,7 +52,7 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'アドビwebサイトの地域設定がお客様の位置情報と一致しません',
-        buttonType: 'Switch:jp-us|Geo_Routing_Modal',
+        buttonType: 'Switch:jp-us|Geo_Routing_Modal|locale:us|country:jp|intl:none',
         switchLocaleUrl: '/jp/channelpartners/?akamaiLocale=jp',
       },
     },
@@ -63,7 +63,7 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: '此 Adobe 网站与您的位置不匹配',
-        buttonType: 'Switch:cn-us|Geo_Routing_Modal',
+        buttonType: 'Switch:cn-us|Geo_Routing_Modal|locale:us|country:cn|intl:none',
         switchLocaleUrl: '/cn/channelpartners/?akamaiLocale=cn',
       },
     },
@@ -74,7 +74,7 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'Este sitio de Adobe no coincide con tu ubicación',
-        buttonType: 'Switch:latam-us|Geo_Routing_Modal',
+        buttonType: 'Switch:latam-us|Geo_Routing_Modal|locale:us|country:br|intl:none',
         switchLocaleUrl: '/latam/channelpartners/?akamaiLocale=br',
       },
     },
@@ -85,11 +85,11 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'Este sitio de Adobe no coincide con tu ubicación',
-        switchLocaleButton: 'Switch:es-de|Geo_Routing_Modal',
-        stayLocaleButton: 'Stay:de-es|Geo_Routing_Modal',
+        switchLocaleButton: 'Switch:es-de|Geo_Routing_Modal|locale:de|country:es|intl:none',
+        stayLocaleButton: 'Stay:de-es|Geo_Routing_Modal|locale:de|country:es|intl:none',
         switchLocaleUrl: '/es/channelpartners/?akamaiLocale=es',
         stayLocaleUrl: '#',
-        clickButtonType: 'Switch:es-de|Geo_Routing_Modal',
+        clickButtonType: 'Switch:es-de|Geo_Routing_Modal|locale:de|country:es|intl:none',
         expectedToSeeInURL: '/es/channelpartners/',
       },
     },
@@ -100,11 +100,11 @@ export default {
       tags: '@dme-popups @geo-popups @regression @circleCi',
       data: {
         geoPopUpText: 'Este sitio de Adobe no coincide con tu ubicación',
-        switchLocaleButton: 'Switch:es-de|Geo_Routing_Modal',
-        stayLocaleButton: 'Stay:de-es|Geo_Routing_Modal',
+        switchLocaleButton: 'Switch:es-de|Geo_Routing_Modal|locale:de|country:es|intl:none',
+        stayLocaleButton: 'Stay:de-es|Geo_Routing_Modal|locale:de|country:es|intl:none',
         switchLocaleUrl: '/es/channelpartners/?akamaiLocale=es',
         stayLocaleUrl: '#',
-        clickButtonType: 'Stay:de-es|Geo_Routing_Modal',
+        clickButtonType: 'Stay:de-es|Geo_Routing_Modal|locale:de|country:es|intl:none',
         expectedToSeeInURL: '/de/channelpartners/',
       },
     },

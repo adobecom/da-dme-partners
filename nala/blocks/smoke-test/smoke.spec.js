@@ -267,7 +267,6 @@ export default {
         partnerLevel: 'cpp-distributor-us:',
         expectedSalesForceURL: '/s/directory/channel?lang=en&view=distributor',
         expectedFindURL: '/s/directory/channel?lang=en&view=distributor',
-        expectedID: 'tid',
       },
     },
     {
@@ -302,6 +301,30 @@ export default {
         signInButtonInternationalText: 'Sign In',
         logoRedirectionURLProtected: '/na/channelpartners/home/',
         logoRedirectionURLPublic: '/na/channelpartners/',
+      },
+    },
+    {
+      tcid: '25',
+      name: '@prp-collection-smoke-test',
+      path: '/na/channelpartners/home/marketing/resources/?georouting=off&martech=off',
+      tags: '@dme-smoke-test',
+      data: {
+        partnerLevel: 'cpp-emea-platinum:',
+        signInButtonInternationalText: 'Sign In',
+        sortOldest: 'oldest',
+        firstFilterSection: 'Product',
+        secondFilterSection: 'Topic',
+      },
+    },
+    {
+      tcid: '26',
+      name: '@smoke-test-feedback-mechanism-restricted-page-validation',
+      path: '/channelpartners/?georouting=off&martech=off',
+      tags: '@dme-smoke-test',
+      data: {
+        partnerLevel: 'cpp-distributor-us:',
+        feedbackTitle: 'Rate this page',
+        feedbackTextArea: 'Automation Test Keywords',
       },
     },
   ],

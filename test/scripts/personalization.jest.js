@@ -21,12 +21,7 @@ describe('Test personalization.js', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     window = Object.create(window);
-    Object.defineProperties(window, {
-      location: {
-        value: { pathname: '/channelpartners', hostname: 'partners.adobe.com' },
-        writable: true,
-      },
-    });
+    window.history.pushState({}, '', '/channelpartners/');
     document.body.innerHTML = fs.readFileSync(
       path.resolve(__dirname, './mocks/personalization.html'),
       'utf8',

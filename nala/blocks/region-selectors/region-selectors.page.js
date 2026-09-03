@@ -18,6 +18,6 @@ export default class RegionSelectorsPage {
   }
 
   async getPopUpParagraphByText(text) {
-    return this.page.locator(`div[data-valign="middle"] p:has-text("${text}")`);
+    return this.page.locator(`div[data-valign="middle"] :is(h2, p):has-text("${text}")`);
   }
 }

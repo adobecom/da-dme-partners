@@ -3,8 +3,8 @@ import { getConfig, localizationPromises } from '../utils/utils.js';
 import AnnouncementsPreview from './AnnouncementsPreviewCards.js';
 
 function declareAnnouncementsPreview() {
-  if (customElements.get('horizontal-cards')) return;
-  customElements.define('horizontal-cards', AnnouncementsPreview);
+  if (customElements.get('announcements-preview-cards')) return;
+  customElements.define('announcements-preview-cards', AnnouncementsPreview);
 }
 
 export default async function init(el) {
@@ -73,7 +73,7 @@ export default async function init(el) {
     });
   }
 
-  const previewCards = document.createElement('horizontal-cards');
+  const previewCards = document.createElement('announcements-preview-cards');
   previewCards.blockData = blockData;
   app.appendChild(previewCards);
 

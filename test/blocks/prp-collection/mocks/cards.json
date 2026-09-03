@@ -182,6 +182,9 @@
           },
           {
               "id": "caas:file-format/powerpoint"
+          },
+          {
+              "id": "caas:adobe-partners/cpp/region/north-america"
           }
       ],
       "contentArea": {
@@ -255,5 +258,97 @@
       "origin": "dme-partners",
       "lang": "en",
       "country": "us"
+  },
+  {
+      "id": "a3f4b2c1-9e8d-4f7a-b6c5-d4e3f2a1b0c9",
+      "eid": "a3f4b2c1-9e8d-4f7a-b6c5-d4e3f2a1b0c9",
+      "tags": [
+          {
+              "id": "caas:adobe-partners/cpp"
+          },
+          {
+              "id": "caas:adobe-partners/collections/prp-collection"
+          },
+          {
+              "id": "caas:adobe-partners/cpp/region/japan"
+          }
+      ],
+      "contentArea": {
+          "title": "japan-region-asset.pptx"
+      },
+      "arbitrary": [
+          {
+              "collection-name": "dev-coll"
+          }
+      ]
+  },
+  {
+      "id": "b4e5c3d2-0f9e-5a8b-c7d6-e5f4a3b2c1d0",
+      "eid": "b4e5c3d2-0f9e-5a8b-c7d6-e5f4a3b2c1d0",
+      "tags": [
+          {
+              "id": "caas:adobe-partners/cpp"
+          },
+          {
+              "id": "caas:adobe-partners/collections/prp-collection"
+          },
+          {
+              "id": "caas:adobe-partners/cpp/region/worldwide"
+          }
+      ],
+      "contentArea": {
+          "title": "worldwide-region-asset.pptx"
+      },
+      "arbitrary": [
+          {
+              "collection-name": "dev-coll"
+          }
+      ]
+  },
+  {
+      "id": "c5d6e4f3-1a0b-6c9d-e8f7-a6b5c4d3e2f1",
+      "eid": "c5d6e4f3-1a0b-6c9d-e8f7-a6b5c4d3e2f1",
+      "tags": [
+          {
+              "id": "caas:adobe-partners/cpp"
+          },
+          {
+              "id": "caas:adobe-partners/collections/prp-collection"
+          },
+          {
+              "id": "caas:adobe-partners/cpp/region/europe-west"
+          }
+      ],
+      "contentArea": {
+          "title": "europe-west-region-asset.pptx"
+      },
+      "arbitrary": [
+          {
+              "collection-name": "dev-coll"
+          }
+      ]
+  },
+  {
+      "id": "d6e7f5a4-2b1c-7d0e-f9a8-b7c6d5e4f3a2",
+      "eid": "d6e7f5a4-2b1c-7d0e-f9a8-b7c6d5e4f3a2",
+      "tags": [
+          {
+              "id": "caas:adobe-partners/cpp"
+          },
+          {
+              "id": "caas:adobe-partners/collections/prp-collection"
+          },
+          {
+              "id": "caas:adobe-partners/cpp/region/united-kingdom"
+          }
+      ],
+      "contentArea": {
+          "title": "united-kingdom-region-asset.pptx"
+      },
+      "arbitrary": [
+          {
+              "collection-name": "dev-coll"
+          }
+      ]
   }
 ]

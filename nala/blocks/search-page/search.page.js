@@ -4,8 +4,9 @@ export default class SearchTest {
   constructor(page) {
     this.page = page;
     this.searchField = page.getByRole('searchbox', { name: 'Search' });
-    this.openPreview = page.getByLabel('Open in', { exact: true }).locator('#button');
+    this.openPreview = page.getByLabel('Open in', { exact: true });
     this.download = page.getByLabel('Download', { exact: true }).locator('#button');
+    this.downloadDisabled = page.locator('.card-btn[aria-label="Download"]');
     this.cardDescription = page.locator('.card-description', { hasText: 'Asset Type: Advertising, Channel Copy, Language: English International (EI), Spanish, Product: Adobe Acrobat, Adobe Connect, Topic: Channel Authorization Letter, Onboarding' });
     this.filterType = page.getByLabel('Type');
     this.filterLanguage = page.getByLabel('Asset language');
@@ -20,10 +21,11 @@ export default class SearchTest {
     this.searchSpotlightFiled = page.getByPlaceholder('Search for topics, resources');
     this.assetTabs = page.getByLabel('Assets');
     this.pagesTab = page.getByLabel('Pages');
-    this.openPreviewPages = page.locator('search-card').filter({ hasText: 'Adobe Partner Connection Programme' }).locator('#button').nth(1);
+    this.openPreviewPages = page.locator('search-card').filter({ hasText: 'Adobe Partner Connection Programme' }).locator('.card-btn').nth(1);
     this.searchCard = page.locator('.search-card');
     this.showMoreLanguage = page.getByRole('link', { name: 'Show more' });
     this.noResultsTitle = page.locator('.no-results-title');
+    this.appleydFilter = page.getByLabel('plans & pricing');
   }
 
   async cardTitle(text) {

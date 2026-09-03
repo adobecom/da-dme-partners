@@ -341,5 +341,16 @@ export default {
         expectedToSeeInURL: 'https://partners.stage.adobe.com/latam/channelpartners/home/?georouting=off&martech=off#',
       },
     },
+    {
+      tcid: '30',
+      name: '@partially-saved-user-login',
+      path: 'https://partners.stage.adobe.com/channelpartners/?georouting=off&martech=off',
+      tags: '@dme-signin @regression @login @circleCi',
+      data: {
+        partnerLevel: 'cpp-partially-saved:',
+        signInButtonInternationalText: 'Sign In',
+        expectedRedirectedURL: '/channelpartners/error/contact-not-found',
+      },
+    },
   ],
 };

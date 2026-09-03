@@ -10,6 +10,6 @@ export default class LogosPage {
     this.cardDescription = page.locator('.card-description').first();
     this.cardTag = page.locator('.card-tag');
     this.cardTagLogo = page.locator('.card-tag').filter({ hasText: /^Logo$/ }).first();
-    this.downloadLogo = page.locator('.button[download]').first();
+    this.downloadLogo = page.locator('a.card-btn[download]').first();
   }
 }

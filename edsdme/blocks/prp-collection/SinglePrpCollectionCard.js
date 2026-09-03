@@ -1,17 +1,16 @@
-import { singlePrpCollectionCardStyles } from './SinglePrpCollectionCardStyles.js';
 import { formatDate, getLibs } from '../../scripts/utils.js';
 
 const miloLibs = getLibs();
 const { html, LitElement } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
 class SinglePrpCollectionCard extends LitElement {
+  createRenderRoot() { return this; }
+
   static properties = {
     localizedText: { type: Object },
     data: { type: Object },
     ietf: { type: String },
   };
-
-  static styles = singlePrpCollectionCardStyles;
 
   get imageUrl() {
     return `${new URL(this.data.styles?.backgroundImage)}?width=400&format=webp&optimize=small`;

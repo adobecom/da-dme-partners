@@ -1,6 +1,5 @@
 import { getLibs } from '../../scripts/utils.js';
 import PartnerCards from '../../components/PartnerCards.js';
-import { searchCardsStyles } from '../search-full/SearchCardsStyles.js';
 import '../../components/SearchCard.js';
 import { generateRequestForSearchAPI } from '../utils/utils.js';
 
@@ -8,11 +7,6 @@ const miloLibs = getLibs();
 const { html, repeat } = await import(`${miloLibs}/deps/lit-all.min.js`);
 
 export default class Logos extends PartnerCards {
-  static styles = [
-    PartnerCards.styles,
-    searchCardsStyles,
-  ];
-
   constructor() {
     super();
     this.contentType = 'all';

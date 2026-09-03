@@ -1,4 +1,3 @@
-import { singleMarketingResourcesCardStyles } from './SingleMarketingResourcesCardStyles.js';
 import { getLibs } from '../../scripts/utils.js';
 import { transformCardUrl, getConfig } from '../utils/utils.js';
 
@@ -7,13 +6,13 @@ const { html, LitElement } = await import(`${miloLibs}/deps/lit-all.min.js`);
 const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.js`);
 
 class SingleMarketingResourcesCard extends LitElement {
+  createRenderRoot() { return this; }
+
   static properties = {
     localizedText: { type: Object },
     data: { type: Object },
     ietf: { type: String },
   };
-
-  static styles = singleMarketingResourcesCardStyles;
 
   get imageUrl() {
     return `${new URL(this.data.styles?.backgroundImage)}?width=400&format=webp&optimize=small`;

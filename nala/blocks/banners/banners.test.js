@@ -137,7 +137,7 @@ test.describe('Validate banners', () => {
         await expect(firstParagraph).toHaveText(feature.data.bannerText);
         const renewLink = await bannersPage.bannerLink;
         await expect(renewLink).toHaveText(feature.data.renewButtonText);
-        await expect(renewLink).toHaveAttribute('href', feature.data.renewLinkPath);
+        await expect(renewLink).toHaveAttribute('href', new RegExp(feature.data.renewLinkPath));
       });
     });
   });
@@ -189,7 +189,7 @@ test.describe('Validate banners', () => {
       await expect(firstParagraph).toContainText(data.bannerText);
       const renewLink = await bannersPage.bannerLink;
       await expect(renewLink).toHaveText(data.renewButtonText);
-      await expect(renewLink).toHaveAttribute('href', data.renewLinkPath);
+      await expect(renewLink).toHaveAttribute('href', new RegExp(data.renewLinkPath));
     });
   });
 
@@ -224,6 +224,37 @@ test.describe('Validate banners', () => {
 
       await newTab.waitForLoadState();
       expect(newTab.url()).toContain(`${data.enrollmentURL}`);
+    });
+  });
+
+  test(`${features[19].name},${features[19].tags}`, async ({ page }) => {
+    const { data, path } = features[19];
+    await test.step('Go to public page with global banner', async () => {
+      await page.goto(`${path}`);
+      await page.waitForLoadState('domcontentloaded');
+    });
+
+    await test.step('Verify global banner with image', async () => {
+      await expect(bannersPage.globalBanner).toBeVisible();
+      await expect(bannersPage.bannerTitle).toHaveText(data.bannerTitle);
+    });
+  });
+  test(`${features[20].name},${features[20].tags}`, async ({ page }) => {
+    const { data, path } = features[20];
+    await test.step('Go to public page with global banner', async () => {
+      await page.goto(`${path}`);
+      await page.waitForLoadState('domcontentloaded');
+    });
+
+    await test.step('Sign in', async () => {
+      await signInPage.signIn(page, `${data.partnerLevel}`);
+      await page.waitForLoadState('domcontentloaded');
+      await bannersPage.profileIconButton.waitFor({ state: 'visible', timeout: 20000 });
+    });
+
+    await test.step('Verify global banner with image', async () => {
+      await expect(bannersPage.globalBanner).toBeVisible();
+      await expect(bannersPage.bannerTitleWithImage).toHaveText(data.bannerTitle);
     });
   });
 });

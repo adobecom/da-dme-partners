@@ -1,7 +1,15 @@
+// PARTNERS_NAVIGATION START
 // MWPW-159021
 /* eslint-disable */
-import { getMetadata, getConfig, getFederatedUrl } from '../../../../utils/utils.js';
+// PARTNERS_NAVIGATION END
 import { toFragment, lanaLog } from '../../utilities/utilities.js';
+
+// PARTNERS_NAVIGATION START
+// MWPW-192601 - Sync Milo Codebase
+import { getLibs } from '../../../../scripts/utils.js';
+const miloLibs = getLibs();
+const { getMetadata, getConfig, getFederatedUrl } = await import(`${miloLibs}/utils/utils.js`);
+// PARTNERS_NAVIGATION END
 
 const metadata = {
   seo: 'breadcrumbs-seo',
@@ -22,14 +30,19 @@ const setBreadcrumbSEO = (breadcrumbs) => {
     '@type': 'BreadcrumbList',
     itemListElement: [],
   };
-  breadcrumbs.querySelectorAll('ul > li').forEach((item, idx) => {
+
+  breadcrumbs.querySelectorAll('ul > li').forEach((item, idx, list) => {
     const link = item.querySelector('a');
     const name = link ? link.innerText.trim() : [...item.childNodes].filter((node) => !node.matches?.('span[aria-hidden="true"]')).map((node) => node.textContent.trim()).join('');
+    let itemUrl = link?.href;
+    if (!itemUrl && idx === list.length - 1) {
+      itemUrl = window.location.href;
+    }
     breadcrumbsSEO.itemListElement.push({
       '@type': 'ListItem',
       position: idx + 1,
       name,
-      item: link?.href,
+      item: itemUrl,
     });
   });
   const script = toFragment`<script type="application/ld+json">${JSON.stringify(
@@ -41,6 +54,7 @@ const setBreadcrumbSEO = (breadcrumbs) => {
 const createBreadcrumbs = (element) => {
   if (!element) return null;
   const ul = element.querySelector('ul');
+  if (!ul) return null;
   const pageTitle = getMetadata(metadata.pageTitle);
   if (pageTitle || getMetadata(metadata.showCurrent) === 'on') {
     ul.append(toFragment`
@@ -82,7 +96,13 @@ const createWithBase = async (el) => {
     element.querySelector('ul')?.prepend(...base.querySelectorAll('li'));
     return createBreadcrumbs(element);
   } catch (e) {
-    lanaLog({ e, message: 'Breadcrumbs failed fetching base', tags: 'gnav-breadcrumbs', errorType: 'info' });
+    lanaLog({
+      e,
+      message: 'Breadcrumbs failed fetching base',
+      tags: 'gnav-breadcrumbs',
+      errorType: 'i',
+      severity: 'error',
+    });
     return null;
   }
 };
@@ -111,7 +131,12 @@ export default async function init(el) {
     setBreadcrumbSEO(breadcrumbsEl);
     return breadcrumbsEl;
   } catch (e) {
-    lanaLog({ e, message: 'Breadcrumbs failed rendering', tags: 'gnav-breadcrumbs', errorType: 'error' });
+    lanaLog({
+      e,
+      message: 'Breadcrumbs failed rendering',
+      tags: 'gnav-breadcrumbs',
+      severity: 'error',
+    });
     return null;
   }
 }

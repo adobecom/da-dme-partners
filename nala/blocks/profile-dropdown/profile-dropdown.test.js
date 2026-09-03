@@ -167,12 +167,12 @@ test.describe('Validate profile dropdown', () => {
 
     await test.step('Verify profile dropdown after successful login', async () => {
       await profileDropdownPage.profileIconButton.waitFor({ state: 'visible', timeout: 20000 });
-      await profileDropdownPage.toggleProfileDropdown();
+      await profileDropdownPage.profileIconButton.click();
 
-      await page.click('body');
+      await profileDropdownPage.clickOnBodyOutside();
       await expect(profileDropdownPage.profileMenu).toBeHidden();
 
-      await profileDropdownPage.toggleProfileDropdown();
+      await profileDropdownPage.profileIconButton.click();
       const profileImage = await profileDropdownPage.profileImage;
       await expect(profileImage).toBeVisible();
       const profileName = await profileDropdownPage.profileName.textContent();
@@ -192,6 +192,7 @@ test.describe('Validate profile dropdown', () => {
       ]);
       await editProfileTab.waitForLoadState();
       await expect(editProfileTab.url()).toContain(`${data.editProfileURL}`);
+      await editProfileTab.close();
     });
 
     await test.step('Verify account management link', async () => {
@@ -201,6 +202,7 @@ test.describe('Validate profile dropdown', () => {
       ]);
       await accountManagementTab.waitForLoadState();
       await expect(accountManagementTab.url()).toContain(`${data.accountManagementURL}`);
+      await accountManagementTab.close();
     });
 
     await test.step('Logout', async () => {

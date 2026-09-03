@@ -6,7 +6,7 @@ export default {
       name: '@desc-dme-form-distributor-user',
       path: '/na/channelpartners/drafts/automation/regression/dme-form/promo-pricing-rebate-request-form?georouting=off&martech=off',
       publicPath: '/na/channelpartners/drafts/automation/regression/dme-form/promo-pricing-rebate-request-form-public?georouting=off&martech=off,',
-      tags: '@dme-form @regression @anonymous @circleCi',
+      tags: '@dme-form @regression @anonymous @circleCi @dme-main',
       data: {
         partnerLevel: 'cpp-distributor-us:',
         signInButton: 'Sign In',

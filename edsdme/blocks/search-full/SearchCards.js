@@ -1,22 +1,16 @@
 import { getLibs } from '../../scripts/utils.js';
 import PartnerCards from '../../components/PartnerCards.js';
-import { searchCardsStyles } from './SearchCardsStyles.js';
 import '../../components/SearchCard.js';
 import { generateRequestForSearchAPI } from '../utils/utils.js';
 import { debounce } from '../utils/action.js';
 
 const miloLibs = getLibs();
-const { html, repeat } = await import(`${miloLibs}/deps/lit-all.min.js`);
+const { html, repeat, unsafeHTML } = await import(`${miloLibs}/deps/lit-all.min.js`);
 const SEE_ALL = 'SEE_ALL';
 const MAX_SEARCH_LENGTH = 200;
 const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.js`);
 
 export default class Search extends PartnerCards {
-  static styles = [
-    PartnerCards.styles,
-    searchCardsStyles,
-  ];
-
   static properties = {
     ...PartnerCards.properties,
     contentType: { type: String },
@@ -50,17 +44,17 @@ export default class Search extends PartnerCards {
 
   // eslint-disable-next-line no-underscore-dangle
   get _typeaheadDialog() {
-    return this.renderRoot.querySelector('dialog#typeahead');
+    return this.querySelector('dialog#typeahead');
   }
 
   // eslint-disable-next-line no-underscore-dangle
   get _searchInput() {
-    return this.renderRoot.querySelector('#search');
+    return this.querySelector('#search');
   }
 
   // eslint-disable-next-line no-underscore-dangle
   get _dialog() {
-    return this.renderRoot.querySelector('.suggestion-dialog');
+    return this.querySelector('.suggestion-dialog');
   }
 
   onSearchInput(event) {
@@ -439,7 +433,7 @@ export default class Search extends PartnerCards {
                 ? html`
                   <div class="sort-wrapper">
                     <button class="sort-btn" @click="${this.toggleSort}">
-                      <span class="sort-btn-text">${this.selectedSortOrder.value}</span>
+                      <span class="sort-btn-text">${unsafeHTML(this.selectedSortOrder.value)}</span>
                       <span class="filter-chevron-icon" />
                     </button>
                     <div class="sort-list">

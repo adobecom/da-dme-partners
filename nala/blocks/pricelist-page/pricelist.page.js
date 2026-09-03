@@ -16,6 +16,10 @@ export default class PricelistsTest {
     this.priceListGNav = page.locator('a.feds-navLink[href*="/channelpartners/home/pricelists/"]');
   }
 
+  filterHeaderByAriaLabel(label) {
+    return this.page.locator(`[aria-label="${label}"].filter-header`);
+  }
+
   async checkBox(checkBox, exact) {
     return this.page.getByRole('checkbox', { name: `${checkBox}`, exact });
   }

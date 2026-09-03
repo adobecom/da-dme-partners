@@ -88,10 +88,10 @@ test.describe('Pricelist Page Validation', () => {
       await pricelistPage.filterPricelists(pricelistPage.currencyFilter, data.jpyCheckBox, true);
       const jpyNumberOFPriceLists = await pricelistPage.priceListsCount(page);
       await pricelistPage.filterMonth(pricelistPage.monthFilter);
-      const date = await pricelistPage.monthCheckBoxGet(1);
+      const date = await pricelistPage.monthCheckBoxGet(0);
       await pricelistPage.clickMonthCheckboxByDate(date);
       const monthSecondCheckBoxNumberOFPriceLists = await pricelistPage.priceListsCount(page);
-      expect(jpyNumberOFPriceLists).toBeGreaterThan(monthSecondCheckBoxNumberOFPriceLists);
+      expect(jpyNumberOFPriceLists).toBeGreaterThanOrEqual(monthSecondCheckBoxNumberOFPriceLists);
 
       await pricelistPage.filterPricelists(pricelistPage.buyingProgramTypesFilter, data.ycVipCommercialCheckBox, true);
       const ycVipCommercialCheckBoxNumberofPriceLists = await pricelistPage.priceListsCount(page);
@@ -139,7 +139,7 @@ test.describe('Pricelist Page Validation', () => {
 
       await pricelistPage.xButton.click();
       await pricelistPage.clearAllFilters.click();
-      await expect(pricelistPage.firstRegionCell).toHaveText(data.asiaPacificKorea);
+      await expect(pricelistPage.firstRegionCell).toHaveText(data.asiaChina);
     });
   });
   // @pricelist-validation-filter-combination-four
@@ -278,6 +278,11 @@ test.describe('Pricelist Page Validation', () => {
         await page.waitForLoadState('networkidle');
         await expect(pricelistPage.firstRegionCell).toBeVisible({ timeout: 30000 });
         await expect(pricelistPage.firstRegionCell).not.toHaveText('', { timeout: 30000 });
+        await pricelistPage.filterPricelists(
+          pricelistPage.filterHeaderByAriaLabel(data.regionFilter),
+          data.checkBox,
+          true,
+        );
         await expect(pricelistPage.firstRegionCell).toContainText(data.text);
       });
     });

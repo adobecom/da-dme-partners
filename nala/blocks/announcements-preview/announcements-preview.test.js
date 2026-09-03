@@ -93,7 +93,7 @@ test.describe('Validate announcements preview block', () => {
           const latestCards = await announcementsPreviewPage.cards.evaluateAll((cards, count) => cards.slice(0, count)
             .map(
               (card) => {
-                const { href } = card.shadowRoot.querySelector('.card-footer .card-btn');
+                const { href } = card.querySelector('.card-footer .card-btn');
                 return href.substring(href.indexOf('/channelpartners/'));
               },
             ), announcementsCount);

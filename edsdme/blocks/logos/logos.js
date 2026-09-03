@@ -11,6 +11,11 @@ export default async function init(el) {
   const miloLibs = getLibs();
   const config = getConfig();
 
+  const { loadStyle } = await import(`${miloLibs}/utils/utils.js`);
+  loadStyle('/edsdme/components/PartnerCards.css');
+  loadStyle('/edsdme/components/SearchCard.css');
+  loadStyle('/edsdme/blocks/search-full/search-full.css');
+
   const sectionIndex = el.parentNode.getAttribute('data-idx');
   const isMain = el.classList.contains('main');
 

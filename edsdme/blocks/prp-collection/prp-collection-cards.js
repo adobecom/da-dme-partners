@@ -1,4 +1,9 @@
-import { getLibs, getPermissionSpecializations } from '../../scripts/utils.js';
+import {
+  getCurrentProgramType,
+  getLibs,
+  getPartnerCookieValue,
+  getPermissionSpecializations,
+} from '../../scripts/utils.js';
 import PartnerCards from '../../components/PartnerCards.js';
 import './SinglePrpCollectionCard.js';
 
@@ -37,6 +42,33 @@ function filterCardsBySpecialization(cards) {
   });
 }
 
+export function filterCardsByUserRegions(cards) {
+  const portal = getCurrentProgramType();
+  const userRegions = getPartnerCookieValue(portal, 'permissionregion');
+  const normalizeRegion = (region) => region
+    .toLowerCase()
+    .replace(/\(/g, '-')
+    .replace(/\)/g, '')
+    .replace(/\s+/g, '-');
+  const normalizedUserRegions = userRegions.split(',').map(normalizeRegion);
+
+  return cards.filter((card) => {
+    const tags = card.tags || [];
+
+    const cardRegions = tags
+      .map((tag) => tag.id)
+      .filter((tagId) => tagId.includes('/region/'))
+      .map((tagId) => tagId.split('/region/')[1]);
+
+    // cards without region tags or have 'worldwide' region are visible to everyone
+    if (cardRegions.length === 0 || cardRegions.includes('worldwide')) {
+      return true;
+    }
+
+    return cardRegions.some((region) => normalizedUserRegions.includes(region));
+  });
+}
+
 export default class PRPCollectionCards extends PartnerCards {
   get partnerCards() {
     if (this.paginatedCards.length) {
@@ -59,5 +91,7 @@ export default class PRPCollectionCards extends PartnerCards {
     apiData.cards = filterCardsByCollectionName(apiData.cards, this.blockData.collectionName);
     // Filter assets if user has access based on specialization
     apiData.cards = filterCardsBySpecialization(apiData.cards);
+    // Filter assets if user has access based on region
+    apiData.cards = filterCardsByUserRegions(apiData.cards);
   }
 }

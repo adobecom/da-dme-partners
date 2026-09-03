@@ -352,4 +352,20 @@ test.describe('MAPC sign in flow', () => {
       });
     });
   });
+  test(`${features[29].name},${features[29].tags}`, async ({ page }) => {
+    const { data, path } = features[29];
+    await test.step('Go to the home page', async () => {
+      await page.goto(`${path}`);
+      await page.waitForLoadState('domcontentloaded');
+      const signInButtonInt = await signInPage.getSignInButton(`${data.signInButtonInternationalText}`);
+      await signInButtonInt.click();
+    });
+    await test.step('Sign in', async () => {
+      await signInPage.signIn(page, `${data.partnerLevel}`);
+      await signInPage.profileIconButton.waitFor({ state: 'visible', timeout: 30000 });
+    });
+    await test.step('Verify redirection to the contact-not-found page', async () => {
+      await expect(page.url()).toContain(`${data.expectedRedirectedURL}`);
+    });
+  });
 });

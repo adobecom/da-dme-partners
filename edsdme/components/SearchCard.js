@@ -1,25 +1,26 @@
-import searchCardStyles from './SearchCardStyles.js';
 import { formatDate, getLibs } from '../scripts/utils.js';
 import { getConfig, replaceText } from '../blocks/utils/utils.js';
 
 const miloLibs = getLibs();
 const config = getConfig();
-const { html, repeat, LitElement, until } = await import(`${miloLibs}/deps/lit-all.min.js`);
+const { html, repeat, LitElement, until, nothing } = await import(`${miloLibs}/deps/lit-all.min.js`);
 const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.js`);
 
 class SearchCard extends LitElement {
+  createRenderRoot() { return this; }
+
   static properties = {
     data: { type: Object },
     localizedText: { type: Object },
     ietf: { type: String },
   };
 
-  static styles = searchCardStyles;
-
   get cardTags() {
     const tags = this.data.arbitrary;
     if (!tags.length) return;
-    const filteredTags = tags.filter((tag) => !Object.keys(tag).includes('partnerlevel'));
+    const filteredTags = tags.filter((tag) => !Object.keys(tag).includes('partnerlevel')
+      && !Object.values(tag).includes('cpp')
+      && !Object.values(tag).includes('collections'));
     if (!filteredTags.length) return;
     // eslint-disable-next-line consistent-return
     return html`${repeat(
@@ -62,29 +63,42 @@ class SearchCard extends LitElement {
 
   /* eslint-disable indent */
   render() {
+    const title = this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : '';
+    const trackingTitle = processTrackingLabels(title, getConfig(), 30);
+    const isDlDisabled = this.isDownloadDisabled(this.data.contentArea?.type);
+
     return html`
       <div class="search-card" @click=${(e) => this.toggleCard(e.currentTarget)}>
         <div class="card-header">
           <div class="card-title-wrapper">
             <span class="card-chevron-icon"></span>
             <div class="file-icon" style="background-image: url('/edsdme/img/icons/${this.getFileType(this.data.contentArea?.type)}.svg')"></div>
-            <span class="card-title">${this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : ''}</span>
+            <span class="card-title">${title}</span>
           </div>
           <div class="card-icons">
-            <sp-theme theme="spectrum" color="light" scale="medium">
-              <sp-action-button daa-ll="Download | ${processTrackingLabels(this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : '', getConfig(), 30)}" @click=${(e) => { e.stopPropagation(); if (e.isTrusted) { e.preventDefault(); } }} ?disabled=${this.isDownloadDisabled(this.data.contentArea?.type)} href="${this.data.contentArea?.url}" download="${this.data.contentArea?.title}" aria-label="${this.localizedText['{{download}}']}"><sp-icon-download /></sp-action-button>
+              <a class="card-btn"
+                 daa-ll=${`Download | ${trackingTitle}`}
+                 @click=${(e) => { e.stopPropagation(); }}
+                 href=${isDlDisabled ? nothing : this.data.contentArea?.url}
+                 download=${this.data.contentArea?.title}
+                 aria-label=${this.localizedText['{{download}}']}
+                 aria-disabled=${isDlDisabled}>
+                <sp-icon-download class="icon" />
+              </a>
               ${this.isPreviewEnabled(this.data.contentArea?.type)
                 ? html`
-                  <sp-action-button daa-ll="Preview | ${processTrackingLabels(this.data.contentArea?.title !== 'card-metadata' ? this.data.contentArea?.title : '', getConfig(), 30)}" @click=${(e) => { e.stopPropagation(); if (e.isTrusted) { e.preventDefault(); } }} href="${this.data.contentArea?.url}"
-                                    target="_blank" aria-label="${this.localizedText['{{open-in}}']}">
-                    <sp-icon-open-in/>
-                  </sp-action-button>`
+                  <a class="card-btn"
+                     daa-ll=${`Preview | ${trackingTitle}`}
+                     @click=${(e) => { e.stopPropagation(); }}
+                     href=${this.data.contentArea?.url}
+                     target="_blank"
+                     aria-label=${this.localizedText['{{open-in}}']}
+                     aria-disabled=${false}>
+                    <sp-icon-open-in class="icon"/>
+                  </a>`
                 : html`
-                  <sp-action-button disabled selected aria-label="${this.localizedText['{{open-in-disabled}}']}">
-                    <sp-icon-open-in/>
-                  </sp-action-button>`
+                  <a class="card-btn" aria-disabled=${true} aria-label=${this.localizedText['{{open-in-disabled}}']}><sp-icon-open-in class="icon"/></a>`
               }
-            </sp-theme>
           </div>
         </div>
 

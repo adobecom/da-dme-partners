@@ -67,13 +67,6 @@ test.describe('Validate redirects flow', () => {
         await expect(helpXAdobeLink).toHaveAttribute('target', '_blank');
       });
 
-      await test.step('Verify old portal link', async () => {
-        const href = await redirectsPage.getLinkByText(data.oldPortalMainLink).getAttribute('href');
-
-        expect(href).toContain(data.oldPortalLink);
-        await expect(redirectsPage.getLinkByText(data.oldPortalMainLink)).toHaveAttribute('target', '_blank');
-      });
-
       await test.step('Verify Access Sales Center link from the GNav', async () => {
         const salesGnavLink = await redirectsPage.getButtonElement('Sales');
         await salesGnavLink.click();

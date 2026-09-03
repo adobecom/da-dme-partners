@@ -29,15 +29,7 @@ describe('Test rewrite links', () => {
   beforeEach(() => {
     getConfig.mockReturnValue({ env: { name: 'stage' }, codeRoot: 'https://stage--dme-partners--adobecom.aem.page/edsdme' });
     partnerIsSignedIn.mockReturnValue({ 'partner name': { company: 'test' } });
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: {
-        pathname: '/cn/test-path',
-        href: 'http://example.com/cn/test-path',
-        assign: jest.fn(),
-        reload: jest.fn(),
-      },
-    });
+    window.history.pushState({}, '', '/cn/test-path');
   });
   afterEach(() => {
     jest.clearAllMocks(); // Clear mocks after each test
@@ -99,7 +91,7 @@ describe('Test rewrite links', () => {
   <a href="https://business.adobe.com/">not in list of locales</a>
   <a href="https://business.adobe.com/home/">not in list of locales</a>
   <a href="https://adobe.com/">adobe</a>
-  
+
 
 `;
     rewriteLinks(document);
@@ -118,15 +110,7 @@ describe('Test rewrite links', () => {
   <a href="https://cbconnection.adobe.com/en/home/search/">cbc prod Link</a>
   <a href="https://business.adobe.com/">cbc prod Link</a>
 `;
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: {
-        pathname: '/pr/test-path',
-        href: 'http://example.com/pr/test-path',
-        assign: jest.fn(),
-        reload: jest.fn(),
-      },
-    });
+    window.history.pushState({}, '', '/pr/test-path');
     partnerIsSignedIn.mockReturnValue(null);
     rewriteLinks(document);
     const links = document.querySelectorAll('a');
@@ -138,15 +122,7 @@ describe('Test rewrite links', () => {
   <a href="https://cbconnection.adobe.com/en/home/search/">cbc prod Link</a>
   <a href="https://business.adobe.com/emea">cbc prod Link</a>
 `;
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: {
-        pathname: '/latam/test-path',
-        href: 'http://example.com/latam/test-path',
-        assign: jest.fn(),
-        reload: jest.fn(),
-      },
-    });
+    window.history.pushState({}, '', '/latam/test-path');
     partnerIsSignedIn.mockReturnValue(null);
     rewriteLinks(document);
     const links = document.querySelectorAll('a');
@@ -158,15 +134,7 @@ describe('Test rewrite links', () => {
     document.body.innerHTML = `
   <a href="https://cbconnection.adobe.com/fr/home/search/">cbc prod Link</a>
 `;
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: {
-        pathname: '/emea/test-path',
-        href: 'http://example.com/emea/test-path',
-        assign: jest.fn(),
-        reload: jest.fn(),
-      },
-    });
+    window.history.pushState({}, '', '/emea/test-path');
     partnerIsSignedIn.mockReturnValue(null);
     rewriteLinks(document);
     const links = document.querySelectorAll('a');
@@ -180,15 +148,7 @@ describe('Test rewrite links', () => {
   <a href="https://www.adobe.com">cbc prod Link</a>
   <a href="https://cbconnection.adobe.com/en/home/search">cbc prod Link</a>
 `;
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: {
-        pathname: '/emea/test-path',
-        href: 'http://example.com/emea/test-path',
-        assign: jest.fn(),
-        reload: jest.fn(),
-      },
-    });
+    window.history.pushState({}, '', '/emea/test-path');
     partnerIsSignedIn.mockReturnValue(null);
     rewriteLinks(document);
     const links = document.querySelectorAll('a');
@@ -222,15 +182,7 @@ describe('Test rewrite links', () => {
     document.body.innerHTML = `
   <a href="https://partners.adobe.com/"> prod Link</a>
 `;
-    Object.defineProperty(window, 'location', {
-      writable: true,
-      value: {
-        pathname: '/emea/test-path',
-        href: 'http://example.com/emea/test-path',
-        assign: jest.fn(),
-        reload: jest.fn(),
-      },
-    });
+    window.history.pushState({}, '', '/emea/test-path');
     partnerIsSignedIn.mockReturnValue(null);
     rewriteLinks(document);
     const links = document.querySelectorAll('a');
@@ -252,13 +204,6 @@ describe('Test rewrite links', () => {
     expect(result).toBe('https://channelpartners.stage2.adobe.com/path');
   });
 
-  test('should rewrite runtime link hrefs', () => {
-    const href = 'https://io-partners-dx.adobe.com/path';
-    const result = getUpdatedHref(href);
-
-    expect(result).toBe('https://partners.stage.adobe.com/path?view=distributor&lang=cn');
-  });
-
   test('should return unchanged link hrefs if invalid', () => {
     const href = 'invalid-url';
     const result = getUpdatedHref(href);
@@ -273,20 +218,36 @@ describe('Test rewrite links', () => {
     expect(result).toBe(href);
   });
 
-  const gnav = document.createElement('div');
-  const gnavHTML = `
+  function createGnav() {
+    const gnav = document.createElement('div');
+    const gnavHTML = `
         <a href="https://adobe.force.com/app/services/auth/sso/apc"></a>
         <a href="https://channelpartners.adobe.com/path"></a>
-        <a href="https://io-partners-dx.adobe.com/path"></a>
         <a href="https://unmapped-domain.com/path"></a>
       `;
-  gnav.innerHTML = gnavHTML;
+    gnav.innerHTML = gnavHTML;
+
+    return { gnav, gnavHTML };
+  }
 
   test('should not rewrite links in the production environment', () => {
-    delete window.location;
-    window.location = new URL('https://partners.adobe.com/');
+    window.history.pushState({}, '', '/');
 
     jest.resetModules();
+
+    jest.unmock('../../edsdme/scripts/utils.js');
+    jest.doMock('../../edsdme/scripts/utils.js', () => ({
+      partnerIsSignedIn: jest.fn(() => ({ 'partner name': { company: 'test' } })),
+      prodHosts: [
+        'main--dme-partners--adobecom.hlx.page',
+        'main--dme-partners--adobecom.hlx.live',
+        'main--dme-partners--adobecom.aem.page',
+        'main--dme-partners--adobecom.aem.live',
+        'partners.adobe.com',
+        window.location.host,
+      ],
+    }));
+
     // eslint-disable-next-line no-shadow,global-require
     const { rewriteLinks } = require('../../edsdme/scripts/rewriteLinks.js');
     // eslint-disable-next-line no-shadow,global-require
@@ -294,18 +255,19 @@ describe('Test rewrite links', () => {
 
     getConfig.mockReturnValue({ env: { name: 'prod' }, codeRoot: 'https://stage--dme-partners--adobecom.aem.page/edsdme' });
 
-    rewriteLinks(gnav);
+    const { gnav, gnavHTML } = createGnav();
     const result = rewriteLinks(gnav);
     expect(result.innerHTML).toBe(gnavHTML);
+    jest.resetModules();
   });
 
   test('should rewrite links in the stage environment', () => {
+    const { gnav } = createGnav();
     const result = rewriteLinks(gnav);
 
     expect(result.innerHTML).toBe(`
         <a href="https://channelpartners.stage2.adobe.com/s/salescenter/dashboard"></a>
         <a href="https://channelpartners.stage2.adobe.com/path"></a>
-        <a href="https://partners.stage.adobe.com/path?view=distributor&amp;lang=cn"></a>
         <a href="https://unmapped-domain.com/path"></a>
       `);
   });

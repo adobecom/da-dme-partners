@@ -2,6 +2,7 @@ import { selectors as baseSelectors } from '../utilities.js';
 
 const selectors = {
   ...baseSelectors,
+  globalFooterTag: 'footer',
   globalFooter: '.global-footer',
   mainNavItems:
     '.feds-navItem > a, .feds-navItem > button, .feds-navItem > .feds-cta-wrapper > .feds-cta',
@@ -17,10 +18,9 @@ const selectors = {
   logo: '.feds-logo',
   profileMenu: '.feds-profile-menu',
   profile: '.feds-profile',
-  breadCrumbItems: '.feds-breadcrumbs li > a',
+  breadCrumbItems: '.feds-breadcrumbs li:not(:nth-last-child(n+3):not(:first-child)) > a',
   expandedPopupTrigger: '.feds-navLink[aria-expanded = "true"]',
   promoLink: '.feds-promo-link',
-  imagePromo: 'a.feds-promo-image',
   fedsNav: '.feds-nav',
   popup: '.feds-popup',
   headline: '.feds-menu-headline',
@@ -28,24 +28,30 @@ const selectors = {
   column: '.feds-menu-column:not(.feds-menu-column--group)',
   cta: '.feds-cta',
   openSearch: '.feds-search-trigger[aria-expanded = "true"]',
+  featuredProducts: '.feds-featuredProducts',
   regionPicker: '.feds-regionPicker',
+  marketSelector: '.market-selector-button',
+  languagePicker: '.language-dropdown',
+  marketPicker: '.market-selector-popover',
   socialLink: '.feds-social-link',
   privacyLink: '.feds-footer-privacyLink',
   menuContent: '.feds-menu-content',
   /* mobile redesign popup selectors */
   mainMenuItems: 'header.new-nav section.feds-navItem > button',
-  mainMenuLinks: 'header.new-nav .feds-navItem > a[href]',
+  mainMenuLinks: 'header.new-nav .feds-navItem > a[href], header.new-nav .feds-navItem > .feds-cta-wrapper > .feds-cta',
   activePopup: 'header.new-nav section.feds-dropdown--active > .feds-popup',
   tab: 'button[role="tab"]',
   activeTabpanel: '.tab-content [role="tabpanel"]',
   activeLinks: '.tab-content [role="tabpanel"]:not([hidden="true"]) a',
   stickyCta: 'header.new-nav .feds-popup .sticky-cta a',
   topBarLinks: 'header.new-nav .feds-popup .top-bar a, header.new-nav .feds-popup .top-bar button',
-  closeLink: 'header.new-nav .feds-popup .top-bar .close-icon',
+  closeLink: 'header.new-nav .feds-popup .close-icon',
   localNav: '.feds-localnav',
   localNavActive: '.feds-localnav--active',
   localNavTitle: '.feds-localnav-title',
   localNavExit: '.feds-localnav-exit',
+  localNavItem: '.feds-localnav-items .feds-navItem',
+  localNavItems: '.feds-navItem .feds-menu-column > a, .feds-navItem > a, .feds-navItem > button, .feds-navItem > .feds-cta-wrapper > .feds-cta',
 };
 
 selectors.profileDropdown = `
@@ -56,11 +62,11 @@ selectors.profileDropdown = `
 `;
 
 selectors.popupItems = `
-  ${selectors.navLink},
+  ${selectors.navLink}:not(.feds-navLink--header),
   ${selectors.promoLink},
-  ${selectors.imagePromo},
   ${selectors.cta},
   ${selectors.regionPicker},
+  ${selectors.marketSelector},
   ${selectors.socialLink},
   ${selectors.privacyLink}
 `;

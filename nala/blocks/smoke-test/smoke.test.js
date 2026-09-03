@@ -663,4 +663,78 @@ test.describe('Smoke Tests', () => {
       await expect(page.url()).toContain(data.logoRedirectionURLProtected);
     });
   });
+  // @prp-collection-smoke-test
+  test(`${features[24].name}, ${features[24].tags}`, async ({ page, baseURL }) => {
+    const { data, path } = features[24];
+
+    await test.step('Verify PRP collection page', async () => {
+      await page.goto(`${baseURL}${path}`);
+      await smokeTest.smokeSignIn(page, baseURL, `${data.partnerLevel}`);
+    });
+    await test.step('Verify number of collections', async () => {
+      const numberOfCollections = await smokeTest.getNumberOfCollectionsCount();
+      expect(numberOfCollections).toBeGreaterThan(0);
+
+      const cardTitleBeforeSorting = await smokeTest.getCardTitle();
+      await smokeTest.selectDateSort(data.sortOldest);
+      const cardTitleAfterSorting = await smokeTest.getCardTitle();
+      expect(cardTitleAfterSorting).not.toBe(cardTitleBeforeSorting);
+    });
+    await test.step('Verify filter checkbox', async () => {
+      await smokeTest.fisrtFilter.click();
+      const filterCheckbox = smokeTest.filterFirstCheckbox(data.firstFilterSection);
+      await filterCheckbox.click();
+      // check number after filter
+      const numberOfCollectionsAfterFilter = await smokeTest.getNumberOfCollectionsCount();
+      expect(numberOfCollectionsAfterFilter).toBeGreaterThan(0);
+
+      await smokeTest.clearAll.click();
+      await smokeTest.secondFilter.click();
+      const filterCheckboxOffers = smokeTest.filterFirstCheckbox(data.secondFilterSection);
+      await filterCheckboxOffers.click();
+      // check number after filter
+      const numberOfCollectionsAfterFilterOffers = await smokeTest.getNumberOfCollectionsCount();
+      expect(numberOfCollectionsAfterFilterOffers).toBeGreaterThan(0);
+
+      // get href link
+      const hrefLink = await smokeTest.getCollectionLink(page);
+      await smokeTest.cards.nth(0).click();
+      await page.waitForURL('**', { timeout: 30000 });
+      await expect(page.url()).toContain(hrefLink);
+    });
+  });
+  // @smoke-test-feedback-mechanism-restricted-page-validation
+  test(`${features[25].name},${features[25].tags}`, async ({ page, baseURL }) => {
+    const { data, path } = features[25];
+
+    await test.step('Log in', async () => {
+      await page.goto(`${baseURL}${path}`);
+      await smokeTest.signInButton.waitFor({ state: 'visible', timeout: 30000 });
+      await smokeTest.signInButton.click();
+      await smokeTest.smokeSignIn(page, baseURL, data.partnerLevel);
+      await smokeTest.profileIcon.waitFor({ state: 'visible', timeout: 30000 });
+    });
+    await test.step('Check Feedback Dialog', async () => {
+      await smokeTest.feedbackButton.waitFor({ state: 'visible', timeout: 30000 });
+      expect(smokeTest.feedbackButton).toBeVisible();
+      expect(smokeTest.feedbackButton).toBeEnabled();
+      await smokeTest.feedbackButton.click();
+
+      await smokeTest.feedbackTitle.waitFor({ state: 'visible', timeout: 30000 });
+      await expect(smokeTest.feedbackTitle).toBeVisible();
+      await expect(smokeTest.feedbackTitle).toHaveText(data.feedbackTitle);
+
+      await smokeTest.feedbackTextArea.waitFor({ state: 'visible', timeout: 30000 });
+
+      await smokeTest.feedbackTextArea.fill(data.feedbackTextArea);
+      await smokeTest.feedbackTextArea.press('Enter');
+
+      await expect(smokeTest.feedbackSendButton).toBeVisible();
+      await expect(smokeTest.feedbackSendButton).toBeDisabled();
+
+      await smokeTest.feedBackStars3.waitFor({ state: 'visible', timeout: 30000 });
+      await smokeTest.feedBackStars3.click();
+      await expect(smokeTest.feedbackSendButton).toBeEnabled();
+    });
+  });
 });

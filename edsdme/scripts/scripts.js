@@ -1,10 +1,12 @@
 import { applyPagePersonalization } from './personalization.js';
+import { prependContent } from './portalMessaging.js';
 import {
   setLibs,
   redirectLoggedinPartner,
   updateIMSConfig,
   preloadResources,
   getRenewBanner,
+  getSanctionedBanner,
   updateNavigation,
   updateFooter,
   enableGeoPopup,
@@ -12,6 +14,7 @@ import {
   prodHosts,
   previewHosts,
   setFeedback,
+  loadPageToAnchor,
 } from './utils.js';
 import { rewriteLinks } from './rewriteLinks.js';
 import { sidekickListener } from '../blocks/utils/utils.js';
@@ -59,6 +62,7 @@ const CONFIG = {
   codeRoot: '/edsdme',
   contentRoot: '/edsdme/partners-shared',
   imsClientId,
+  imsScope: 'AdobeID,openid,gnav,pps.read,firefly_api,additional_info.roles,read_organizations,account_cluster.read',
   clientEnv: prodHosts.includes(window.location.host) ? 'prod' : null,
   geoRouting: enableGeoPopup(),
   // fallbackRouting: 'off',
@@ -114,7 +118,8 @@ function setUpPage() {
   updateFooter(CONFIG.locales);
 }
 
-(async function loadPage() {
+async function loadPage() {
+  await prependContent();
   applyPagePersonalization();
   setUpPage();
   redirectLoggedinPartner();
@@ -125,10 +130,26 @@ function setUpPage() {
   setConfig({ ...CONFIG, miloLibs });
   await setFeedback(getConfig);
   await getRenewBanner(getConfig);
+  await getSanctionedBanner(getConfig);
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);
+  // eslint-disable-next-line no-console
+  console.log('if window.location.host add sidekickListener');
   if (previewHosts.includes(window.location.host)) {
     sidekickListener(CONFIG.locales);
   }
+
+  // Run when navigating back/forward
+  window.addEventListener('pageshow', () => {
+    loadPageToAnchor();
+  });
+}
+
+loadPage();
+
+(async function loadDa() {
+  if (!new URL(window.location.href).searchParams.get('dapreview')) return;
+  // eslint-disable-next-line import/no-unresolved
+  import('https://da.live/scripts/dapreview.js').then(({ default: daPreview }) => daPreview(loadPage));
 }());

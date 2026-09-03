@@ -3,43 +3,10 @@ import PartnerCards, { filterRestrictedCardsByCurrentSite } from '../../componen
 import './SingleMarketingResourcesCard.js';
 
 const miloLibs = getLibs();
-const { html, repeat, css } = await import(`${miloLibs}/deps/lit-all.min.js`);
+const { html, repeat } = await import(`${miloLibs}/deps/lit-all.min.js`);
 const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.js`);
 
 export default class MarketingResourcesCards extends PartnerCards {
-  static get styles() {
-    return [
-      ...super.styles,
-      css`
-        .partner-cards-collection {
-          grid-template-columns: repeat(2, minmax(300px, 1fr));
-        }
-        .partner-cards-collection:has(.card-wrapper:only-child) {
-          grid-template-columns: 1fr;
-          justify-items: center;
-        }
-        .partner-cards-collection .no-results, .partner-cards-collection .progress-circle-wrapper {
-          grid-column: 1 / -1;
-        }
-        .partner-cards-collection .card-wrapper {
-          max-width: 480px;
-          width: 100%;
-        }
-        @media (max-width: 768px) {
-          .partner-cards-collection {
-            grid-template-columns: 1fr;
-            justify-items: center;
-          }
-        }
-        @media (max-width: 1200px) {
-          .partner-cards-title-wrapper {
-            display: unset !important;
-          }
-        }
-      `,
-    ];
-  }
-
   // add third column to block since partnerCards is expecting third collumn for filter tags
   setBlockData() {
     const tableData = this.blockData?.tableData;

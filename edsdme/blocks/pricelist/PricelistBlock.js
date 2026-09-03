@@ -1,7 +1,6 @@
 import PartnerCards from '../../components/PartnerCards.js';
 import { getLibs } from '../../scripts/utils.js';
 import { getConfig } from '../utils/utils.js';
-import { pricelistBlockStyles } from './PricelistBlockStyles.js';
 
 const miloLibs = getLibs();
 const { html, repeat } = await import(`${miloLibs}/deps/lit-all.min.js`);
@@ -21,11 +20,6 @@ export const priceListKeyWords = {
 };
 
 export default class Pricelist extends PartnerCards {
-  static styles = [
-    PartnerCards.styles,
-    pricelistBlockStyles,
-  ];
-
   static properties = { ...PartnerCards.properties, filtersData: { type: Array } };
 
   constructor() {
@@ -140,18 +134,17 @@ export default class Pricelist extends PartnerCards {
                 ${this.getArbitraryValue(rowData.arbitrary, priceListKeyWords.MONTH)}
             </td>
             <td headers="download">
-                <sp-theme theme="spectrum" color="light" scale="medium">
-                    <sp-action-button
-                            size="m"
-                            href="${rowData.contentArea?.url}"
-                            download="${rowData.contentArea?.filename}"
-                            aria-label="${this.blockData.localizedText['{{download}}']}"
-                            @click=${(e) => { if (e.isTrusted) { e.preventDefault(); } }}
-                            daa-ll="${processTrackingLabels(this.blockData.localizedText['{{download}}'], getConfig(), 30)}">
-                        <sp-icon-download slot="icon"></sp-icon-download>
-                        ${this.blockData.localizedText['{{download}}']}
-                    </sp-action-button>
-                </sp-theme>
+              <div class="download-btn-wrapper">
+                <a class="download-btn"
+                   href="${rowData.contentArea?.url}"
+                   download="${rowData.contentArea?.filename}"
+                   aria-label="${this.blockData.localizedText['{{download}}']}"
+                   daa-ll="${processTrackingLabels(this.blockData.localizedText['{{download}}'], getConfig(), 30)}"
+                >
+                  <sp-icon-download slot="icon"></sp-icon-download>
+                  ${this.blockData.localizedText['{{download}}']}
+                </a>
+              </div>
             </td>
         </tr>`;
   }

@@ -3,7 +3,7 @@ import { expect } from '@playwright/test';
 export default class ProfileDropdownPage {
   constructor(page) {
     this.page = page;
-    this.signInButton = page.locator('button[daa-ll="Sign In"].feds-signIn');
+    this.signInButton = page.locator('.feds-signIn');
     this.profileIconButton = page.locator('.feds-profile-button');
     this.profileImage = page.locator('div#feds-profile-menu img[alt="profile avatar"]');
     this.profileName = page.locator('.feds-profile-name');
@@ -17,7 +17,7 @@ export default class ProfileDropdownPage {
   }
 
   async toggleProfileDropdown() {
-    await this.page.locator('.feds-profile-button').click();
+    await this.profileIconButton.click();
   }
 
   getRenewNotification(type) {
@@ -34,6 +34,13 @@ export default class ProfileDropdownPage {
 
   getLogoutByText(text) {
     return this.page.locator(`a:has-text("${text}")`);
+  }
+
+  async clickOnBodyOutside() {
+    const vp = this.page.viewportSize();
+    const width = vp?.width ?? (await this.page.evaluate(() => window.innerWidth));
+    const height = vp?.height ?? (await this.page.evaluate(() => window.innerHeight));
+    await this.page.mouse.click(width / 2, height * 0.8);
   }
 
   async verifyProfileDropdownAfterLogin(data) {

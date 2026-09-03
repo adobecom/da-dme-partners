@@ -40,6 +40,7 @@ export default {
         signInButtonInternationalText: 'Sign In',
         keyword: 'Korea',
         asiaPacificKorea: 'Asia Pacific,Korea',
+        asiaChina: 'China',
         tlp5CommercialCheckBox: 'TLP 5 Commercial',
         europeEastCheckBox: 'Europe East',
         expectedURL: '/na/channelpartners/#',
@@ -107,10 +108,12 @@ export default {
       tcid: '9',
       name: '@pricelist-validation-distributor-india-user',
       path: '/na/channelpartners/?georouting=off&martech=off',
-      // tags: '@dme-pricelists @regression @circleCi',
+      tags: '@dme-pricelists @regression @circleCi',
       data: {
         partnerLevel: 'cpp-distributor-india:',
         text: 'Asia Pacific,Korea',
+        checkBox: 'Asia Pacific',
+        regionFilter: 'Region',
       },
     },
     {
@@ -121,6 +124,8 @@ export default {
       data: {
         partnerLevel: 'cpp-kr-distributor:',
         text: 'Asia Pacific,Korea',
+        checkBox: 'Korea',
+        regionFilter: '지역',
       },
     },
     {
@@ -132,6 +137,7 @@ export default {
         partnerLevel: 'cpp-latam-distributor:',
         checkBox: 'Latin America (NA based)',
         text: 'Latin America (NA based)',
+        regionFilter: 'Region',
       },
     },
     {
@@ -143,6 +149,7 @@ export default {
         partnerLevel: 'cpp-distributor-us:',
         checkBox: 'North America',
         text: 'North America',
+        regionFilter: 'Region',
       },
     },
   ],

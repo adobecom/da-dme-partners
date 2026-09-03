@@ -1,9 +1,11 @@
-/* MWPW-159021 */
+/* PARTNERS_NAVIGATION START */
+
+/* MWPW-159021 - Fix eslint errors */
 /* stylelint-disable */
+/* PARTNERS_NAVIGATION END */
 /* Custom properties (variables) */
 :root {
   /* Top navigation - box model */
-  --feds-height-nav: 63px;
   --feds-maxWidth-nav: 1440px;
   --feds-minWidth-menu: 1200px;
   --feds-height-breadcrumbs: 33px;
@@ -31,8 +33,15 @@
   --feds-color-link: #292929;
   --feds-color-blue-link: #274dea;
   --feds-color-link--hover: #1d3ecf;
+  --feds-color-link-dark: #DBDBDB;
+  --feds-borderColor-link-dark: #393939;
   --feds-color-navLink-description: #505050;
   --feds-color-link-breadcrumbs: #707070;
+
+  /* CTA Buttons */
+  --feds-cta-primary-bg: #3b63fb;
+  --feds-cta-primary-bg--hover: #274dea;
+
   /* Footer */
   --feds-background-footer: #fafafa;
   --feds-borderColor-featuredProducts: #999;
@@ -49,6 +58,12 @@
 
   /* App banner */
   --app-banner-height: 76px;
+
+  /* Skeleton loading state */
+  --feds-skeleton-color-1: #D3D3D3;
+  --feds-skeleton-color-2: #EAEAEA;
+  --feds-skeleton-color-3: #D3D3D3;
+  --feds-skeleton-opacity: 0.7;
 }
 
 /* Nav Link styles */
@@ -63,6 +78,14 @@
   flex-shrink: 0;
 }
 
+.feds-popup .has-subheader .feds-navLink:not(.feds-navLink--header) {
+  padding: 12px 24px;
+}
+
+header.new-nav .feds-nav > section.feds-navItem > .feds-popup .has-subheader .feds-navLink:not(.feds-navLink--header) .feds-navLink-title {
+  font-weight: 500;
+}
+
 .feds-navLink:hover,
 .feds-navLink:focus {
   color: var(--feds-color-link--hover);
@@ -72,8 +95,16 @@
   column-gap: 15px;
 }
 
+html[lang="ja-jp"] a.feds-navLink wbr {
+  display: none;
+}
+
 .feds-navLink--blue {
   color: var(--feds-color-blue-link);
+}
+
+.feds-navLink--black {
+  color: var(--feds-color-link);
 }
 
 .feds-navLink--hoverCaret {
@@ -118,12 +149,16 @@
   left: 18px;
 }
 
-.feds-navLink[class *= '-gradient'] {
+.feds-navLink--gray-gradient {
   display: none;
+  background: #eaeaea;
 }
 
-.feds-navLink-image,
-.feds-navLink-description {
+.global-navigation.new-nav .feds-navLink--gray-gradient {
+  display: block;
+}
+
+.feds-navLink-image {
   display: none;
 }
 
@@ -134,6 +169,16 @@
 
 header.global-navigation.ready {
   visibility: visible !important;
+}
+
+.feds-navLink.feds-navLink--header {
+  pointer-events: none;
+}
+
+.feds-navLink-description {
+  display: flex;
+  font-size: 12px;
+  color: var(--feds-color-navLink-description);
 }
 
 /* Desktop styles */
@@ -183,6 +228,10 @@ header.global-navigation.ready {
     padding: 0 8px;
   }
 
+  .feds-topnav--overflowing .feds-popup .feds-navLink {
+    padding: 6px 32px;
+  }
+
   .feds-topnav--overflowing .feds-navItem--active > .feds-navLink:before {
     margin: 0 8px;
   }
@@ -218,24 +267,32 @@ header.global-navigation.ready {
     margin-right: 5px;
   }
 
-  .feds-navLink-image {
+  .global-navigation .feds-navLink-image {
     display: flex;
   }
 
-  .feds-navLink-image picture,
-  .feds-navLink-image img {
+  .global-navigation .feds-navLink-image picture,
+  .global-navigation .feds-navLink-image img {
     display: block;
   }
 
-  .feds-navLink-image picture {
+  .global-navigation .feds-navLink-image picture {
     width: max-content;
     max-width: 25px;
   }
 
-  .feds-navLink-description {
+  .global-footer:not(.mobile) .feds-navLink-image {
     display: flex;
-    font-size: 12px;
-    color: var(--feds-color-navLink-description);
+  }
+
+  .global-footer:not(.mobile) .feds-navLink-image picture,
+  .global-footer:not(.mobile) .feds-navLink-image img {
+    display: block;
+  }
+
+  .global-footer:not(.mobile) .feds-navLink-image picture {
+    width: max-content;
+    max-width: 25px;
   }
 
   .feds-navLink:hover .feds-navLink-description,
@@ -279,10 +336,6 @@ header.global-navigation.ready {
     display: none;
   }
 
-  .feds-navLink.feds-navLink--header {
-    pointer-events: none;
-  }
-
   [dir = "rtl"] .feds-navLink[class *= '-gradient'] .feds-navLink-title:after {
     transform: rotate(135deg);
   }
@@ -314,9 +367,5 @@ header.global-navigation.ready {
 
   .feds-navLink--ai-gradient {
     background: linear-gradient(90deg, #bce3ff, #ffe9d3, #f8d5e4);
-  }
-
-  .feds-navLink--gray-gradient {
-    background: #eaeaea;
   }
 }

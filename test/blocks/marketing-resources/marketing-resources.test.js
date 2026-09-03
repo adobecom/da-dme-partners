@@ -43,25 +43,25 @@ describe('Marketing Resources block', () => {
 
   it('replaces block with marketing-resources-cards and renders cards, search, and pagination', async () => {
     const app = await setupAndRunInit();
-    expect(app.shadowRoot).to.exist;
-    const collection = app.shadowRoot.querySelector('.partner-cards-collection');
+    expect(app).to.exist;
+    const collection = app.querySelector('.partner-cards-collection');
     expect(collection).to.exist;
     expect(collection.innerHTML).to.include('single-marketing-resources-card');
-    expect(app.shadowRoot.querySelector('.card-wrapper')).to.exist;
-    expect(app.shadowRoot.querySelector('.search-wrapper sp-search')).to.exist;
-    expect(app.shadowRoot.querySelector('.pagination-wrapper')).to.exist;
-    expect(app.shadowRoot.querySelector('.load-more-btn')).to.exist;
+    expect(app.querySelector('.card-wrapper')).to.exist;
+    expect(app.querySelector('.search-wrapper sp-search')).to.exist;
+    expect(app.querySelector('.pagination-wrapper')).to.exist;
+    expect(app.querySelector('.load-more-btn')).to.exist;
   });
 
   it('renders mobile filters when viewport is narrow', async () => {
     const app = await setupAndRunInit(500);
-    expect(app.shadowRoot.querySelector('.filters-btn-mobile')).to.exist;
-    expect(app.shadowRoot.querySelector('.all-filters-wrapper-mobile')).to.exist;
+    expect(app.querySelector('.filters-btn-mobile')).to.exist;
+    expect(app.querySelector('.all-filters-wrapper-mobile')).to.exist;
   });
 
   it('renders desktop sidebar filters when viewport is wide', async () => {
     const app = await setupAndRunInit(1500);
-    expect(app.shadowRoot.querySelector('.sidebar-filters-wrapper')).to.exist;
+    expect(app.querySelector('.sidebar-filters-wrapper')).to.exist;
   });
 
   describe('createFilters method', () => {

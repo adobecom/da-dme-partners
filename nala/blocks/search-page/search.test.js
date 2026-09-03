@@ -370,8 +370,12 @@ test.describe('Search Page validation', () => {
         searchTest.openPreviewPages.click(),
       ]);
 
-      const newTabUrl = newTab.url();
-      expect(newTabUrl).toContain(data.expectedUrl);
+      // Wait for the popup to navigate; toHaveURL() only accepts string/RegExp, not a predicate.
+      await newTab.waitForURL(
+        (url) => url.href.includes(data.expectedUrl),
+        { timeout: 30000 },
+      );
+      expect(newTab.url()).toContain(data.expectedUrl);
 
       await newTab.close();
     });
@@ -408,7 +412,7 @@ test.describe('Search Page validation', () => {
       await searchTest.checkFileIcon(`${data.iconAnnouncement}`);
 
       // check if the download icon is disabled
-      await expect(searchTest.download).toBeDisabled();
+      await expect(searchTest.downloadDisabled).toHaveAttribute('aria-disabled', 'true');
 
       // check if the preview icon is enabled
       await expect(searchTest.openPreview).toBeEnabled();
@@ -464,6 +468,20 @@ test.describe('Search Page validation', () => {
       await searchTest.searchAsset(`${data.searchKeyWord6}`);
       await page.waitForLoadState('networkidle');
       await expect(searchTest.noResultsTitle).toBeVisible();
+    });
+  });
+  test(`${features[15].name}, ${features[15].tags}`, async ({ page }) => {
+    const { data, path } = features[15];
+
+    await test.step('Sign In with user', async () => {
+      await page.goto(path);
+      await page.waitForLoadState('domcontentloaded');
+
+      await signInSearchTest.signIn(page, data.partnerLevel);
+      await searchTest.searchCard.first().waitFor({ state: 'visible', timeout: 40000 });
+      await page.pause();
+      await searchTest.appleydFilter.waitFor({ state: 'visible', timeout: 10000 });
+      await searchTest.checkCardTitle(`${data.assetTitle}`);
     });
   });
 });
