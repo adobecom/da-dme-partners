@@ -139,7 +139,6 @@ async function loadPage() {
   if (previewHosts.includes(window.location.host)) {
     sidekickListener(CONFIG.locales);
   }
-
   // Run when navigating back/forward
   window.addEventListener('pageshow', () => {
     loadPageToAnchor();
