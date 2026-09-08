@@ -8,6 +8,7 @@ export async function isBranchURLValid(url, includeAuthorization = false) {
       console.log('da-dme MILO_AEM_API_KEY contains hlx');
     }
     const headers = includeAuthorization ? { Authorization: `token ${process.env.MILO_AEM_API_KEY}` } : {};
+    console.log('da-dme URL:', JSON.stringify(url));
     const response = await head(url, { headers });
       console.log('da-dme response', response, response.status);
 
