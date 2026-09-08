@@ -13,7 +13,8 @@
     "lint": "npm run lint:js && npm run lint:css",
     "lint:js": "eslint .",
     "lint:css": "stylelint 'edsdme/blocks/**/*.css' 'edsdme/styles/*.css'",
-    "lint:fix": "eslint --fix --ext .js,.jsx ."
+    "lint:fix": "eslint --fix --ext .js,.jsx .",
+    "import-images": "node tools/importImagesAfterContentMigration/index.js"
   },
   "repository": {
     "type": "git",
@@ -53,7 +54,8 @@
   },
   "dependencies": {
     "@playwright/test": "^1.58.2",
-    "axios": "^1.16.0"
+    "axios": "^1.16.0",
+    "cheerio": "^1.0.0"
   },
   "overrides": {
     "nwsapi": "2.2.16"
