@@ -1,12 +1,9 @@
-// PARTNERS_NAVIGATION START
-// MWPW-159021
-/* eslint-disable */
-// PARTNERS_NAVIGATION END
 import { toFragment, lanaLog } from '../../utilities/utilities.js';
 
 // PARTNERS_NAVIGATION START
 // MWPW-192601 - Sync Milo Codebase
 import { getLibs } from '../../../../scripts/utils.js';
+
 const miloLibs = getLibs();
 const { getMetadata, getConfig, getFederatedUrl } = await import(`${miloLibs}/utils/utils.js`);
 // PARTNERS_NAVIGATION END

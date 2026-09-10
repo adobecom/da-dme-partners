@@ -4,7 +4,7 @@ import './SinglePartnerCard.js';
 const miloLibs = getLibs();
 const { html, LitElement, repeat } = await import(`${miloLibs}/deps/lit-all.min.js`);
 const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.js`);
-const { replaceText } = await import(`${miloLibs}/features/placeholders.js`);
+const { replaceText, fetchPlaceholders } = await import(`${miloLibs}/features/placeholders.js`);
 
 export function filterRestrictedCardsByCurrentSite(cards) {
   const currentSite = window.location.pathname.split('/')[1];
@@ -19,6 +19,27 @@ export function filterRestrictedCardsByCurrentSite(cards) {
       console.error(`Invalid URL: ${cardUrl}`, error);
       return false;
     }
+  });
+}
+
+const EN_PLACEHOLDERS_PATH = '/edsdme/partners-shared/placeholders.json';
+
+export async function getEnglishLabels(config) {
+  const placeholders = await fetchPlaceholders({
+    config,
+    placeholderPath: EN_PLACEHOLDERS_PATH,
+  }).catch(() => ({}));
+
+  return new Map(
+    Object.entries(placeholders ?? {}).map(([key, value]) => [key.trim().toLowerCase(), value]),
+  );
+}
+
+export function sortTagsAlphabetically(tags, englishLabels = new Map()) {
+  const sortValue = (tag) => englishLabels.get(tag.key.trim().toLowerCase()) ?? tag.key;
+  return [...tags].sort((a, b) => {
+    if (!!a.initialHidden !== !!b.initialHidden) return a.initialHidden ? 1 : -1;
+    return sortValue(a).localeCompare(sortValue(b), 'en', { numeric: true, sensitivity: 'base' });
   });
 }
 
@@ -293,6 +314,11 @@ export default class PartnerCards extends LitElement {
         const localizedKey = `{{${tag.key}}}`;
         this.blockData.localizedText[localizedKey] = tag.value;
       });
+
+    const englishLabels = await getEnglishLabels(this.blockData.config);
+    this.blockData.filters.forEach((filterObj) => {
+      filterObj.tags = sortTagsAlphabetically(filterObj.tags, englishLabels);
+    });
 
     this.blockData.filters = this.blockData.filters.filter(
       (filterObj) => filterObj.tags.length > 0,

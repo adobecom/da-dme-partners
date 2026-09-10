@@ -31,7 +31,7 @@ test.describe('Validate redirects flow', () => {
     test(`${feature.name},${feature.tags}`, async ({ page, baseURL, context }) => {
       const { data, path } = feature;
       await test.step('Go to the redirects page', async () => {
-        await page.goto(`${baseURL}${path}`, { waitUntil: 'networkidle' });
+        await page.goto(`${baseURL}${path}`, { waitUntil: 'domcontentloaded' });
       });
 
       await test.step('Verify CBC Enablement Link', async () => {
@@ -48,22 +48,30 @@ test.describe('Validate redirects flow', () => {
           `${baseURL}${path}`,
           context,
         );
-        await page.reload({ waitUntil: 'networkidle' });
+        await page.reload({ waitUntil: 'domcontentloaded' });
+        await page.waitForLoadState('domcontentloaded');
       });
 
-      await test.step('Verify CBC Enablment Link with signed in user', async () => {
-        const cbcEnablementLink = await redirectsPage.getLinkByText(data.cbcEnablementLabel).first();
-        const href = await cbcEnablementLink.getAttribute('href');
+      await test.step('Verify CBC Enablement Link with signed in user', async () => {
+        const cbcEnablementLink = redirectsPage
+          .getLinkByText(data.cbcEnablementLabel)
+          .first();
 
-        expect(href).toContain(data.cbcEnablementLinkSignInUser);
-        await expect(cbcEnablementLink).toHaveAttribute('target', '_blank');
+        await expect(cbcEnablementLink).toHaveAttribute(
+          'href',
+          expect.stringContaining(data.cbcEnablementLinkSignInUser),
+        );
+
+        await expect(cbcEnablementLink).toHaveAttribute(
+          'target',
+          '_blank',
+        );
       });
 
       await test.step('Verify helpx.adobe.com link', async () => {
         const helpXAdobeLink = redirectsPage.getLinkByText('helpx.adobe.com').first();
-        const href = await helpXAdobeLink.getAttribute('href');
 
-        expect(href).toContain(data.helpXAdobeLink);
+        await expect(helpXAdobeLink).toHaveAttribute('href', expect.stringContaining(data.helpXAdobeLink));
         await expect(helpXAdobeLink).toHaveAttribute('target', '_blank');
       });
 

@@ -2,7 +2,8 @@ import { readFile } from '@web/test-runner-commands';
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import init from '../../../edsdme/blocks/marketing-resources/marketing-resources.js';
-import PartnerCards from '../../../edsdme/components/PartnerCards.js';
+import MarketingResourcesCards from '../../../edsdme/blocks/marketing-resources/marketing-resources-cards.js';
+import PartnerCards, { sortTagsAlphabetically } from '../../../edsdme/components/PartnerCards.js';
 
 const cardsString = await readFile({ path: './mocks/cards.json' });
 const cardsData = JSON.parse(cardsString);
@@ -41,6 +42,70 @@ describe('Marketing Resources block', () => {
     return app;
   }
 
+  describe('MarketingResourcesCards overrides', () => {
+    it('adds a placeholder filter tag list when the authored filter row has only two columns', () => {
+      const row = document.createElement('div');
+      row.innerHTML = '<div>Filter</div><div>Product</div>';
+
+      const instance = new MarketingResourcesCards();
+      instance.blockData = {
+        tableData: [row],
+        localizedText: { '{{filter}}': 'Filter' },
+      };
+
+      instance.setBlockData();
+
+      expect(instance.blockData.filters).to.have.length(1);
+      expect(instance.blockData.filters[0].key).to.equal('product');
+      expect(row.children).to.have.length(3);
+      expect(row.children[2].querySelector('ul')).to.exist;
+    });
+
+    it('creates a tag list for a filter row when there is no <ul> in the tag column', () => {
+      const row = document.createElement('div');
+      const label = document.createElement('div');
+      const value = document.createElement('div');
+      const tagColumn = document.createElement('div');
+      label.textContent = 'Filter';
+      value.textContent = 'Product';
+      row.append(label, value, tagColumn);
+
+      const instance = new MarketingResourcesCards();
+      instance.blockData = {
+        tableData: [row],
+        localizedText: { '{{filter}}': 'Filter', '{{product}}': 'Product' },
+      };
+
+      instance.setBlockData();
+
+      expect(tagColumn.querySelector('ul')).to.exist;
+      expect(instance.blockData.filters[0].value).to.equal('Product');
+    });
+
+    it('filters cards to the current site before rendering results', () => {
+      window.history.pushState({}, '', '/channelpartners/');
+
+      const instance = new MarketingResourcesCards();
+      const data = {
+        cards: [
+          { id: 'same-site', contentArea: { url: 'https://partners.example.com/channelpartners/resource-1' } },
+          { id: 'other-site', contentArea: { url: 'https://partners.example.com/other-site/resource-2' } },
+        ],
+      };
+
+      instance.onDataFetched(data);
+
+      expect(data.cards.map((card) => card.id)).to.deep.equal(['same-site']);
+    });
+
+    it('uses the collections label for the results text', () => {
+      const instance = new MarketingResourcesCards();
+      instance.blockData = { localizedText: { '{{collections}}': 'Collections' } };
+
+      expect(instance.resultsText).to.equal('Collections');
+    });
+  });
+
   it('replaces block with marketing-resources-cards and renders cards, search, and pagination', async () => {
     const app = await setupAndRunInit();
     expect(app).to.exist;
@@ -62,6 +127,56 @@ describe('Marketing Resources block', () => {
   it('renders desktop sidebar filters when viewport is wide', async () => {
     const app = await setupAndRunInit(1500);
     expect(app.querySelector('.sidebar-filters-wrapper')).to.exist;
+  });
+
+  describe('sortTagsAlphabetically', () => {
+    const asTags = (keys) => keys.map((key) => ({ key, initialHidden: false }));
+
+    it('orders by English label, not by tag key', () => {
+      const englishLabels = new Map([
+        ['adobe-captivate-prime', 'Adobe Captivate Prime'],
+        ['adobe-cc-education', 'Adobe Creative Cloud for education'],
+        ['adobe-cc-teams', 'Adobe Creative Cloud for teams'],
+        ['adobe-coldfusion', 'Adobe ColdFusion'],
+        ['adobe-connect', 'Adobe Connect'],
+        ['adobe-creative-cloud', 'Adobe Creative Cloud'],
+      ]);
+      const tags = asTags([
+        'adobe-cc-teams',
+        'adobe-coldfusion',
+        'adobe-creative-cloud',
+        'adobe-captivate-prime',
+        'adobe-cc-education',
+        'adobe-connect',
+      ]);
+
+      expect(sortTagsAlphabetically(tags, englishLabels).map((t) => t.key)).to.deep.equal([
+        'adobe-captivate-prime',
+        'adobe-coldfusion',
+        'adobe-connect',
+        'adobe-creative-cloud',
+        'adobe-cc-education',
+        'adobe-cc-teams',
+      ]);
+    });
+
+    it('falls back to the tag key when a value has no English label', () => {
+      const tags = asTags(['pepe-bundle', 'behance', 'adobe-sign']);
+
+      expect(sortTagsAlphabetically(tags, new Map()).map((t) => t.key)).to.deep.equal([
+        'adobe-sign',
+        'behance',
+        'pepe-bundle',
+      ]);
+    });
+
+    it('does not mutate the array it is given', () => {
+      const tags = asTags(['zeta', 'alpha']);
+
+      sortTagsAlphabetically(tags, new Map());
+
+      expect(tags.map((t) => t.key)).to.deep.equal(['zeta', 'alpha']);
+    });
   });
 
   describe('createFilters method', () => {
@@ -139,6 +254,90 @@ describe('Marketing Resources block', () => {
       const topicTags = topicFilter.tags.map((t) => t.key);
       expect(topicTags).to.include('onboarding');
       expect(topicTags).to.include('getting-started');
+    });
+
+    it('orders product and topic filter values alphabetically', async () => {
+      const app = await setupAndRunInit();
+      await app.updateComplete;
+
+      app.blockData.filters = [
+        {
+          key: 'product',
+          value: 'Product',
+          tags: [],
+          hideTags: true,
+          hasHiddenTags: false,
+        },
+        {
+          key: 'topic',
+          value: 'Topic',
+          tags: [],
+          hideTags: true,
+          hasHiddenTags: false,
+        },
+      ];
+
+      app.cardFiltersMap = new Map([
+        ['product', ['adobe-sign', 'adobe-photoshop', 'adobe-acrobat']],
+        ['topic', ['onboarding', 'getting-started', 'analytics']],
+      ]);
+
+      app.blockData.localizedText = {
+        ...app.blockData.localizedText,
+        '{{product}}': 'Product',
+        '{{topic}}': 'Topic',
+      };
+
+      await app.createFilters();
+
+      const productTags = app.blockData.filters.find((f) => f.key === 'product').tags;
+      const topicTags = app.blockData.filters.find((f) => f.key === 'topic').tags;
+
+      expect(productTags.map((t) => t.key)).to.deep.equal([
+        'adobe-acrobat',
+        'adobe-photoshop',
+        'adobe-sign',
+      ]);
+      expect(topicTags.map((t) => t.key)).to.deep.equal([
+        'analytics',
+        'getting-started',
+        'onboarding',
+      ]);
+    });
+
+    it('keeps tags hidden behind "show more" after the visible ones when sorting', async () => {
+      const app = await setupAndRunInit();
+      await app.updateComplete;
+
+      app.blockData.filters = [
+        {
+          key: 'product',
+          value: 'Product',
+          tags: [
+            { key: 'adobe-target', parentKey: 'product', value: 'Adobe Target', checked: false, initialHidden: true },
+            { key: 'adobe-sign', parentKey: 'product', value: 'Adobe Sign', checked: false, initialHidden: false },
+          ],
+          hideTags: true,
+          hasHiddenTags: true,
+        },
+      ];
+
+      app.cardFiltersMap = new Map([['product', ['adobe-acrobat']]]);
+
+      app.blockData.localizedText = {
+        ...app.blockData.localizedText,
+        '{{product}}': 'Product',
+      };
+
+      await app.createFilters();
+
+      const productTags = app.blockData.filters.find((f) => f.key === 'product').tags;
+      expect(productTags.map((t) => t.key)).to.deep.equal([
+        'adobe-acrobat',
+        'adobe-sign',
+        'adobe-target',
+      ]);
+      expect(productTags[2].initialHidden).to.be.true;
     });
 
     it('creates filters with correct tag structure', async () => {

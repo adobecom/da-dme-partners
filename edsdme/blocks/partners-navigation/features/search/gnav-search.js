@@ -1,8 +1,3 @@
-// PARTNERS_NAVIGATION START
-// MWPW-159021 - Fix eslint errors
-/* eslint-disable */
-// PARTNERS_NAVIGATION END
-
 import {
   toFragment,
   isDesktop,
@@ -11,14 +6,13 @@ import {
   closeAllDropdowns,
   logErrorFor,
 } from '../../utilities/utilities.js';
-import {getLibs} from '../../../../scripts/utils.js';
-import {generateRequestForSearchAPI} from "../../../utils/utils.js";
+import { getLibs } from '../../../../scripts/utils.js';
+import { generateRequestForSearchAPI } from '../../../utils/utils.js';
 
 const miloLibs = getLibs();
 const { replaceKeyArray } = await import(`${miloLibs}/features/placeholders.js`);
 const { getConfig, getFedsPlaceholderConfig } = await import(`${miloLibs}/utils/utils.js`);
 const { debounce } = await import(`${miloLibs}/utils/action.js`);
-
 
 const CONFIG = {
   suggestions: {
@@ -31,9 +25,12 @@ const CONFIG = {
   },
 };
 
-const { locale } = getConfig();
-const [, country = 'US'] = locale.ietf.split('-');
+// PARTNERS_NAVIGATION START
+// MWPW-204354 - Remove all /* eslint-disable */
+const SUGGESTIONS_SIZE = 10;
 
+const { locale } = getConfig();
+// PARTNERS_NAVIGATION END
 class Search {
   constructor(config) {
     this.icon = config.icon;
@@ -141,16 +138,16 @@ class Search {
   // PARTNERS_NAVIGATION START
   // MWPW-154138 Search icon - Restricted global navigation
   getSuggestions(query = this.query) {
-   return generateRequestForSearchAPI(
-        {
-          size: SUGGESTIONS_SIZE,
-          term: query,
-          suggestions: true,
-        }
-      ).then((data) => data.json())
-        .catch(() => {
-          // do nothing
-        });
+    return generateRequestForSearchAPI(
+      {
+        size: SUGGESTIONS_SIZE,
+        term: query,
+        suggestions: true,
+      },
+    ).then((data) => data.json())
+      .catch(() => {
+        // do nothing
+      });
   }
   // PARTNERS_NAVIGATION END
 
@@ -182,7 +179,8 @@ class Search {
         }
       })
       .catch(() => {
-        this.resultsList.replaceChildren(this.getViewAllResultsTemplate());  // MWPW-154138 - Search icon - Restricted global navigation
+        // MWPW-154138 - Search icon - Restricted global navigation
+        this.resultsList.replaceChildren(this.getViewAllResultsTemplate());
         if (this.parent instanceof HTMLElement) {
           this.parent.classList.remove(CONFIG.selectors.hasResults);
         }
@@ -260,7 +258,7 @@ class Search {
 
       // PARTNERS_NAVIGATION START
       /* MWPW-162729 - Showing icon for assets in gnav and search typeahead */
-      const icon = result.type === 'asset' ? `<span class="feds-search-result-icon" style="background-image: url('/edsdme/img/icons/default.svg')"></span>` : '';
+      const icon = result.type === 'asset' ? '<span class="feds-search-result-icon" style="background-image: url(\'/edsdme/img/icons/default.svg\')"></span>' : '';
 
       const resultTemplate = toFragment`<li>
           <a href="${Search.getSearchLink(resultLabel)}" class="feds-search-result" aria-label="${resultLabel}">

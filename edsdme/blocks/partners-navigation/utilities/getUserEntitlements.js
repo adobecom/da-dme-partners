@@ -1,8 +1,6 @@
-// PARTNERS_NAVIGATION START
-// MWPW-159021 - Fix eslint errors
-/* eslint-disable */
-// PARTNERS_NAVIGATION END
-import { getConfig } from '../../../utils/utils.js';
+/* eslint import/no-relative-packages: 0 */
+/* eslint-disable camelcase */
+import { getConfig } from '../../utils/utils.js';
 
 const API_WAIT_TIMEOUT = 10000;
 const FORMAT_RAW = 'raw';

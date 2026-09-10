@@ -22,8 +22,6 @@ import {
   redirectLoggedinPartner,
   isRenew,
   hasSalesCenterAccess,
-  getRenewBanner,
-  getSanctionedBanner,
   updateIMSConfig,
   getLocale,
   preloadResources,
@@ -31,6 +29,7 @@ import {
   getNodesByXPath,
   setLibs,
   enableGeoPopup,
+  deleteCookieValue,
 } from '../../edsdme/scripts/utils.js';
 
 describe('Test utils.js', () => {
@@ -40,6 +39,9 @@ describe('Test utils.js', () => {
   });
   afterEach(() => {
     document.getElementsByTagName('html')[0].innerHTML = '';
+    deleteCookieValue('partner_data');
+    deleteCookieValue('partner_info');
+    deleteCookieValue('partner_redirects_count');
   });
   it('Milo libs', () => {
     const location = {
@@ -209,10 +211,6 @@ describe('Test utils.js', () => {
     document.cookie = 'test_cookie=test_value';
     expect(getCookieValue('test_cookie')).toEqual('test_value');
   });
-  it('Should get empty string if cookie JSON is not valid', () => {
-    document.cookie = 'partner_data={cpp: {test1:test test2:test}}';
-    expect(getPartnerCookieValue('cpp', 'test_cookie')).toEqual('');
-  });
   it('Should return partner data cookie object', () => {
     const cookieObject = { CPP: { status: 'MEMBER' } };
     document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
@@ -267,6 +265,25 @@ describe('Test utils.js', () => {
     document.cookie = `partner_data=${JSON.stringify(cookieObjectMember)}`;
     expect(redirectLoggedinPartner()).toBeFalsy();
   });
+  it('Don\'t redirect logged in partner if adobe-loggedin-no-redirect meta is present', () => {
+    const fakeWindow = { location: { assign: jest.fn() } };
+    const cookieObjectMember = { CPP: { status: 'MEMBER' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObjectMember)}`;
+    document.cookie = `partner_info=${JSON.stringify({})}`;
+
+    const targetMeta = document.createElement('meta');
+    targetMeta.name = 'adobe-target-after-login';
+    targetMeta.content = '/channelpartners/home';
+    document.head.appendChild(targetMeta);
+
+    const noRedirectMeta = document.createElement('meta');
+    noRedirectMeta.name = 'adobe-loggedin-no-redirect';
+    noRedirectMeta.content = 'true';
+    document.head.appendChild(noRedirectMeta);
+
+    redirectLoggedinPartner(fakeWindow);
+    expect(fakeWindow.location.assign).not.toHaveBeenCalled();
+  });
   it('Redirect logged in partner to protected home', () => {
     const fakeWindow = { location: { assign: jest.fn() } };
     const cookieObjectMember = { CPP: { status: 'MEMBER' } };
@@ -276,8 +293,30 @@ describe('Test utils.js', () => {
     metaTag.content = '/channelpartners/home';
     document.head.appendChild(metaTag);
     redirectLoggedinPartner(fakeWindow);
-    const { calls } = fakeWindow.location.assign.mock;
-    expect(calls[0][0]).toBe(metaTag.content);
+    expect(fakeWindow.location.assign).toHaveBeenCalledWith('/channelpartners/home');
+  });
+  it('Don\'t redirect logged in partner if adobe-target-after-login is NONE', () => {
+    const fakeWindow = { location: { assign: jest.fn() } };
+    const cookieObjectMember = { CPP: { status: 'MEMBER' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObjectMember)}`;
+    const metaTag = document.createElement('meta');
+    metaTag.name = 'adobe-target-after-login';
+    metaTag.content = 'NONE';
+    document.head.appendChild(metaTag);
+    redirectLoggedinPartner(fakeWindow);
+    expect(fakeWindow.location.assign).not.toHaveBeenCalled();
+  });
+  it('Don\'t redirect logged in partner if redirect count reaches max', () => {
+    const fakeWindow = { location: { assign: jest.fn() } };
+    const cookieObjectMember = { CPP: { status: 'MEMBER' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObjectMember)}`;
+    document.cookie = 'partner_redirects_count=3';
+    const metaTag = document.createElement('meta');
+    metaTag.name = 'adobe-target-after-login';
+    metaTag.content = '/channelpartners/home';
+    document.head.appendChild(metaTag);
+    redirectLoggedinPartner(fakeWindow);
+    expect(fakeWindow.location.assign).not.toHaveBeenCalled();
   });
   it('Check if partners account is expired', () => {
     const expiredDate = new Date();
@@ -311,237 +350,13 @@ describe('Test utils.js', () => {
     expect(accountStatus).toEqual('suspended');
     expect(daysNum).toBeLessThanOrEqual(60);
   });
-  it('Don\'t show renew banner if partner has valid account', async () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 40);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
-    };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    expect(await getRenewBanner()).toBeFalsy();
-  });
-  it('Show renew banner', async () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
-    };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const getConfig = () => ({ locale: '' });
-    global.fetch = jest.fn(() => Promise.resolve({
-      ok: true,
-      text: () => Promise.resolve('<div class="notification">Test</div>'),
-    }));
-    const main = document.createElement('main');
-    document.body.appendChild(main);
-    await getRenewBanner(getConfig);
-    const banner = document.querySelector('.notification');
-    expect(banner).toBeTruthy();
-  });
-  it('Don\'t show renew banner', async () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 80);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
-    };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const getConfig = () => ({ locale: '' });
-    global.fetch = jest.fn(() => Promise.resolve({
-      ok: true,
-      text: () => Promise.resolve('<div class="notification">Test</div>'),
-    }));
 
-    const main = document.createElement('main');
-    document.body.appendChild(main);
-    await getRenewBanner(getConfig);
-    const banner = document.querySelector('.notification');
-    expect(banner).toBeFalsy();
-  });
-  it('Renew banner fetch error', async () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
-    };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const getConfig = () => ({ locale: '' });
-    global.fetch = jest.fn(() => Promise.resolve({ ok: false }));
-    const main = document.createElement('main');
-    document.body.appendChild(main);
-    expect(await getRenewBanner(getConfig)).toEqual(null);
-  });
-  it('Don\'t show renew banner if partner has countryCode RU', async () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-        countryCode: 'RU',
-      },
-    };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const getConfig = () => ({ locale: '' });
-    global.fetch = jest.fn(() => Promise.resolve({
-      ok: true,
-      text: () => Promise.resolve('<div class="notification">Test</div>'),
-    }));
-    const main = document.createElement('main');
-    document.body.appendChild(main);
-    await getRenewBanner(getConfig);
-    const banner = document.querySelector('.notification');
-    expect(banner).toBeFalsy();
-  });
-  it('Don\'t show renew banner if partner has countryCode BY', async () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-        countryCode: 'BY',
-      },
-    };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const getConfig = () => ({ locale: '' });
-    global.fetch = jest.fn(() => Promise.resolve({
-      ok: true,
-      text: () => Promise.resolve('<div class="notification">Test</div>'),
-    }));
-    const main = document.createElement('main');
-    document.body.appendChild(main);
-    await getRenewBanner(getConfig);
-    const banner = document.querySelector('.notification');
-    expect(banner).toBeFalsy();
-  });
-  describe('getSanctionedBanner', () => {
-    it('Don\'t show sanctioned banner if partner has countryCode US', async () => {
-      const cookieObject = { CPP: { countryCode: 'US' } };
-      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-      const getConfig = jest.fn(() => ({ locale: { prefix: '' } }));
-      global.fetch = jest.fn();
-
-      const main = document.createElement('main');
-      document.body.appendChild(main);
-
-      await getSanctionedBanner(getConfig);
-
-      const banner = document.querySelector('.notification');
-      expect(banner).toBeFalsy();
-      expect(getConfig).not.toHaveBeenCalled();
-      expect(global.fetch).not.toHaveBeenCalled();
-    });
-
-    it('Show sanctioned banner if partner has countryCode RU', async () => {
-      const cookieObject = { CPP: { countryCode: 'RU' } };
-      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-      const getConfig = () => ({ locale: { prefix: '' } });
-      global.fetch = jest.fn(() => Promise.resolve({
-        ok: true,
-        text: () => Promise.resolve('<div class="notification">Sanctioned Banner Test</div>'),
-      }));
-
-      const main = document.createElement('main');
-      document.body.appendChild(main);
-
-      await getSanctionedBanner(getConfig);
-
-      const banner = document.querySelector('.notification');
-      expect(banner).toBeTruthy();
-      expect(banner.textContent).toEqual('Sanctioned Banner Test');
-    });
-
-    it('Show sanctioned banner if partner has countryCode BY', async () => {
-      const cookieObject = { CPP: { countryCode: 'BY' } };
-      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-      const getConfig = () => ({ locale: { prefix: '/de' } });
-      global.fetch = jest.fn(() => Promise.resolve({
-        ok: true,
-        text: () => Promise.resolve('<div class="notification">Sanctioned BY Test</div>'),
-      }));
-
-      const main = document.createElement('main');
-      document.body.appendChild(main);
-
-      await getSanctionedBanner(getConfig);
-
-      const banner = document.querySelector('.notification');
-      expect(banner).toBeTruthy();
-      expect(banner.textContent).toEqual('Sanctioned BY Test');
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/de/edsdme/partners-shared/fragments/banner-account-sanctioned.plain.html');
-    });
-
-    it('Use custom metadata path for sanctioned banner if present', async () => {
-      const cookieObject = { CPP: { countryCode: 'RU' } };
-      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-
-      const metaTag = document.createElement('meta');
-      metaTag.name = 'banner-account-sanctioned';
-      metaTag.content = '/custom/path/to/sanctioned-banner';
-      document.head.appendChild(metaTag);
-
-      const getConfig = () => ({ locale: { prefix: '' } });
-      global.fetch = jest.fn(() => Promise.resolve({
-        ok: true,
-        text: () => Promise.resolve('<div class="notification">Custom Path Banner</div>'),
-      }));
-
-      const main = document.createElement('main');
-      document.body.appendChild(main);
-
-      await getSanctionedBanner(getConfig);
-
-      const banner = document.querySelector('.notification');
-      expect(banner).toBeTruthy();
-      expect(global.fetch).toHaveBeenCalledWith('http://localhost/custom/path/to/sanctioned-banner.plain.html');
-    });
-
-    it('Sanctioned banner fetch error', async () => {
-      const cookieObject = { CPP: { countryCode: 'RU' } };
-      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-      const getConfig = () => ({ locale: { prefix: '' } });
-      global.fetch = jest.fn(() => Promise.resolve({ ok: false, statusText: 'Not Found' }));
-
-      const main = document.createElement('main');
-      document.body.appendChild(main);
-
-      const result = await getSanctionedBanner(getConfig);
-      expect(result).toBeNull();
-      const banner = document.querySelector('.notification');
-      expect(banner).toBeFalsy();
-    });
-  });
   it('Update ims config if user is signed in', () => {
     jest.useFakeTimers();
     window.adobeIMS = {
       isSignedInUser: () => true,
       adobeIdData: {},
     };
-    // document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
     const metaTag = document.createElement('meta');
     metaTag.name = 'adobe-target-after-logout';
     metaTag.content = '/channelpartners/home';
@@ -550,6 +365,7 @@ describe('Test utils.js', () => {
     jest.advanceTimersByTime(1000);
     const redirectUrl = new URL(window.adobeIMS.adobeIdData.redirect_uri);
     expect(redirectUrl.pathname).toEqual(metaTag.content);
+    jest.useRealTimers();
   });
   it('Update ims config if user is not signed in', () => {
     jest.useFakeTimers();
@@ -567,6 +383,7 @@ describe('Test utils.js', () => {
     const redirectUrl = new URL(window.adobeIMS.adobeIdData.redirect_uri);
     expect(redirectUrl.pathname).toEqual(metaTag.content);
     expect(redirectUrl.searchParams.has('partnerLogin')).toEqual(true);
+    jest.useRealTimers();
   });
   it('Get locale', () => {
     const locales = {
@@ -649,5 +466,17 @@ describe('Test utils.js', () => {
     const fakeWindow = { location: { hostname: 'partners.stage.adobe.com' } };
     document.cookie = 'partner_data=';
     expect(enableGeoPopup(fakeWindow)).toEqual('on');
+  });
+  it('Should get empty string if cookie JSON is not valid', () => {
+    const errorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+    document.cookie = 'partner_data={cpp: {test1:test test2:test}}';
+
+    expect(getPartnerCookieValue('cpp', 'test_cookie')).toEqual('');
+    expect(errorSpy).toHaveBeenCalledWith(
+      'Error parsing partner data object:',
+      expect.any(SyntaxError),
+    );
+
+    errorSpy.mockRestore();
   });
 });

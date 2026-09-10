@@ -27,7 +27,7 @@ export const RESSELER_LEVELS = [LEVELS.REGISTERED, LEVELS.CERTIFIED, LEVELS.GOLD
 const MAX_PARTNER_ERROR_REDIRECTS_COUNT = 3;
 const PARTNER_ERROR_REDIRECTS_COUNT_COOKIE = 'partner_redirects_count';
 
-const SANCTIONED_COUNTRIES = ['ru', 'by'];
+export const SANCTIONED_COUNTRIES = ['ru', 'by'];
 
 export const [setLibs, getLibs] = (() => {
   let libs;
@@ -188,7 +188,7 @@ export function getMetadata(name) {
 }
 
 export function redirectLoggedinPartner(win = window) {
-  if (!isMember()) return;
+  if (!isMember() || getMetadataContent('adobe-loggedin-no-redirect')) return;
   const partnerErrorRedirectsCount = getCookieValue(PARTNER_ERROR_REDIRECTS_COUNT_COOKIE);
   if (partnerErrorRedirectsCount) {
     const count = Number(partnerErrorRedirectsCount);
@@ -240,84 +240,6 @@ export function isRenew() {
   }
   // eslint-disable-next-line consistent-return
   return { accountStatus, daysNum };
-}
-
-export async function getRenewBanner(getConfig) {
-  const programType = getCurrentProgramType();
-
-  const countryCode = getPartnerCookieValue(programType, 'countrycode');
-  if (SANCTIONED_COUNTRIES.includes(countryCode)) return;
-
-  const renew = isRenew();
-  if (!renew) return;
-  const { accountStatus, daysNum } = renew;
-  const bannerFragments = {
-    expired: 'banner-account-expires',
-    suspended: 'banner-account-suspended',
-  };
-  const metadataKey = bannerFragments[accountStatus];
-
-  const config = getConfig();
-  const { prefix } = config.locale;
-  const defaultPath = `${prefix}/edsdme/partners-shared/fragments/${metadataKey}`;
-  const path = getMetadataContent(metadataKey) ?? defaultPath;
-  const url = new URL(path, window.location.origin);
-
-  try {
-    const response = await fetch(`${url}.plain.html`);
-    if (!response.ok) throw new Error(`Network response was not ok ${response.statusText}`);
-
-    const data = await response.text();
-    const componentData = data.replace('$daysNum', daysNum);
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(componentData, 'text/html');
-    const block = doc.querySelector('.notification');
-    const div = document.createElement('div');
-    div.appendChild(block);
-
-    const main = document.querySelector('main');
-    if (main) main.insertBefore(div, main.firstChild);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('There has been a problem with your fetch operation:', error);
-    // eslint-disable-next-line consistent-return
-    return null;
-  }
-}
-
-export async function getSanctionedBanner(getConfig) {
-  const programType = getCurrentProgramType();
-  const countryCode = getPartnerCookieValue(programType, 'countrycode');
-  if (!SANCTIONED_COUNTRIES.includes(countryCode)) return;
-
-  const metadataKey = 'banner-account-sanctioned';
-
-  const config = getConfig();
-  const { prefix } = config.locale;
-  const defaultPath = `${prefix}/edsdme/partners-shared/fragments/${metadataKey}`;
-  const path = getMetadataContent(metadataKey) ?? defaultPath;
-  const url = new URL(path, window.location.origin);
-
-  try {
-    const response = await fetch(`${url}.plain.html`);
-    if (!response.ok) throw new Error(`Network response was not ok ${response.statusText}`);
-
-    const data = await response.text();
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(data, 'text/html');
-    const block = doc.querySelector('.notification');
-
-    const div = document.createElement('div');
-    div.appendChild(block);
-
-    const main = document.querySelector('main');
-    if (main) main.insertBefore(div, main.firstChild);
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error('There has been a problem with your fetch operation:', error);
-    // eslint-disable-next-line consistent-return
-    return null;
-  }
 }
 
 export function updateIMSConfig() {
@@ -594,7 +516,7 @@ export async function setFeedback(getConfig) {
     const block = page.querySelector('.feedback');
     const div = document.createElement('div');
     div.appendChild(block);
-    if (main) main.insertBefore(div, main.firstChild);
+    if (main) main.appendChild(div);
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error('Error fetching plain html of feedback fragment:', error);
