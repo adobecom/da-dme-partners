@@ -1,5 +1,5 @@
 {
-  "previewHost": "main--dme-partners--adobecom.aem.page",
+  "previewHost": "main--da-dme-partners--adobecom.aem.page",
   "liveHost": "partnerspreview.adobe.com",
   "plugins": [
     {
@@ -26,7 +26,7 @@
       "id": "localize-2",
       "title": "Localize (V2)",
       "environments": [ "edit" ],
-      "url": "https://main--dme-partners--adobecom.aem.page/tools/loc?milolibs=locui",
+      "url": "https://main--da-dme-partners--adobecom.aem.page/tools/loc?milolibs=locui",
       "passReferrer": true,
       "passConfig": true,
       "includePaths": [ "**.xlsx**" ]

@@ -1,7 +1,3 @@
-// PARTNERS_NAVIGATION START
-// MWPW-159021 - Fix eslint errors
-/* eslint-disable */
-// PARTNERS_NAVIGATION END
 import { toFragment, lanaLog } from '../../utilities/utilities.js';
 
 // PARTNERS_NAVIGATION START

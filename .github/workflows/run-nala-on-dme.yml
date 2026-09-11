@@ -1,4 +1,4 @@
-name: DME-Partners Nala Tests
+name: DA-DME-Partners Nala Tests
 
 on:
   pull_request:

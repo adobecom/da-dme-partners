@@ -1,12 +1,9 @@
-// PARTNERS_NAVIGATION START
-// MWPW-159021 - Fix eslint errors
-/* eslint-disable */
-// PARTNERS_NAVIGATION END
 /* eslint import/no-relative-packages: 0 */
 
 // PARTNERS_NAVIGATION START
 // MWPW-157751 - Text is visible through Gnav when scrolling on mobile view
 import { getLibs } from '../../../scripts/utils.js';
+
 const miloLibs = getLibs();
 const {
   getConfig,
@@ -19,7 +16,7 @@ const {
   getFederatedContentRoot,
   getFederatedUrl,
   getFedsPlaceholderConfig,
-  createTag
+  createTag,
 } = await import(`${miloLibs}/utils/utils.js`);
 
 const { replaceText, replaceKey, fetchPlaceholders } = await import(`${miloLibs}/features/placeholders.js`);
@@ -262,7 +259,10 @@ export function getExperienceName() {
 }
 
 export function rootPath(path) {
-  const { miloLibs, codeRoot } = getConfig();
+  // PARTNERS_NAVIGATION START
+  // MWPW-204354 - Remove all /* eslint-disable */
+  const { codeRoot } = getConfig();
+  // PARNERS_NAVIGATION END
   const url = `${miloLibs || codeRoot}/blocks/global-navigation/${path}`;
   return url;
 }
@@ -632,7 +632,10 @@ export async function fetchAndProcessPlainHtml({
 
   const blocks = body.querySelectorAll('.martech-metadata');
   if (blocks.length) {
-    import('../../martech-metadata/martech-metadata.js')
+    // PARTNERS_NAVIGATION START
+    // MWPW-204354 - Remove all /* eslint-disable */
+    import(`${miloLibs}/blocks/martech-metadata/martech-metadata.js`)
+    // PARTNERS_NAVIGATION END
       .then(({ default: decorate }) => blocks.forEach((block) => decorate(block)))
       .catch((e) => {
         lanaLog({
@@ -683,7 +686,6 @@ let processTrackingLabels;
 const getAnalyticsValue = async (str, index) => {
   // PARTNERS_NAVIGATION START
   // MWPW-192601 - Sync Milo Codebase
-  const { miloLibs } = getConfig();
   processTrackingLabels = processTrackingLabels ?? (await import(`${miloLibs}/martech/attributes.js`)).processTrackingLabels;
   // PARTNERS_NAVIGATION END
   if (typeof str !== 'string' || !str.length) return str;
