@@ -95,7 +95,7 @@ test.describe('Validate region selector', () => {
       await expect(regionSelectorPopUp).toBeVisible();
       const titleText = await regionSelectorsPage.getPopUpParagraphByText(data.titleText);
       await expect(titleText).toBeVisible();
-      const titleDesc = await regionSelectorsPage.getPopUpParagraphByText(data.titleDesc);
+      const titleDesc = await regionSelectorsPage.getPopUpOnlyParagraphByText(data.titleDesc);
       await expect(titleDesc).toBeVisible();
       const closePopUpButton = await regionSelectorsPage.getButtonElement(data.closePopUpButton);
       await closePopUpButton.click();
