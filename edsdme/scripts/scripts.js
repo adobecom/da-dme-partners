@@ -5,8 +5,6 @@ import {
   redirectLoggedinPartner,
   updateIMSConfig,
   preloadResources,
-  getRenewBanner,
-  getSanctionedBanner,
   updateNavigation,
   updateFooter,
   enableGeoPopup,
@@ -62,7 +60,7 @@ const CONFIG = {
   codeRoot: '/edsdme',
   contentRoot: '/edsdme/partners-shared',
   imsClientId,
-  imsScope: 'AdobeID,openid,gnav,pps.read,firefly_api,additional_info.roles,read_organizations,account_cluster.read',
+  imsScope: 'AdobeID,openid,gnav,pps.read,read_organizations',
   clientEnv: prodHosts.includes(window.location.host) ? 'prod' : null,
   geoRouting: enableGeoPopup(),
   // fallbackRouting: 'off',
@@ -90,8 +88,11 @@ const CONFIG = {
 
 // Load LCP image immediately
 (function loadLCPImage() {
-  const lcpImg = document.querySelector('img');
-  lcpImg?.removeAttribute('loading');
+  const lcpImg = document.querySelector('main img') || document.querySelector('img');
+  if (!lcpImg) return;
+
+  lcpImg.setAttribute('loading', 'eager');
+  lcpImg.setAttribute('fetchpriority', 'high');
 }());
 
 /*
@@ -119,18 +120,15 @@ function setUpPage() {
 }
 
 async function loadPage() {
-  await prependContent();
+  await prependContent(CONFIG.locales);
   applyPagePersonalization();
   setUpPage();
   redirectLoggedinPartner();
   updateIMSConfig();
   await preloadResources(CONFIG.locales, miloLibs);
   const { loadArea, setConfig, getConfig } = await import(`${miloLibs}/utils/utils.js`);
-
   setConfig({ ...CONFIG, miloLibs });
   await setFeedback(getConfig);
-  await getRenewBanner(getConfig);
-  await getSanctionedBanner(getConfig);
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);

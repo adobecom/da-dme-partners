@@ -340,7 +340,7 @@ test.describe('Search Page validation', () => {
 
     await test.step('Search for assets ', async () => {
       await searchTest.searchForAsset(data.searchText);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await searchTest.checkNumberOfAssets();
       const numberOfAssets = await searchTest.checkNumberOfAssets();
       await searchTest.clearAll();
@@ -353,12 +353,12 @@ test.describe('Search Page validation', () => {
 
     await test.step('Check assets and pages tabs ', async () => {
       await searchTest.assetTabs.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await searchTest.searchCard.first().waitFor({ state: 'visible', timeout: 30000 });
       await searchTest.checkCardTitle(`${data.asset2}`);
 
       await searchTest.pagesTab.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await searchTest.searchCard.first().waitFor({ state: 'visible', timeout: 30000 });
       await searchTest.checkCardTitle(`${data.asset3}`);
       await searchTest.openPreviewPages.waitFor({ state: 'visible', timeout: 30000 });

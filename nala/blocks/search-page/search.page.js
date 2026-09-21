@@ -97,7 +97,7 @@ export default class SearchTest {
 
   async checkNumberOfAssets() {
     const { tabAll } = this;
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
     const buttonText = await tabAll.innerText();
     const numberMatch = buttonText.match(/\d+/);
     const number = parseInt(numberMatch[0], 10);

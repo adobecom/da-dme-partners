@@ -1,4 +1,11 @@
-import { getMetadataContent } from './utils.js';
+import {
+  getMetadataContent,
+  getCurrentProgramType,
+  getPartnerCookieValue,
+  SANCTIONED_COUNTRIES,
+  isRenew,
+  getLocale,
+} from './utils.js';
 
 async function loadPopupFragment(fragmentPath) {
   const response = await fetch(fragmentPath);
@@ -15,8 +22,8 @@ async function loadPopupFragment(fragmentPath) {
   return main.firstElementChild;
 }
 
-async function loadBannerContent(bannerType) {
-  const bannerFragmentPath = getMetadataContent(bannerType);
+async function loadBannerContent(bannerType, defaultPath) {
+  const bannerFragmentPath = getMetadataContent(bannerType) ?? defaultPath;
   if (!bannerFragmentPath) {
     // eslint-disable-next-line no-console
     console.warn(`${bannerType} should be displayed but banner fragment path is not found`);
@@ -47,13 +54,77 @@ export async function getGlobalBanner() {
   return loadBannerContent('global-banner');
 }
 
-export async function prependContent() {
+export async function getSanctionedBanner(locales) {
+  const programType = getCurrentProgramType();
+
+  const countryCode = getPartnerCookieValue(programType, 'countrycode');
+  if (!SANCTIONED_COUNTRIES.includes(countryCode)) return null;
+
+  const metadataKey = 'banner-account-sanctioned';
+  const { prefix } = getLocale(locales);
+  const defaultPath = `${prefix}/edsdme/partners-shared/fragments/${metadataKey}`;
+
+  const bannerContent = await loadBannerContent(metadataKey, defaultPath);
+  if (!bannerContent) {
+    return null;
+  }
+
+  return bannerContent;
+}
+
+export async function getRenewBanner(locales) {
+  const programType = getCurrentProgramType();
+
+  const countryCode = getPartnerCookieValue(programType, 'countrycode');
+  if (SANCTIONED_COUNTRIES.includes(countryCode)) return;
+
+  const renew = isRenew();
+  if (!renew) return;
+  const { accountStatus, daysNum } = renew;
+  const bannerFragments = {
+    expired: 'banner-account-expires',
+    suspended: 'banner-account-suspended',
+  };
+  const metadataKey = bannerFragments[accountStatus];
+
+  const { prefix } = getLocale(locales);
+  const defaultPath = `${prefix}/edsdme/partners-shared/fragments/${metadataKey}`;
+  const path = getMetadataContent(metadataKey) ?? defaultPath;
+  const url = new URL(path, window.location.origin);
+
+  try {
+    const response = await fetch(`${url}.plain.html`);
+    if (!response.ok) throw new Error(`Network response was not ok ${response.statusText}`);
+
+    const data = await response.text();
+    const componentData = data.replace('$daysNum', daysNum);
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(componentData, 'text/html');
+    const block = doc.querySelector('.notification');
+
+    const div = document.createElement('div');
+    div.appendChild(block);
+    // eslint-disable-next-line consistent-return
+    return div;
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.error('There has been a problem with your fetch operation:', error);
+    // eslint-disable-next-line consistent-return
+    return null;
+  }
+}
+
+export async function prependContent(locales) {
   const documentMain = document.querySelector('main');
   if (!documentMain) return;
 
-  const [globalBannerContent] = await Promise.all([
+  const [globalBannerContent, sanctionedBannerContent, renewBannerContent] = await Promise.all([
     getGlobalBanner(),
+    getSanctionedBanner(locales),
+    getRenewBanner(locales),
   ]);
 
   if (globalBannerContent) documentMain.prepend(globalBannerContent);
+  if (sanctionedBannerContent) documentMain.prepend(sanctionedBannerContent);
+  if (renewBannerContent) documentMain.prepend(renewBannerContent);
 }

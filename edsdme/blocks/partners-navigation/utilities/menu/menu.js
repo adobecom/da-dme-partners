@@ -1,14 +1,7 @@
 // PARTNERS_NAVIGATION START
-// MWPW-159021 - Fix eslint errors
-/* eslint-disable */
 // MWPW-192601 - Sync Milo Codebase
 import { getLibs } from '../../../../scripts/utils.js';
-
-const miloLibs = getLibs();
-const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.js`);
-const { getConfig, shouldBlockFreeTrialLinks } = await import(`${miloLibs}/utils/utils.js`);
 import { debounce } from '../../../utils/action.js';
-// PARTNERS_NAVIGATION END
 
 import {
   fetchAndProcessPlainHtml,
@@ -29,6 +22,11 @@ import {
   hasActiveLink,
   setAriaAtributes,
 } from '../utilities.js';
+
+const miloLibs = getLibs();
+const { processTrackingLabels } = await import(`${miloLibs}/martech/attributes.js`);
+const { getConfig, shouldBlockFreeTrialLinks } = await import(`${miloLibs}/utils/utils.js`);
+// PARTNERS_NAVIGATION END
 
 let merch;
 try {

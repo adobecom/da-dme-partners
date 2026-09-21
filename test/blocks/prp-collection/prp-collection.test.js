@@ -2,7 +2,10 @@ import { readFile } from '@web/test-runner-commands';
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import init from '../../../edsdme/blocks/prp-collection/prp-collection.js';
-import { filterCardsByUserRegions } from '../../../edsdme/blocks/prp-collection/prp-collection-cards.js';
+import PRPCollectionCards, {
+  filterCardsByCollectionName,
+  filterCardsByUserRegions,
+} from '../../../edsdme/blocks/prp-collection/prp-collection-cards.js';
 import PartnerCards from '../../../edsdme/components/PartnerCards.js';
 
 const cardsString = await readFile({ path: './mocks/cards.json' });
@@ -89,6 +92,65 @@ describe('PRP Collection block', () => {
     expect(firstFilter).to.exist;
   });
 
+  describe('filter values ordering', () => {
+    it('orders authored and card-derived filter values alphabetically', async () => {
+      Object.defineProperty(window, 'innerWidth', { value: 1500 });
+
+      const component = await init(document.querySelector('.prp-collection'));
+      await component.updateComplete;
+
+      component.cardFiltersMap = new Map([
+        ['language', ['croatian', 'danish']],
+        ['category', ['email', 'brochure']],
+      ]);
+
+      await component.createFilters();
+
+      const tagKeys = (filterKey) => component.blockData.filters
+        .find((filter) => filter.key === filterKey).tags.map((tag) => tag.key);
+
+      expect(tagKeys('language')).to.deep.equal([
+        'bulgarian',
+        'croatian',
+        'danish',
+        'enguk',
+        'italian',
+        'spanish',
+      ]);
+      expect(tagKeys('category')).to.deep.equal([
+        'brochure',
+        'datasheet',
+        'email',
+        'type-2',
+      ]);
+    });
+  });
+
+  describe('filterCardsByCollectionName', () => {
+    it('keeps only cards from the requested collection name', () => {
+      const collectionCards = [
+        { id: 'match', arbitrary: [{ 'collection-name': 'dev-coll' }] },
+        { id: 'other', arbitrary: [{ 'collection-name': 'other-collection' }] },
+        { id: 'missing', arbitrary: [{}] },
+      ];
+
+      const filtered = filterCardsByCollectionName(collectionCards, 'dev-coll');
+
+      expect(filtered.map((card) => card.id)).to.deep.equal(['match']);
+    });
+
+    it('ignores cards without a usable collection-name entry', () => {
+      const collectionCards = [
+        { id: 'missing-name', arbitrary: [{}] },
+        { id: 'match', arbitrary: [{ 'collection-name': 'dev-coll' }] },
+      ];
+
+      const filtered = filterCardsByCollectionName(collectionCards, 'dev-coll');
+
+      expect(filtered.map((card) => card.id)).to.deep.equal(['match']);
+    });
+  });
+
   describe('filterCardsByUserRegions', () => {
     const noRegionCardId = '7d1e9529-6702-351e-a7e8-0442100860ec';
     const northAmericaCardId = '1d2855ff-d481-3d8a-8851-d3ea88668f39';
@@ -153,7 +215,7 @@ describe('PRP Collection block', () => {
       expect(getCardIds(result)).to.not.include(northAmericaCardId);
     });
 
-    it('includes cards matching Japan cookie value', () => {
+    it('includes cards matching Japan cookie value ', () => {
       setPartnerRegionCookie('Japan');
 
       const result = filterCardsByUserRegions(cards);
@@ -164,6 +226,59 @@ describe('PRP Collection block', () => {
       expect(getCardIds(result)).to.not.include(northAmericaCardId);
       expect(getCardIds(result)).to.not.include(europeWestCardId);
       expect(getCardIds(result)).to.not.include(unitedKingdomCardId);
+    });
+  });
+
+  describe('onDataFetched', () => {
+    it('applies collection, specialization, and region filters together', () => {
+      window.history.pushState({}, '', '/channelpartners/');
+      setPartnerRegionCookie('North America');
+      document.cookie = `partner_data=${JSON.stringify({
+        CPP: {
+          permissionregion: 'North America',
+          permissionspecializations: 'partner-portal',
+        },
+      })}`;
+
+      const filteredCards = [
+        {
+          id: 'match',
+          arbitrary: [{ 'collection-name': 'dev-coll' }, { specializations: 'partner-portal' }],
+          tags: [{ id: 'caas:adobe-partners/cpp/region/north-america' }],
+        },
+        {
+          id: 'wrong-collection',
+          arbitrary: [{ 'collection-name': 'other-collection' }, { specializations: 'partner-portal' }],
+          tags: [{ id: 'caas:adobe-partners/cpp/region/north-america' }],
+        },
+        {
+          id: 'wrong-specialization',
+          arbitrary: [{ 'collection-name': 'dev-coll' }, { specializations: 'not-allowed' }],
+          tags: [{ id: 'caas:adobe-partners/cpp/region/north-america' }],
+        },
+        {
+          id: 'wrong-region',
+          arbitrary: [{ 'collection-name': 'dev-coll' }, { specializations: 'partner-portal' }],
+          tags: [{ id: 'caas:adobe-partners/cpp/region/japan' }],
+        },
+        {
+          id: 'no-specialization',
+          arbitrary: [{ 'collection-name': 'dev-coll' }],
+          tags: [{ id: 'caas:adobe-partners/cpp/region/north-america' }],
+        },
+        {
+          id: 'worldwide',
+          arbitrary: [{ 'collection-name': 'dev-coll' }, { specializations: 'partner-portal' }],
+          tags: [{ id: 'caas:adobe-partners/cpp/region/worldwide' }],
+        },
+      ];
+
+      const instance = new PRPCollectionCards();
+      instance.blockData = { collectionName: 'dev-coll' };
+      const data = { cards: filteredCards.slice() };
+      instance.onDataFetched(data);
+
+      expect(data.cards.map((card) => card.id)).to.have.members(['match', 'no-specialization', 'worldwide']);
     });
   });
 });

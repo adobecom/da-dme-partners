@@ -827,6 +827,172 @@ describe('yukon-chat block', () => {
       expect(children.indexOf(inputFieldContainer)).to.be.lessThan(children.indexOf(disclaimer));
     });
 
+    it('should show timeout error for 504 responses and re-enable the input', async () => {
+      fetchStub.callsFake(async (url) => {
+        const urlStr = typeof url === 'string' ? url : url.toString();
+        if (urlStr.includes('placeholders.json')) {
+          return {
+            ok: true,
+            json: async () => ({
+              data: [
+                { key: 'send-message', value: 'Send Message' },
+                { key: 'open-chat', value: 'Open Chat' },
+                { key: 'scroll-to-bottom', value: 'Scroll to bottom' },
+                { key: 'timeout-error', value: 'This is taking longer than expected. Please try again in a moment.' },
+                { key: 'server-error', value: "We're having trouble processing your request right now. Please try again later." },
+                { key: 'network-error', value: 'Network error. Please check your connection and try again.' },
+              ],
+            }),
+          };
+        }
+        if (urlStr.includes('yukonAIAssistant')) {
+          return { ok: false, status: 504 };
+        }
+        return { ok: false, status: 404 };
+      });
+
+      const block = document.querySelector('.yukon-chat');
+      await init(block);
+
+      const textarea = document.querySelector('#yc-input-field');
+      const sendButton = document.querySelector('.yc-input-field-button');
+      textarea.value = 'Ask a slow question';
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      sendButton.click();
+
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((r) => setTimeout(r, 50));
+
+      const modal = document.querySelector('#yukon-chat-modal');
+      expect(modal).to.exist;
+      const errorMessage = modal.querySelector('.error-message');
+      expect(errorMessage).to.exist;
+      expect(errorMessage.textContent).to.include('This is taking longer than expected. Please try again in a moment.');
+      expect(sendButton.hasAttribute('disabled')).to.be.false;
+      expect(textarea.hasAttribute('disabled')).to.be.false;
+    });
+
+    it('should toggle the scroll-to-bottom button based on chat history position', async () => {
+      const encoder = new TextEncoder();
+      const chunk = encoder.encode('[{"generated_text":"Hello from Yukon"}]\n');
+      fetchStub.callsFake(async (url) => {
+        const urlStr = typeof url === 'string' ? url : url.toString();
+        if (urlStr.includes('placeholders.json')) {
+          return {
+            ok: true,
+            json: async () => ({
+              data: [
+                { key: 'send-message', value: 'Send Message' },
+                { key: 'open-chat', value: 'Open Chat' },
+                { key: 'scroll-to-bottom', value: 'Scroll to bottom' },
+              ],
+            }),
+          };
+        }
+        if (urlStr.includes('yukonAIAssistant')) {
+          return {
+            ok: true,
+            status: 200,
+            body: new ReadableStream({
+              start(controller) {
+                controller.enqueue(chunk);
+                controller.close();
+              },
+            }),
+          };
+        }
+        return { ok: false, status: 404 };
+      });
+
+      const block = document.querySelector('.yukon-chat');
+      await init(block);
+
+      const textarea = document.querySelector('#yc-input-field');
+      const sendButton = document.querySelector('.yc-input-field-button');
+      textarea.value = 'Scroll test';
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      sendButton.click();
+
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((r) => setTimeout(r, 50));
+
+      const scrollButton = document.querySelector('#yukon-chat-modal .scroll-to-bottom-btn');
+      const chatHistory = document.querySelector('#yukon-chat-modal .chat-history');
+      expect(scrollButton).to.exist;
+
+      let scrollTopValue = 600;
+      Object.defineProperty(chatHistory, 'scrollHeight', {
+        configurable: true,
+        get: () => 1000,
+      });
+      Object.defineProperty(chatHistory, 'clientHeight', {
+        configurable: true,
+        get: () => 200,
+      });
+      Object.defineProperty(chatHistory, 'scrollTop', {
+        configurable: true,
+        get: () => scrollTopValue,
+        set: (value) => { scrollTopValue = value; },
+      });
+
+      chatHistory.dispatchEvent(new Event('scroll'));
+      expect(scrollButton.classList.contains('show')).to.be.true;
+
+      scrollTopValue = 850;
+      chatHistory.dispatchEvent(new Event('scroll'));
+      expect(scrollButton.classList.contains('show')).to.be.false;
+    });
+
+    it('should restore the main input placeholder and scroll lock state when the modal closes', async () => {
+      const encoder = new TextEncoder();
+      const chunk = encoder.encode('[{"generated_text":"Hi"}]\n');
+      fetchStub.callsFake(async (url) => {
+        const urlStr = typeof url === 'string' ? url : url.toString();
+        if (urlStr.includes('placeholders.json')) {
+          return { ok: true, json: async () => ({ data: [] }) };
+        }
+        if (urlStr.includes('yukonAIAssistant')) {
+          return {
+            ok: true,
+            status: 200,
+            body: new ReadableStream({
+              start(controller) {
+                controller.enqueue(chunk);
+                controller.close();
+              },
+            }),
+          };
+        }
+        return { ok: false, status: 404 };
+      });
+
+      const block = document.querySelector('.yukon-chat');
+      await init(block);
+
+      const textarea = document.querySelector('#yc-input-field');
+      const sendButton = document.querySelector('.yc-input-field-button');
+      textarea.value = 'Close modal';
+      textarea.dispatchEvent(new Event('input', { bubbles: true }));
+      sendButton.click();
+
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((r) => setTimeout(r, 50));
+
+      const modal = document.querySelector('#yukon-chat-modal');
+      expect(modal).to.exist;
+      expect(document.body.classList.contains('yc-disable-scroll')).to.be.true;
+
+      modal.querySelector('.dialog-close').click();
+
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((r) => setTimeout(r, 600));
+
+      expect(document.body.classList.contains('yc-disable-scroll')).to.be.false;
+      expect(textarea.getAttribute('placeholder')).to.equal('How can I help you today?');
+      expect(textarea.value).to.equal('');
+      expect(sendButton.hasAttribute('disabled')).to.be.true;
+    });
+
     it('should not render modal disclaimer when config is absent', async () => {
       const encoder = new TextEncoder();
       const chunk = encoder.encode('[{"generated_text":"Hi"}]\n');

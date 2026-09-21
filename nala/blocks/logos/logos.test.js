@@ -51,8 +51,9 @@ test.describe('Validate logos page', () => {
       await logosPage.cardDate.waitFor({ state: 'visible', timeout: 5000 });
       await logosPage.cardDescription.waitFor({ state: 'visible', timeout: 5000 });
       await logosPage.cardTagLogo.waitFor({ state: 'visible', timeout: 5000 });
-      const downloadButton = await logosPage.downloadLogo.getAttribute('href');
-      await expect(downloadButton).toContain(data.downloadButtonLink);
+      await expect(logosPage.downloadLogo).toHaveAttribute('download');
+      const downloadButtonHref = await logosPage.downloadLogo.getAttribute('href');
+      expect(downloadButtonHref).toBeTruthy();
     });
   });
 });

@@ -40,7 +40,7 @@ const config = {
 
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
-    baseURL: process.env.PR_BRANCH_LIVE_URL || (process.env.LOCAL_TEST_LIVE_URL || 'https://main--dme-partners--adobecom.aem.live'),
+    baseURL: process.env.PR_BRANCH_LIVE_URL || (process.env.LOCAL_TEST_LIVE_URL || 'https://main--da-dme-partners--adobecom.aem.live'),
 
   },
 

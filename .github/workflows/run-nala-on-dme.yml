@@ -1,4 +1,4 @@
-name: DME-Partners Nala Tests
+name: DA-DME-Partners Nala Tests
 
 on:
   pull_request:
@@ -16,7 +16,7 @@ jobs:
       - name: Check out repository
         uses: actions/checkout@v3
       - name: Run Nala
-        uses: adobecom/dme-partners@stage # Change if doing dev work
+        uses: adobecom/da-dme-partners@stage # Change if doing dev work
         env:
           labels: ${{ '@anonymous' }}
           branch: ${{ github.event.pull_request.head.ref }}
