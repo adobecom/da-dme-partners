@@ -44,7 +44,7 @@ export default class SmokeTest {
     this.supportGnavOption = page.locator('.feds-navLink.feds-navLink--hoverCaret');
     this.supportResources = page.locator('.feds-navItem a[href*="/channelpartners/support"]');
     this.announcementCardTitle = page.locator('#announcement-title');
-    this.firstCardMetadata = page.locator('.card-metadata').first().locator('div[data-valign="middle"]').nth(1);
+    this.firstCardTrackingHeader = page.locator('div.content[daa-lh="b1|content"] strong.tracking-header').first();
     this.apcLogo = page.getByRole('link', { name: 'Adobe Partner Connection', exact: true });
     this.assetTabs = page.getByLabel('Assets');
     this.numberOfCollections = page.locator('.partner-cards-cards-results');
@@ -146,9 +146,11 @@ export default class SmokeTest {
     const cleanHref = href.endsWith('#') ? href.slice(0, -1) : href;
     expect(this.page.url()).toContain(cleanHref);
 
-    const { firstCardMetadata } = this;
-    const metadata = await firstCardMetadata.textContent();
-    expect(metadata).toContain(firstCardTitle);
+    const { firstCardTrackingHeader } = this;
+    const trackingHeaderText = await firstCardTrackingHeader.textContent();
+    const normalizedFirstCardTitle = firstCardTitle?.replace(/\s+/g, ' ').trim();
+    const normalizedTrackingHeader = trackingHeaderText?.replace(/\s+/g, ' ').trim();
+    expect(normalizedTrackingHeader).toContain(normalizedFirstCardTitle);
   }
 
   getJoinNowButtonByRegion(text) {
@@ -293,7 +295,7 @@ export default class SmokeTest {
   }
 
   async indiaCalVerify() {
-    const calIndiaRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomhlxpageedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'INDIA' });
+    const calIndiaRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'INDIA' });
     await calIndiaRequest.isVisible();
     let calIndiaRequestlink = await calIndiaRequest.getAttribute('href');
     if (calIndiaRequestlink?.includes('#_blank')) {
@@ -307,7 +309,7 @@ export default class SmokeTest {
   }
 
   async seabdCalVerify() {
-    const calSeabdRequest = this.page.locator('h3#request-a-cal-httpsmain--dme-partners--adobecomhlxpageedsdmepartners-sharedfragmentscommondistributor-cal-links-1.heading-m strong p.body-m.action-area a.con-button.blue.button-m ').nth(1);
+    const calSeabdRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'SEA/BD' });
     await calSeabdRequest.isVisible();
     const calSeabdRequestlink = await calSeabdRequest.getAttribute('href');
     const calSeabdSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("SEA/BD")');
@@ -318,7 +320,7 @@ export default class SmokeTest {
   }
 
   async hktCalVerify() {
-    const calHktRequest = this.page.locator('h3#request-a-cal-httpsmain--dme-partners--adobecomhlxpageedsdmepartners-sharedfragmentscommondistributor-cal-links-1.heading-m strong p.body-m.action-area a.con-button.blue.button-m ').nth(2);
+    const calHktRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'HKT' });
     await calHktRequest.isVisible();
     const calHktRequestlink = await calHktRequest.getAttribute('href');
     const calHktSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("HKT")');
@@ -329,7 +331,7 @@ export default class SmokeTest {
   }
 
   async chinaCalVerify() {
-    const calChinaRequest = this.page.locator('h3#request-a-cal-httpsmain--dme-partners--adobecomhlxpageedsdmepartners-sharedfragmentscommondistributor-cal-links-1.heading-m strong p.body-m.action-area a.con-button.blue.button-m ').nth(3);
+    const calChinaRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'China' });
     await calChinaRequest.isVisible();
     const calChinaRequestlink = await calChinaRequest.getAttribute('href');
     const calChinaSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("China")');
@@ -340,7 +342,7 @@ export default class SmokeTest {
   }
 
   async anzCalVerify() {
-    const calAnzRequest = this.page.locator('h3#request-a-cal-httpsmain--dme-partners--adobecomhlxpageedsdmepartners-sharedfragmentscommondistributor-cal-links-1.heading-m strong p.body-m.action-area a.con-button.blue.button-m ').nth(4);
+    const calAnzRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'ANZ' });
     await calAnzRequest.isVisible();
     const calAnzRequestlink = await calAnzRequest.getAttribute('href');
     const calAnzSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("ANZ")');
@@ -351,7 +353,7 @@ export default class SmokeTest {
   }
 
   async koreaCalVerify() {
-    const calKoreaRequest = this.page.locator('h3#request-a-cal-httpsmain--dme-partners--adobecomhlxpageedsdmepartners-sharedfragmentscommondistributor-cal-links-1.heading-m strong p.body-m.action-area a.con-button.blue.button-m ').nth(5);
+    const calKoreaRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'Korea' });
     await calKoreaRequest.isVisible();
     const calKoreaRequestlink = await calKoreaRequest.getAttribute('href');
     const calKoreaSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("Korea")');
