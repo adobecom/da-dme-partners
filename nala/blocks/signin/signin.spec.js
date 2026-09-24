@@ -352,5 +352,16 @@ export default {
         expectedRedirectedURL: '/channelpartners/error/contact-not-found',
       },
     },
+    {
+      tcid: '31',
+      name: '@verify-apac-region-for-maldives',
+      path: 'https://partners.stage.adobe.com/channelpartners/?georouting=off&martech=off',
+      tags: '@dme-signin @regression @login @circleCi',
+      data: {
+        partnerLevel: 'cpp-registred-maldives:',
+        signInButtonInternationalText: 'Sign In',
+        expectedRedirectedURL: 'https://partners.stage.adobe.com/apac/channelpartners/home/#',
+      },
+    },
   ],
 };
