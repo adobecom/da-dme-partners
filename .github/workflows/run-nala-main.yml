@@ -1,8 +1,8 @@
-name: DA-DME-Partners Nala Tests
+name: MAIN DA-DME-Partners Nala Tests
 
 on:
   pull_request:
-    types: [ labeled, synchronize, reopened ]
+    types: [ labeled ]
   push:
     branches:
       - main
@@ -13,8 +13,7 @@ jobs:
     if: |
       github.event_name == 'push' ||
       github.event.label.name == 'run-on-dme-main' ||
-      (github.event.action == 'synchronize' && contains(join(github.event.pull_request.labels.*.name, ','), 'run-on-dme-main')) ||
-      (github.event.action == 'reopened' && contains(join(github.event.pull_request.labels.*.name, ','), 'run-on-dme-main'))
+      github.event.pull_request.merged == true && github.event.pull_request.head.ref == 'stage'
     runs-on: ubuntu-latest
 
     steps:
