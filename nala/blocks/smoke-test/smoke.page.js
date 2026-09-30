@@ -44,7 +44,7 @@ export default class SmokeTest {
     this.supportGnavOption = page.locator('.feds-navLink.feds-navLink--hoverCaret');
     this.supportResources = page.locator('.feds-navItem a[href*="/channelpartners/support"]');
     this.announcementCardTitle = page.locator('#announcement-title');
-    this.firstCardTrackingHeader = page.locator('div.content[daa-lh="b1|content"] strong.tracking-header').first();
+    this.firstCardTrackingHeader = page.locator('div.content[daa-lh="b1|content"]').first();
     this.apcLogo = page.getByRole('link', { name: 'Adobe Partner Connection', exact: true });
     this.assetTabs = page.getByLabel('Assets');
     this.numberOfCollections = page.locator('.partner-cards-cards-results');
