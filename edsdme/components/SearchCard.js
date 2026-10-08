@@ -81,6 +81,7 @@ class SearchCard extends LitElement {
                  @click=${(e) => { e.stopPropagation(); }}
                  href=${isDlDisabled ? nothing : this.data.contentArea?.url}
                  download=${this.data.contentArea?.title}
+                 role=${isDlDisabled ? 'button' : nothing}
                  aria-label=${this.localizedText['{{download}}']}
                  aria-disabled=${isDlDisabled}>
                 <sp-icon-download class="icon" />
@@ -97,7 +98,7 @@ class SearchCard extends LitElement {
                     <sp-icon-open-in class="icon"/>
                   </a>`
                 : html`
-                  <a class="card-btn" aria-disabled=${true} aria-label=${this.localizedText['{{open-in-disabled}}']}><sp-icon-open-in class="icon"/></a>`
+                  <a class="card-btn" role="button" aria-disabled=${true} aria-label=${this.localizedText['{{open-in-disabled}}']}><sp-icon-open-in class="icon"/></a>`
               }
           </div>
         </div>

@@ -199,6 +199,95 @@ describe('SearchCard Unit Tests', () => {
     }
   });
 
+  describe('SearchCard render', () => {
+    const appendAndUpdate = async () => {
+      document.body.append(searchCard);
+      await searchCard.updateComplete;
+    };
+
+    it('should render an enabled preview link for previewable file types', async () => {
+      searchCard.data.contentArea.type = 'pdf';
+      await appendAndUpdate();
+
+      const previewBtn = searchCard.querySelectorAll('.card-btn')[1];
+      expect(previewBtn.getAttribute('aria-disabled')).to.equal('false');
+      expect(previewBtn.getAttribute('aria-label')).to.equal('Open in');
+      expect(previewBtn.getAttribute('href')).to.equal('https://example.com/test.pdf');
+      expect(previewBtn.getAttribute('target')).to.equal('_blank');
+      expect(previewBtn.hasAttribute('role')).to.be.false;
+    });
+
+    it('should render a disabled preview link for non-previewable file types', async () => {
+      searchCard.data.contentArea.type = 'zip';
+      await appendAndUpdate();
+
+      const previewBtn = searchCard.querySelectorAll('.card-btn')[1];
+      expect(previewBtn.getAttribute('role')).to.equal('button');
+      expect(previewBtn.getAttribute('aria-disabled')).to.equal('true');
+      expect(previewBtn.getAttribute('aria-label')).to.equal('Open in (disabled)');
+      expect(previewBtn.hasAttribute('href')).to.be.false;
+      expect(previewBtn.querySelector('sp-icon-open-in')).to.exist;
+    });
+
+    it('should disable the download button for html and announcement file types', async () => {
+      searchCard.data.contentArea.type = 'html';
+      await appendAndUpdate();
+
+      const downloadBtn = searchCard.querySelector('.card-btn');
+      expect(downloadBtn.getAttribute('role')).to.equal('button');
+      expect(downloadBtn.getAttribute('aria-disabled')).to.equal('true');
+      expect(downloadBtn.hasAttribute('href')).to.be.false;
+    });
+
+    it('should enable the download button for downloadable file types', async () => {
+      searchCard.data.contentArea.type = 'pdf';
+      await appendAndUpdate();
+
+      const downloadBtn = searchCard.querySelector('.card-btn');
+      expect(downloadBtn.getAttribute('aria-disabled')).to.equal('false');
+      expect(downloadBtn.getAttribute('href')).to.equal('https://example.com/test.pdf');
+    });
+
+    it('should toggle the expanded class on the card when clicked', async () => {
+      await appendAndUpdate();
+
+      const card = searchCard.querySelector('.search-card');
+      card.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(card.classList.contains('expanded')).to.be.true;
+
+      card.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+      expect(card.classList.contains('expanded')).to.be.false;
+    });
+  });
+
+  describe('SearchCard methods', () => {
+    it('isDownloadDisabled should return true only for html and announcement types', () => {
+      expect(searchCard.isDownloadDisabled('html')).to.be.true;
+      expect(searchCard.isDownloadDisabled('announcement')).to.be.true;
+      expect(searchCard.isDownloadDisabled('pdf')).to.be.false;
+    });
+
+    it('isPreviewEnabled should return true only for pdf, html and announcement types', () => {
+      expect(searchCard.isPreviewEnabled('pdf')).to.be.true;
+      expect(searchCard.isPreviewEnabled('html')).to.be.true;
+      expect(searchCard.isPreviewEnabled('announcement')).to.be.true;
+      expect(searchCard.isPreviewEnabled('zip')).to.be.false;
+    });
+
+    it('getFileType should return the type when supported and "default" otherwise', () => {
+      expect(searchCard.getFileType('pdf')).to.equal('pdf');
+      expect(searchCard.getFileType('unsupported-type')).to.equal('default');
+    });
+
+    it('toggleCard should toggle the expanded class on the passed element', () => {
+      const div = document.createElement('div');
+      searchCard.toggleCard(div);
+      expect(div.classList.contains('expanded')).to.be.true;
+      searchCard.toggleCard(div);
+      expect(div.classList.contains('expanded')).to.be.false;
+    });
+  });
+
   describe('Search Cards Unit Tests', () => {
     it('Should contain search cards analytics attributes with filtering and search', async () => {
       const searchCardsWrapper = document.querySelector('.search-cards-wrapper');

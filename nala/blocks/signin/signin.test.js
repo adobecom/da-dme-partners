@@ -140,7 +140,7 @@ test.describe('MAPC sign in flow', () => {
 
       await test.step(`Open ${feature.data.page} in a new tab`, async () => {
         const newTab = await context.newPage();
-        await newTab.goto(`${feature.path}`, { waitUntil: 'networkidle' });
+        await newTab.goto(`${feature.path}`, { waitUntil: 'domcontentloaded' });
         const newTabPage = new SignInPage(newTab);
         await newTabPage.regionPicker.waitFor({ state: 'visible', timeout: 30000 });
         await newTabPage.profileIconButton.waitFor({ state: 'visible', timeout: 20000 });

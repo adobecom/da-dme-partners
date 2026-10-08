@@ -405,6 +405,7 @@ test.describe('Search Page validation', () => {
 
     await test.step('Search for assets ', async () => {
       await searchTest.searchAsset(`${data.searchKeyWord}`);
+      await searchTest.partnerCardsColl.first().waitFor({ state: 'visible', timeout: 30000 });
     });
 
     await test.step('Check asset icons', async () => {

@@ -26,6 +26,7 @@ export default class SearchTest {
     this.showMoreLanguage = page.getByRole('link', { name: 'Show more' });
     this.noResultsTitle = page.locator('.no-results-title');
     this.appleydFilter = page.getByLabel('plans & pricing');
+    this.partnerCardsColl = page.locator('.partner-cards-collection');
   }
 
   async cardTitle(text) {
