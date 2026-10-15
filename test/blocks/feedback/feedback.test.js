@@ -116,6 +116,43 @@ describe('feedback block', () => {
       expect(dialog).to.exist;
     });
 
+    it('should show email field when user is not signed in', async () => {
+      document.cookie = 'partner_data=; Path=/; Max-Age=0;';
+      const customEmailRow = document.createElement('div');
+      customEmailRow.innerHTML = '<div>Dialog-Email</div><div>Share your email address</div>';
+      const block = document.querySelector('.feedback');
+      block.appendChild(customEmailRow);
+
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const emailField = document.querySelector('#feedback-email');
+      const emailLabel = document.querySelector('.feedback-email-wrapper .feedback-label-text');
+      expect(emailField).to.exist;
+      expect(emailField.getAttribute('name')).to.equal('email');
+      expect(emailField.getAttribute('autocomplete')).to.equal('email');
+      expect(emailLabel).to.exist;
+      expect(emailLabel.textContent).to.equal('Share your email address');
+    });
+
+    it('should hide email field when user is signed in', async () => {
+      document.cookie = `partner_data=${encodeURIComponent(JSON.stringify({ DXP: { status: 'MEMBER' } }))}`;
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const emailField = document.querySelector('#feedback-email');
+      expect(emailField).to.not.exist;
+
+      document.cookie = 'partner_data=; Path=/; Max-Age=0;';
+    });
+
     it('should handle star hover and textarea input', async () => {
       const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
       const block = document.querySelector('.feedback');
@@ -133,13 +170,40 @@ describe('feedback block', () => {
 
       expect(stars[2]).to.exist;
 
-      const textarea = document.querySelector('.feedback-textarea');
+      const textarea = document.querySelector('#feedback-comment');
       const charCount = document.querySelector('.feedback-label-count');
 
       textarea.value = 'Test feedback';
       textarea.dispatchEvent(new Event('input'));
 
       expect(charCount.textContent).to.equal('487');
+    });
+
+    it('should prevent submission when email is invalid', async () => {
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const emailField = document.querySelector('#feedback-email');
+      emailField.value = 'invalid-email';
+      emailField.dispatchEvent(new Event('input'));
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+
+      expect(emailField.hasAttribute('invalid')).to.be.true;
+      expect(document.querySelector('.feedback-dialog')).to.exist;
+
+      const formSubmitCall = fetchStub
+        .getCalls()
+        .find((call) => typeof call.args[0] === 'string' && call.args[0].includes('forms.adobe.com'));
+      expect(formSubmitCall).to.not.exist;
     });
 
     it('should close dialog and save rating when cancel is clicked or clicking outside', async () => {
@@ -187,6 +251,35 @@ describe('feedback block', () => {
 
       expect(fetchStub.called).to.be.true;
       expect(document.querySelector('.feedback-dialog')).to.not.exist;
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--positive');
+      expect(toast).to.exist;
+    });
+
+    it('should skip submit when honeypot field is filled', async () => {
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const honeypotField = document.querySelector('.feedback-context-field');
+      honeypotField.value = 'spam-bot-value';
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const formSubmitCall = fetchStub
+        .getCalls()
+        .find((call) => typeof call.args[0] === 'string' && call.args[0].includes('forms.adobe.com'));
+      expect(formSubmitCall).to.not.exist;
+      expect(document.querySelector('.feedback-dialog')).to.not.exist;
+
       const toast = document.querySelector('.feedback-toast.spectrum-Toast--positive');
       expect(toast).to.exist;
     });
@@ -239,6 +332,218 @@ describe('feedback block', () => {
 
       const dialog = document.querySelector('.feedback-dialog');
       expect(dialog).to.exist;
+    });
+
+    it('should auto-hide success toast after 5 seconds', async () => {
+      const clock = sinon.useFakeTimers();
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      await clock.tickAsync(50);
+
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--positive');
+      expect(toast).to.exist;
+
+      await clock.tickAsync(5000);
+      expect(toast.classList.contains('feedback-toast-show')).to.be.false;
+
+      await clock.tickAsync(300);
+      expect(document.querySelector('.feedback-toast')).to.not.exist;
+
+      clock.restore();
+    });
+
+    it('should handle submission failure with invalid response', async () => {
+      fetchStub.restore();
+      fetchStub = sinon.stub(window, 'fetch').callsFake((url) => {
+        // Return error response to trigger error path
+        if (url.includes('forms.adobe.com')) {
+          return Promise.resolve({ ok: false, status: 500 });
+        }
+        return Promise.resolve({ ok: true, status: 200, text: async () => '' });
+      });
+
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--negative');
+      expect(toast).to.exist;
+    });
+
+    it('should close error toast when close button is clicked', async () => {
+      fetchStub.restore();
+      fetchStub = sinon.stub(window, 'fetch').rejects(new Error('Network error'));
+
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--negative');
+      expect(toast).to.exist;
+
+      const closeButton = document.querySelector('.feedback-toast-icon-close');
+      closeButton.click();
+
+      expect(document.querySelector('.feedback-toast')).to.not.exist;
+    });
+
+    it('should include user profile data when partner is signed in', async () => {
+      window.history.pushState({}, '', '/channelpartners/');
+      const partnerData = {
+        CPP: {
+          email: 'john.doe@example.com',
+          status: 'MEMBER',
+        },
+      };
+      const partnerInfo = {
+        firstName: 'John',
+        lastName: 'Doe',
+      };
+      document.cookie = `partner_data=${encodeURIComponent(JSON.stringify(partnerData))}`;
+      document.cookie = `partner_info=${encodeURIComponent(JSON.stringify(partnerInfo))}`;
+
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
+      expect(fetchCall).to.exist;
+      const payload = JSON.parse(fetchCall.args[1].body);
+      expect(payload.data.userName).to.equal('John Doe');
+      expect(payload.data.userEmail).to.equal('john.doe@example.com');
+
+      document.cookie = 'partner_data=; Path=/; Max-Age=0;';
+      window.history.pushState({}, '', '/');
+    });
+
+    it('should handle profile data parsing error when partner is signed in', async () => {
+      document.cookie = 'partner_data=invalid-json-data';
+      const consoleErrorStub = sinon.stub(console, 'error');
+      const consoleInfoStub = sinon.stub(console, 'info');
+
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const fetchCall = fetchStub.getCalls().find((call) => call.args[0].includes('forms.adobe.com'));
+      expect(fetchCall).to.exist;
+      const payload = JSON.parse(fetchCall.args[1].body);
+      expect(payload.data.userName).to.equal('invalid');
+      expect(payload.data.userEmail).to.equal('invalid');
+      expect(consoleInfoStub.calledOnce).to.be.true;
+
+      document.cookie = 'partner_data=; Path=/; Max-Age=0;';
+      consoleErrorStub.restore();
+      consoleInfoStub.restore();
+    });
+
+    it('should handle invalid URL in constructSubmitUrl', async () => {
+      fetchStub.restore();
+      fetchStub = sinon.stub(window, 'fetch').callsFake((url) => {
+        if (url === null || url === 'null') {
+          return Promise.reject(new Error('Invalid URL'));
+        }
+        return Promise.resolve({ ok: true, status: 200, text: async () => '' });
+      });
+
+      const feedbackModule = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await feedbackModule.default(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      stickyButton.click();
+
+      const stars = document.querySelectorAll('sp-action-button[data-rating]');
+      stars[3].click();
+
+      const btoaStub = sinon.stub(window, 'btoa').throws(new Error('btoa error'));
+
+      const sendButton = document.querySelector('.feedback-dialog-button.cta');
+      sendButton.click();
+      // eslint-disable-next-line no-promise-executor-return
+      await new Promise((resolve) => setTimeout(resolve, 50));
+
+      const toast = document.querySelector('.feedback-toast.spectrum-Toast--negative');
+      expect(toast).to.exist;
+
+      btoaStub.restore();
+    });
+
+    it('should render component when meta feedback is TRUE', async () => {
+      const meta = document.createElement('meta');
+      meta.name = 'feedback';
+      meta.content = 'TRUE';
+      document.head.appendChild(meta);
+
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      expect(stickyButton).to.exist;
+    });
+
+    it('should render component when meta feedback does not exist', async () => {
+      const { default: init } = await import('../../../edsdme/blocks/feedback/feedback.js');
+      const block = document.querySelector('.feedback');
+      await init(block);
+
+      const stickyButton = document.querySelector('.sticky-feedback-button');
+      expect(stickyButton).to.exist;
     });
   });
 });

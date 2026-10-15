@@ -9,10 +9,10 @@ jest.mock('../../edsdme/blocks/utils/utils.js', () => ({ getConfig: jest.fn() })
 jest.mock('../../edsdme/scripts/utils.js', () => ({
   partnerIsSignedIn: jest.fn(() => ({ 'partner name': { company: 'test' } })),
   prodHosts: [
-    'main--dme-partners--adobecom.hlx.page',
-    'main--dme-partners--adobecom.hlx.live',
-    'main--dme-partners--adobecom.aem.page',
-    'main--dme-partners--adobecom.aem.live',
+    'main--da-dme-partners--adobecom.hlx.page',
+    'main--da-dme-partners--adobecom.hlx.live',
+    'main--da-dme-partners--adobecom.aem.page',
+    'main--da-dme-partners--adobecom.aem.live',
     'partners.adobe.com',
   ],
 }));
@@ -27,7 +27,7 @@ document.body.innerHTML = `
 
 describe('Test rewrite links', () => {
   beforeEach(() => {
-    getConfig.mockReturnValue({ env: { name: 'stage' }, codeRoot: 'https://stage--dme-partners--adobecom.aem.page/edsdme' });
+    getConfig.mockReturnValue({ env: { name: 'stage' }, codeRoot: 'https://stage--da-dme-partners--adobecom.aem.page/edsdme' });
     partnerIsSignedIn.mockReturnValue({ 'partner name': { company: 'test' } });
     window.history.pushState({}, '', '/cn/test-path');
   });
@@ -63,7 +63,7 @@ describe('Test rewrite links', () => {
 
   test('should  not update partners prod domain and cbc prod domain when on  prod.'
     + ' Should update locale if exist for cbcconnection', () => {
-    getConfig.mockReturnValue({ env: { name: 'prod' }, codeRoot: 'https://stage--dme-partners--adobecom.aem.page/edsdme' });
+    getConfig.mockReturnValue({ env: { name: 'prod' }, codeRoot: 'https://stage--da-dme-partners--adobecom.aem.page/edsdme' });
     rewriteLinks(document);
     const links = document.querySelectorAll('a');
     expect(links[1].href).toBe('https://partners.adobe.com/');
@@ -189,7 +189,7 @@ describe('Test rewrite links', () => {
     expect(links[0].href).toBe('https://partners.stage.adobe.com/');
   });
   test('should return link href unchanged in production environment', () => {
-    getConfig.mockReturnValue({ env: { name: 'prod' }, codeRoot: 'https://main--dme-partners--adobecom.aem.page/edsdme' });
+    getConfig.mockReturnValue({ env: { name: 'prod' }, codeRoot: 'https://main--da-dme-partners--adobecom.aem.page/edsdme' });
 
     const href = 'https://adobe.force.com/path';
     const result = getUpdatedHref(href);
@@ -239,10 +239,10 @@ describe('Test rewrite links', () => {
     jest.doMock('../../edsdme/scripts/utils.js', () => ({
       partnerIsSignedIn: jest.fn(() => ({ 'partner name': { company: 'test' } })),
       prodHosts: [
-        'main--dme-partners--adobecom.hlx.page',
-        'main--dme-partners--adobecom.hlx.live',
-        'main--dme-partners--adobecom.aem.page',
-        'main--dme-partners--adobecom.aem.live',
+        'main--da-dme-partners--adobecom.hlx.page',
+        'main--da-dme-partners--adobecom.hlx.live',
+        'main--da-dme-partners--adobecom.aem.page',
+        'main--da-dme-partners--adobecom.aem.live',
         'partners.adobe.com',
         window.location.host,
       ],
@@ -253,7 +253,7 @@ describe('Test rewrite links', () => {
     // eslint-disable-next-line no-shadow,global-require
     const { getConfig } = require('../../edsdme/blocks/utils/utils.js');
 
-    getConfig.mockReturnValue({ env: { name: 'prod' }, codeRoot: 'https://stage--dme-partners--adobecom.aem.page/edsdme' });
+    getConfig.mockReturnValue({ env: { name: 'prod' }, codeRoot: 'https://stage--da-dme-partners--adobecom.aem.page/edsdme' });
 
     const { gnav, gnavHTML } = createGnav();
     const result = rewriteLinks(gnav);
@@ -273,7 +273,7 @@ describe('Test rewrite links', () => {
   });
 
   test('should return prod link href unchanged in on aem.page', () => {
-    getConfig.mockReturnValue({ env: { name: 'stage' }, codeRoot: 'https://main--dme-partners--adobecom.aem.page/edsdme' });
+    getConfig.mockReturnValue({ env: { name: 'stage' }, codeRoot: 'https://main--da-dme-partners--adobecom.aem.page/edsdme' });
 
     const href = 'https://partners.adobe.com/';
     const result = getUpdatedHref(href);

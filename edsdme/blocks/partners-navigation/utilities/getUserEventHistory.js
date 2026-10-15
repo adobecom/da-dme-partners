@@ -1,8 +1,4 @@
-// PARTNERS_NAVIGATION START
-// MWPW-159021 - Fix eslint errors
-/* eslint-disable */
-// PARTNERS_NAVIGATION END
-import { getConfig } from '../../../utils/utils.js';
+import { getConfig } from '../../utils/utils.js';
 
 let userEventHistory;
 const getUserEventHistory = async (id) => {

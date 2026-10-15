@@ -8,8 +8,8 @@ describe('Libs', () => {
   });
   it('Main Libs', () => {
     const location = {
-      hostname: 'main--dme-partners.aem.page',
-      origin: 'https://main--dme-partners.aem.page',
+      hostname: 'main--da-dme-partners.aem.page',
+      origin: 'https://main--da-dme-partners.aem.page',
     };
     const libs = setLibs('/libs', location);
     expect(libs).to.equal('https://main--milo--adobecom.aem.live/libs');

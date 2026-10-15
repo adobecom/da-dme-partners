@@ -140,7 +140,7 @@ test.describe('MAPC sign in flow', () => {
 
       await test.step(`Open ${feature.data.page} in a new tab`, async () => {
         const newTab = await context.newPage();
-        await newTab.goto(`${feature.path}`, { waitUntil: 'networkidle' });
+        await newTab.goto(`${feature.path}`, { waitUntil: 'domcontentloaded' });
         const newTabPage = new SignInPage(newTab);
         await newTabPage.regionPicker.waitFor({ state: 'visible', timeout: 30000 });
         await newTabPage.profileIconButton.waitFor({ state: 'visible', timeout: 20000 });
@@ -354,6 +354,22 @@ test.describe('MAPC sign in flow', () => {
   });
   test(`${features[29].name},${features[29].tags}`, async ({ page }) => {
     const { data, path } = features[29];
+    await test.step('Go to the home page', async () => {
+      await page.goto(`${path}`);
+      await page.waitForLoadState('domcontentloaded');
+      const signInButtonInt = await signInPage.getSignInButton(`${data.signInButtonInternationalText}`);
+      await signInButtonInt.click();
+    });
+    await test.step('Sign in', async () => {
+      await signInPage.signIn(page, `${data.partnerLevel}`);
+      await signInPage.profileIconButton.waitFor({ state: 'visible', timeout: 30000 });
+    });
+    await test.step('Verify redirection to the contact-not-found page', async () => {
+      await expect(page.url()).toContain(`${data.expectedRedirectedURL}`);
+    });
+  });
+  test(`${features[30].name},${features[30].tags}`, async ({ page }) => {
+    const { data, path } = features[30];
     await test.step('Go to the home page', async () => {
       await page.goto(`${path}`);
       await page.waitForLoadState('domcontentloaded');

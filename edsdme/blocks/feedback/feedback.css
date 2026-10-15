@@ -178,9 +178,29 @@
   filter: invert(30%) sepia(100%) saturate(3000%) hue-rotate(190deg) brightness(95%) contrast(101%);
 }
 
+/* Email field */
+.feedback-email-wrapper {
+  display: flex;
+  flex-direction: column;
+  margin-top: 16px;
+}
+
+.feedback-email-wrapper .feedback-label-text {
+  margin-bottom: 5px;
+}
+
+.feedback-email-wrapper sp-theme,
+.feedback-comment-wrapper sp-theme {
+  font-family: inherit;
+}
+
+.feedback-dialog sp-textfield {
+  --mod-textfield-font-family: 'Adobe Clean', adobe-clean, 'Trebuchet MS', sans-serif;
+}
+
 /* Textarea Section */
 .feedback-comment-wrapper {
-  margin-top: 18px;
+  margin-top: 16px;
 }
 
 .feedback-label-wrapper {
@@ -193,29 +213,13 @@
 .feedback-label-text {
   font-size: 14px;
   color: #505050;
+  font-weight: bold;
 }
 
 .feedback-label-count {
   font-size: 14px;
   color: #707070;
   align-self: end;
-}
-
-.feedback-textarea {
-  width: 100%;
-  min-height: 72px;
-  padding: 9px;
-  border: 1px solid #d0d0d0;
-  border-radius: 3px;
-  font-family: inherit;
-  line-height: 1.5;
-  resize: vertical;
-  box-sizing: border-box;
-}
-
-.feedback-textarea:focus {
-  outline: none;
-  border-color: #b130bd;
 }
 
 /* Buttons */
@@ -300,6 +304,8 @@
 .spectrum-Toast--positive {
   background-color: #2D7738;
   color: white;
+  display: flex;
+  align-items: flex-start;
 }
 
 .spectrum-Toast--negative {
@@ -384,6 +390,11 @@
   font-weight: 400;
 }
 
+.spectrum-Toast--positive .spectrum-Toast-content a {
+  color: white;
+  font-weight: bold;
+}
+
 .feedback-try-again-cta {
   background: none;
   border: none;
@@ -425,10 +436,24 @@
   font-weight: 300;
 }
 
-.feedback-toast-icon-close:hover {
+.feedback-toast-cta,
+.spectrum-Toast--positive .spectrum-Toast-content a {
+  transition: all 0.2s;
+}
+
+.feedback-toast-icon-close:hover,
+.spectrum-Toast--positive .spectrum-Toast-content a:hover {
   opacity: 0.8;
 }
 
-.feedback-toast-cta {
-  transition: all 0.2s;
+/* Honeypot field */
+.feedback-context-field {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  border: 0;
+  padding: 0;
+  margin: -1px;
 }

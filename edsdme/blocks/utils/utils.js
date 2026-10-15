@@ -9,9 +9,9 @@ export { createTag, localizeLink, getConfig };
 const { replaceText } = await import(`${miloLibs}/features/placeholders.js`);
 export { replaceText };
 
-const previewURL = 'https://admin.hlx.page/preview/adobecom/dme-partners/main/*';
-const publishURL = 'https://admin.hlx.page/live/adobecom/dme-partners/main/*';
-const jobURL = 'https://admin.hlx.page/job/adobecom/dme-partners/main/';
+const previewURL = 'https://admin.hlx.page/preview/adobecom/da-dme-partners/main/*';
+const publishURL = 'https://admin.hlx.page/live/adobecom/da-dme-partners/main/*';
+const jobURL = 'https://admin.hlx.page/job/adobecom/da-dme-partners/main/';
 
 export function populateLocalizedTextFromListItems(el, localizedText) {
   const liList = Array.from(el.querySelectorAll('li'));
@@ -71,7 +71,7 @@ async function getJobStatusDetails(topic, jobName) {
   const previewed = jsonRes?.data?.resources?.filter(
     (res) => res?.status === 200 || res?.status === 304,
   ) || [];
-  const paths = previewed.map((resource) => `https://main--dme-partners--adobecom.aem.page${resource.path}`);
+  const paths = previewed.map((resource) => `https://main--da-dme-partners--adobecom.aem.page${resource.path}`);
   return paths;
 }
 

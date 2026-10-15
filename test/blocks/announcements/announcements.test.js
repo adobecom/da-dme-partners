@@ -2,6 +2,7 @@ import { readFile } from '@web/test-runner-commands';
 import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import init from '../../../edsdme/blocks/announcements/announcements.js';
+import Announcements, { filterExpiredAnnouncements } from '../../../edsdme/blocks/announcements/AnnouncementsCards.js';
 import PartnerCards from '../../../edsdme/components/PartnerCards.js';
 
 const cardsString = await readFile({ path: './mocks/cards.json' });
@@ -60,6 +61,78 @@ describe('announcements block', () => {
 
     return { announcementsWrapper };
   };
+
+  describe('AnnouncementsCards filtering logic', () => {
+    const cardFactory = ({ id, cardDate, endDate = '', tags = [{ id: 'caas:adobe-partners/collections/announcements' }] }) => ({
+      id,
+      cardDate,
+      endDate,
+      tags,
+    });
+
+    it('keeps recent announcements and never-expiring items while filtering expired content', () => {
+      const now = new Date();
+      const recent = new Date(now); recent.setDate(now.getDate() - 30);
+      const expired = new Date(now); expired.setDate(now.getDate() - 200);
+
+      const announcementCards = [
+        cardFactory({ id: 'recent', cardDate: recent.toISOString() }),
+        cardFactory({ id: 'expired', cardDate: expired.toISOString() }),
+        cardFactory({
+          id: 'never-expiring',
+          cardDate: expired.toISOString(),
+          tags: [{ id: 'caas:adobe-partners/collections/announcements/never-expires' }],
+        }),
+      ];
+
+      const filtered = filterExpiredAnnouncements(announcementCards, { isArchive: false });
+
+      expect(filtered.map((card) => card.id)).to.deep.equal(['recent', 'never-expiring']);
+    });
+
+    it('keeps archive announcements that are older than the active window while excluding recent items', () => {
+      const now = new Date();
+      const recent = new Date(now); recent.setDate(now.getDate() - 30);
+      const expired = new Date(now); expired.setDate(now.getDate() - 200);
+
+      const announcementCards = [
+        cardFactory({ id: 'recent', cardDate: recent.toISOString() }),
+        cardFactory({ id: 'archived', cardDate: expired.toISOString() }),
+      ];
+
+      const filtered = filterExpiredAnnouncements(announcementCards, { isArchive: true });
+
+      expect(filtered.map((card) => card.id)).to.deep.equal(['archived']);
+    });
+
+    it('applies current-month and previous-month date filters to the card list', () => {
+      const instance = new Announcements();
+      const now = new Date();
+      const currentMonth = new Date(now.getFullYear(), now.getMonth(), 5).toISOString();
+      const previousMonth = new Date(now.getFullYear(), now.getMonth() - 1, 12).toISOString();
+      const otherMonth = new Date(now.getFullYear(), now.getMonth() - 2, 10).toISOString();
+
+      instance.cards = [
+        { id: 'current', cardDate: currentMonth },
+        { id: 'previous', cardDate: previousMonth },
+        { id: 'older', cardDate: otherMonth },
+      ];
+      instance.selectedDateFilter = { key: 'current-month' };
+
+      instance.handleDateFilterAction();
+      expect(instance.cards.map((card) => card.id)).to.deep.equal(['current']);
+
+      instance.cards = [
+        { id: 'current', cardDate: currentMonth },
+        { id: 'previous', cardDate: previousMonth },
+        { id: 'older', cardDate: otherMonth },
+      ];
+      instance.selectedDateFilter = { key: 'previous-month' };
+
+      instance.handleDateFilterAction();
+      expect(instance.cards.map((card) => card.id)).to.deep.equal(['previous']);
+    });
+  });
 
   it('should render partner cards for mobile', async () => {
     const { announcementsWrapper } = await setupAndCommonTest(500);

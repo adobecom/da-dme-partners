@@ -940,15 +940,16 @@ class Gnav {
     // Get user profile for x-account-id
     let accountId = '';
     let hasOrgs = false;
+    // PARTNERS_NAVIGATION START
+    // MWPW-201826
     try {
-      const [profile, organizations] = await Promise.all([
+      const [profile] = await Promise.all([
         window.adobeIMS.getProfile(),
-        window.adobeIMS.getOrganizations(),
       ]);
       accountId = profile?.userId || '';
-      hasOrgs = organizations?.count > 0;
     } catch (e) {
       accountId = '';
+      // eslint-disable-next-line no-unused-vars
       hasOrgs = false;
       lanaLog({
         message: 'GNAV: decorateProfile has failed to fetch profile or organizations data',
@@ -958,6 +959,7 @@ class Gnav {
         severity: 'error',
       });
     }
+    // PARTNERS_NAVIGATION END
     const headers = new Headers({
       Authorization: `Bearer ${accessToken.token}`,
       'x-account-id': accountId,
@@ -994,7 +996,10 @@ class Gnav {
         rawElem,
         decoratedElem,
         avatar,
-        hasOrgs,
+        // PARTNERS_NAVIGATION START
+        // MWPW-201826
+        // hasOrgs,
+        // PARTNERS_NAVIGATION END
         buttonElem: this.blocks.profile.buttonElem,
         // If the dropdown has been decorated due to a click, open it
         openOnInit: e instanceof Event,
