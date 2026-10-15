@@ -33,6 +33,7 @@ test.describe('Validate announcements block', () => {
       await page.goto(`${baseURL}${features[0].path}`, { waitUntil: 'domcontentloaded' });
       console.log(baseURL, features[0].path);
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
+      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
       const result = await announcementsPage.resultNumber.textContent();
       await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
     });
@@ -73,6 +74,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[1].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
+      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
       const result = await announcementsPage.resultNumber.textContent();
       await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
     });
@@ -108,6 +110,7 @@ test.describe('Validate announcements block', () => {
       await page.goto(`${baseURL}${features[2].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
       const result = await announcementsPage.resultNumber.textContent();
+      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
       await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
       await announcementsPage.searchField.fill(data.searchCards);
       const filteredCards = await announcementsPage.resultNumber.textContent();
@@ -140,6 +143,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[3].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
+      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
       const result = await announcementsPage.resultNumber.textContent();
       await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
     });
@@ -216,6 +220,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[5].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
+      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
       const result = await announcementsPage.resultNumber.textContent();
       await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
     });
