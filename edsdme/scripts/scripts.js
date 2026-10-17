@@ -40,6 +40,7 @@ const localesDefault = {
   br: { ietf: 'pt-BR', tk: 'inq1xob.css' },
   pt: { ietf: 'pt-PT', tk: 'inq1xob.css' },
   latam: { ietf: 'en', tk: 'oln4yqj.css' },
+  'la-es': { ietf: 'es-LA', tk: 'oln4yqj.css' },
   jp: { ietf: 'ja-JP', tk: 'dvg6awq' },
 };
 
