@@ -263,6 +263,7 @@ test.describe('Validate announcements block', () => {
       await test.step(`Verify card titled ${feature.data.partnerLevelCardTitle} is present on page`, async () => {
         const resultTotal = await announcementsPage.resultNumber.textContent();
         await expect(parseInt(resultTotal.split(' ')[0], 10)).toBe(feature.data.totalNumberOfCards);
+        // test
         await announcementsPage.searchField.fill(`${feature.data.partnerLevelCardTitle}`);
         const resultSearch = await announcementsPage.resultNumber.textContent();
         await expect(parseInt(resultSearch.split(' ')[0], 10)).toBe(feature.data.numberOfPartnerLevelCards);
