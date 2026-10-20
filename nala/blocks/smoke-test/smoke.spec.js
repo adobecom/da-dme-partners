@@ -337,7 +337,7 @@ export default {
         partnerLevel: 'cpp-distributor-us:',
         signInButtonInternationalText: 'Sign In',
         cbcProd: 'https://cbconnection.adobe.com',
-        cbcStage: 'https://cbconecction.stage.adobe.com',
+        cbcStage: 'https://cbconnection.stage.adobe.com',
       },
     },
   ],
