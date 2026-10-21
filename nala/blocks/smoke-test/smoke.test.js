@@ -11,6 +11,33 @@ let profileDropdownPage;
 const { features } = smokeSpec;
 const regionBasedFooterAndGnav = features.slice(21, 23);
 
+const verifyCbcLink = async ({ page, locator, baseURL, data }) => {
+  await expect(locator).toBeVisible();
+
+  const href = await locator.getAttribute('href');
+  expect(href).toBeTruthy();
+
+  if (!href) {
+    throw new Error('CBC link does not have an href attribute');
+  }
+  const expectedUrl = baseURL.includes('stage')
+    ? data.cbcStage
+    : data.cbcProd;
+  expect(href.startsWith(expectedUrl)).toBe(true);
+
+  if (baseURL.includes('stage')) {
+    return;
+  }
+  const newPagePromise = page.context().waitForEvent('page');
+  await locator.click();
+  const newPage = await newPagePromise;
+  await expect(newPage).toHaveURL(
+    new RegExp(`^${data.cbcProd.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}`),
+    { timeout: 30000 },
+  );
+  await newPage.close();
+};
+
 test.describe('Smoke Tests', () => {
   test.beforeEach(async ({ page }) => {
     smokeTest = new SmokeTest(page);
@@ -739,6 +766,50 @@ test.describe('Smoke Tests', () => {
       await expect(smokeTest.feedbackButton).toBeVisible();
       await smokeTest.feedbackButton.click();
       await expect(smokeTest.feedbackEmailField).not.toBeVisible();
+    });
+  });
+
+  test(`${features[26].name}, ${features[26].tags}`, async ({ page, baseURL }) => {
+    const { data, path } = features[26];
+
+    await test.step('Go to home page and sign in', async () => {
+      await page.goto(`${baseURL}${path}`);
+
+      const signInButtonInt = await signInSmokeTest.getSignInButton(
+        data.signInButtonInternationalText,
+      );
+
+      await signInButtonInt.click();
+      await smokeTest.smokeSignIn(page, baseURL, data.partnerLevel);
+
+      await expect(smokeTest.profileIcon).toBeVisible({ timeout: 30000 });
+    });
+
+    await test.step('Verify VIP Marketplace CBC link', async () => {
+      await verifyCbcLink({
+        page,
+        locator: smokeTest.vipMarketplaceFirstLink,
+        baseURL,
+        data,
+      });
+    });
+
+    await test.step('Verify Sales Motions CBC link', async () => {
+      await verifyCbcLink({
+        page,
+        locator: smokeTest.acrobatStudioBrief,
+        baseURL,
+        data,
+      });
+    });
+
+    await test.step('Verify Visit CBC button', async () => {
+      await verifyCbcLink({
+        page,
+        locator: smokeTest.visitCBCbutton,
+        baseURL,
+        data,
+      });
     });
   });
 });
