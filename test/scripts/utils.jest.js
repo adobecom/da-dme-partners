@@ -319,54 +319,87 @@ describe('Test utils.js', () => {
     redirectLoggedinPartner(fakeWindow);
     expect(fakeWindow.location.assign).not.toHaveBeenCalled();
   });
-  it('Check if partners account is expired', () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
+  describe('isRenew', () => {
+    const DAY = 24 * 60 * 60 * 1000;
+    // Anniversary cookie values are UTC-midnight timestamps, e.g. 1792627200000 = 2026-10-22.
+    const anniversary = (year, month, day) => Date.UTC(year, month - 1, day);
+    const setAnniversary = (accountAnniversary) => {
+      const cookieObject = {
+        CPP: {
+          primaryContact: true,
+          status: 'MEMBER',
+          level: 'registered',
+          accountAnniversary,
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
     };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const { accountStatus, daysNum } = isRenew();
-    expect(accountStatus).toEqual('expired');
-    expect(daysNum).toBeLessThanOrEqual(30);
-  });
-  it('Check if partners account is suspended', () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() - 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
+    // "Today" is set in local time so the tests behave the same in every timezone.
+    const setToday = (year, month, day, hours = 12, minutes = 0) => {
+      jest.useFakeTimers().setSystemTime(new Date(year, month - 1, day, hours, minutes));
     };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const { accountStatus, daysNum } = isRenew();
-    expect(accountStatus).toEqual('suspended');
-    expect(daysNum).toBeLessThanOrEqual(60);
-  });
-  it('Returns whole number of days when range spans a DST change', () => {
-    jest.useFakeTimers().setSystemTime(new Date('2026-10-20T10:00:00'));
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'registered',
-        accountAnniversary: '2026-11-01T00:00:00',
-      },
-    };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const { accountStatus, daysNum } = isRenew();
-    expect(accountStatus).toEqual('expired');
-    expect(Number.isInteger(daysNum)).toBe(true);
-    expect(daysNum).toEqual(11);
-    jest.useRealTimers();
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('Shows 1 day when the membership expires tomorrow', () => {
+      setToday(2026, 10, 21, 14, 6);
+      setAnniversary(1792627200000);
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 1 });
+    });
+    it.each([
+      ['just after midnight', 0, 5],
+      ['late in the evening', 23, 55],
+    ])('Counts days from the local calendar date %s', (_, hours, minutes) => {
+      setToday(2026, 10, 21, hours, minutes);
+      setAnniversary(anniversary(2026, 10, 22));
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 1 });
+    });
+    it('Returns whole days when the range spans a DST end (clocks go back)', () => {
+      setToday(2026, 10, 20, 10);
+      setAnniversary(anniversary(2026, 11, 1));
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 12 });
+    });
+    it('Returns whole days when the range spans a DST start (clocks go forward)', () => {
+      setToday(2027, 3, 20, 10);
+      setAnniversary(anniversary(2027, 4, 1));
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 12 });
+    });
+    it('Shows 30 days at the start of the renew window', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) + 30 * DAY);
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 30 });
+    });
+    it('Returns undefined more than 30 days before expiration', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) + 31 * DAY);
+      expect(isRenew()).toBeUndefined();
+    });
+    it('Returns undefined on the expiration day', () => {
+      setToday(2026, 10, 22, 9);
+      setAnniversary(anniversary(2026, 10, 22));
+      expect(isRenew()).toBeUndefined();
+    });
+    it('Shows 89 days left the day after expiration', () => {
+      setToday(2026, 10, 23);
+      setAnniversary(anniversary(2026, 10, 22));
+      expect(isRenew()).toEqual({ accountStatus: 'suspended', daysNum: 89 });
+    });
+    it('Returns whole suspended days when the range spans a DST change', () => {
+      setToday(2026, 11, 1, 10);
+      setAnniversary(anniversary(2026, 10, 20));
+      expect(isRenew()).toEqual({ accountStatus: 'suspended', daysNum: 78 });
+    });
+    it('Shows 0 days left on the last day of the suspension window', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) - 90 * DAY);
+      expect(isRenew()).toEqual({ accountStatus: 'suspended', daysNum: 0 });
+    });
+    it('Returns undefined more than 90 days after expiration', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) - 91 * DAY);
+      expect(isRenew()).toBeUndefined();
+    });
   });
 
   it('Update ims config if user is signed in', () => {
