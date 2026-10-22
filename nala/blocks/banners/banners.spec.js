@@ -305,5 +305,27 @@ export default {
         bannerTitle: 'Notification with an image',
       },
     },
+    {
+      tcid: '22',
+      name: '@russia-custom-message-without-renewal-anniversary-date-last-30-days',
+      path: '/channelpartners/?georouting=off&martech=off',
+      tags: '@dme-banners @regression @circleCi',
+      data: {
+        partnerLevel: 'cpp-cert-russia:',
+        signInButtonInternationalText: 'Sign In',
+        bannerText: 'Due to increasing sanctions restrictions, Adobe is no longer able to accept orders from partners located in Russia and Belarus. As a result, your Adobe Partner Connection (APC) programme membership will remain active until your current term ends, after which it will expire and will not be renewed. You will also not be able to submit an uplevel request. Thank you for your partnership.',
+      },
+    },
+    {
+      tcid: '23',
+      name: '@belarus-custom-message-without-renewal-anniversary-date-last-90-days',
+      path: '/channelpartners/?georouting=off&martech=off',
+      tags: '@dme-banners @regression @circleCi',
+      data: {
+        partnerLevel: 'cpp-registred-belarus:',
+        signInButtonInternationalText: 'Sign In',
+        bannerText: 'Due to increasing sanctions restrictions, Adobe is no longer able to accept orders from partners located in Russia and Belarus. As a result, your Adobe Partner Connection (APC) programme membership will remain active until your current term ends, after which it will expire and will not be renewed. You will also not be able to submit an uplevel request. Thank you for your partnership.',
+      },
+    },
   ],
 };

@@ -27,6 +27,8 @@ export default class SearchTest {
     this.noResultsTitle = page.locator('.no-results-title');
     this.appleydFilter = page.getByLabel('plans & pricing');
     this.partnerCardsColl = page.locator('.partner-cards-collection');
+    this.filterButton = page.getByRole('button', { name: 'Filters' });
+    this.filterModal = page.locator('.filter-wrapper-mobile expanded');
   }
 
   async cardTitle(text) {

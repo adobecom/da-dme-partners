@@ -24,6 +24,7 @@ import {
   hasSalesCenterAccess,
   updateIMSConfig,
   getLocale,
+  getPermissionSpecializations,
   preloadResources,
   getCaasUrl,
   getNodesByXPath,
@@ -350,6 +351,23 @@ describe('Test utils.js', () => {
     expect(accountStatus).toEqual('suspended');
     expect(daysNum).toBeLessThanOrEqual(60);
   });
+  it('Returns whole number of days when range spans a DST change', () => {
+    jest.useFakeTimers().setSystemTime(new Date('2026-10-20T10:00:00'));
+    const cookieObject = {
+      CPP: {
+        primaryContact: true,
+        status: 'MEMBER',
+        level: 'registered',
+        accountAnniversary: '2026-11-01T00:00:00',
+      },
+    };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    const { accountStatus, daysNum } = isRenew();
+    expect(accountStatus).toEqual('expired');
+    expect(Number.isInteger(daysNum)).toBe(true);
+    expect(daysNum).toEqual(11);
+    jest.useRealTimers();
+  });
 
   it('Update ims config if user is signed in', () => {
     jest.useFakeTimers();
@@ -462,6 +480,11 @@ describe('Test utils.js', () => {
     const fakeWindow = { location: { hostname: 'partners.stage.adobe.com' } };
     expect(enableGeoPopup(fakeWindow)).toEqual('off');
   });
+  it('Disable geo popup for preview host', () => {
+    const fakeWindow = { location: { hostname: 'partnerspreview.adobe.com', search: '' } };
+    document.cookie = 'partner_data=';
+    expect(enableGeoPopup(fakeWindow)).toEqual('off');
+  });
   it('Enables geo popup for non milo urls if the user is not signed in', () => {
     const fakeWindow = { location: { hostname: 'partners.stage.adobe.com' } };
     document.cookie = 'partner_data=';
@@ -478,5 +501,73 @@ describe('Test utils.js', () => {
     );
 
     errorSpy.mockRestore();
+  });
+  it('Should return lowercased partner cookie values', () => {
+    const cookieObject = {
+      CPP: {
+        CountryCode: 'US',
+        Level: 'Gold',
+      },
+    };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+
+    expect(getPartnerCookieValue('cpp', 'countrycode')).toEqual('us');
+    expect(getPartnerCookieValue('cpp', 'level')).toEqual('gold');
+  });
+  it('Should merge partner info into partner cookie values', () => {
+    const cookieObject = { CPP: { level: 'gold' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    document.cookie = `partner_info=${JSON.stringify({ primaryContact: true })}`;
+
+    expect(getPartnerCookieValue('cpp', 'primarycontact')).toEqual(true);
+  });
+  it('Should return undefined from renew check when anniversary is outside the renew window', () => {
+    const anniversaryDate = new Date();
+    anniversaryDate.setDate(anniversaryDate.getDate() + 120);
+    const cookieObject = {
+      CPP: {
+        primaryContact: true,
+        status: 'MEMBER',
+        level: 'gold',
+        accountAnniversary: anniversaryDate,
+      },
+    };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+
+    expect(isRenew()).toBeUndefined();
+  });
+  it('Should build langstore locale prefix and preserve rtl direction', () => {
+    const locales = {
+      '': { ietf: 'en-US', tk: 'hah7vzn.css' },
+      ar: { ietf: 'ar-SA', tk: 'arabic.css', dir: 'rtl' },
+    };
+
+    expect(getLocale(locales, '/langstore/ar/channelpartners/')).toStrictEqual({
+      ietf: 'en-US',
+      tk: 'hah7vzn.css',
+      prefix: '/langstore/ar',
+      dir: 'rtl',
+    });
+  });
+  it('Should normalize partner permission specializations', () => {
+    const cookieObject = { CPP: { permissionSpecializations: 'VIP Marketplace, Education Elite , Government' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+
+    expect(getPermissionSpecializations()).toStrictEqual([
+      'vip-marketplace',
+      'education-elite',
+      'government',
+    ]);
+  });
+  it('Should use the stage chimera domain for non-production prp collections', () => {
+    window.history.pushState({}, '', '/channelpartners/');
+    document.body.innerHTML = '<div class="block"><div><div>Collection Tags</div><div><ul><li>Custom Tag</li></ul></div></div></div>';
+    const block = {
+      el: document.querySelector('.block'),
+      collectionTag: '"caas:adobe-partners/collections/prp-collection"',
+      ietf: 'en-US',
+    };
+
+    expect(getCaasUrl(block)).toContain('14257-chimera-stage.adobeioruntime.net');
   });
 });

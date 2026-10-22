@@ -40,6 +40,7 @@ export default class SmokeTest {
     this.geoModal = page.locator('#locale-modal-v2');
     this.cbcLearnMore = page.locator('.media .media-row a[href*="/bin/fusion/modalImsLogin?resource=%2Fen%2Fnews%2Fenablement-news-partner-lock"]');
     this.findDistributorBtn = page.getByRole('link', { name: 'Find a Distributor' });
+    this.findPartner = page.locator('.feds-navItem a[href*="/s/directory/channel?lang=en"]');
     this.programGnavOption = page.locator('.feds-navItem a[href*="/channelpartners/program"]');
     this.supportGnavOption = page.locator('.feds-navLink.feds-navLink--hoverCaret');
     this.supportResources = page.locator('.feds-navItem a[href*="/channelpartners/support"]');

@@ -227,7 +227,7 @@ export function isRenew() {
   let daysNum;
 
   const differenceInMilliseconds = expirationDate - now;
-  const differenceInDays = Math.abs(differenceInMilliseconds) / (1000 * 60 * 60 * 24);
+  const differenceInDays = Math.round(Math.abs(differenceInMilliseconds) / (1000 * 60 * 60 * 24));
 
   if (differenceInMilliseconds > 0 && differenceInDays < 31) {
     accountStatus = 'expired';
