@@ -158,6 +158,40 @@ describe('Test rewrite links', () => {
     expect(links[3].href).toBe('https://cbconnection-stage.adobe.com/en/home/search');
   });
 
+  test('should update adobe, helpx, business.adobe and cbc link locale when current page locale is br', () => {
+    document.body.innerHTML = `
+  <a href="https://business.adobe.com">cbc prod Link</a>
+  <a href="https://helpx.adobe.com">cbc prod Link</a>
+  <a href="https://www.adobe.com">cbc prod Link</a>
+  <a href="https://cbconnection.adobe.com/en/home/search/">cbc prod Link</a>
+`;
+    window.history.pushState({}, '', '/br/test-path');
+    partnerIsSignedIn.mockReturnValue(null);
+    rewriteLinks(document);
+    const links = document.querySelectorAll('a');
+    expect(links[0].href).toBe('https://business.adobe.com/br/');
+    expect(links[1].href).toBe('https://helpx.adobe.com/br/');
+    expect(links[2].href).toBe('https://www.adobe.com/br/');
+    expect(links[3].href).toBe('https://cbconnection-stage.adobe.com/br/home/search/');
+  });
+
+  test('should update adobe, helpx, business.adobe and cbc link locale when current page locale is la-es', () => {
+    document.body.innerHTML = `
+  <a href="https://business.adobe.com">cbc prod Link</a>
+  <a href="https://helpx.adobe.com">cbc prod Link</a>
+  <a href="https://www.adobe.com">cbc prod Link</a>
+  <a href="https://cbconnection.adobe.com/en/home/search/">cbc prod Link</a>
+`;
+    window.history.pushState({}, '', '/la-es/test-path');
+    partnerIsSignedIn.mockReturnValue(null);
+    rewriteLinks(document);
+    const links = document.querySelectorAll('a');
+    expect(links[0].href).toBe('https://business.adobe.com/la/');
+    expect(links[1].href).toBe('https://helpx.adobe.com/la/');
+    expect(links[2].href).toBe('https://www.adobe.com/la/');
+    expect(links[3].href).toBe('https://cbconnection-stage.adobe.com/la/home/search/');
+  });
+
   test('should  update channel partner domain on stage, no metter if user is signed in', () => {
     document.body.innerHTML = `
   <a href="https://channelpartners.adobe.com/s/registration/">update</a>
