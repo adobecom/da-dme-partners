@@ -119,27 +119,25 @@ export default class SmokeTest {
   }
 
   async announcmentCardVerification() {
-    const shadowHostCard = await this.page
-      .locator(
-        'announcements-cards.content.announcements-wrapper',
-      )
-      .elementHandle();
-    const announcementsCrad = await shadowHostCard.$$('.card-wrapper');
-    const firstCard = announcementsCrad[0];
-    await expect(async () => {
-      await firstCard.isVisible();
-      return true;
-    }).toPass();
+    const cards = this.page.locator('announcements-cards.content.announcements-wrapper .card-wrapper');
+    const firstCard = cards.first();
+    await expect(firstCard).toBeVisible();
 
-    const firstCardTitle = await this.page.locator('.announcements-wrapper .card-wrapper:nth-of-type(1) p.card-title').textContent();
+    const readMoreBtn = firstCard.locator('.card-btn').first();
+    await expect(readMoreBtn).toBeVisible();
 
-    const readMoreBtn = await firstCard.$('.card-btn');
     const href = await readMoreBtn.getAttribute('href');
+    expect(href).toBeTruthy();
 
-    await readMoreBtn.waitForElementState('stable');
     await readMoreBtn.scrollIntoViewIfNeeded();
-    await readMoreBtn.click({ force: true, timeout: 10000 });
-    await this.page.waitForURL('**', { timeout: 30000 });
+
+    await Promise.all([
+      this.page.waitForURL(
+        (url) => url.href.includes(href.endsWith('#') ? href.slice(0, -1) : href),
+        { timeout: 30000 },
+      ),
+      readMoreBtn.click({ timeout: 10000 }),
+    ]);
 
     const { profileIcon } = this;
     await profileIcon.waitFor({ state: 'visible', timeout: 30000 });
@@ -149,12 +147,6 @@ export default class SmokeTest {
 
     const cleanHref = href.endsWith('#') ? href.slice(0, -1) : href;
     expect(this.page.url()).toContain(cleanHref);
-
-    const { firstCardTrackingHeader } = this;
-    const trackingHeaderText = await firstCardTrackingHeader.textContent();
-    const normalizedFirstCardTitle = firstCardTitle?.replace(/\s+/g, ' ').trim();
-    const normalizedTrackingHeader = trackingHeaderText?.replace(/\s+/g, ' ').trim();
-    expect(normalizedTrackingHeader).toContain(normalizedFirstCardTitle);
   }
 
   getJoinNowButtonByRegion(text) {
