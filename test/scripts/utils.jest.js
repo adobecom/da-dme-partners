@@ -24,6 +24,7 @@ import {
   hasSalesCenterAccess,
   updateIMSConfig,
   getLocale,
+  getPermissionSpecializations,
   preloadResources,
   getCaasUrl,
   getNodesByXPath,
@@ -318,37 +319,102 @@ describe('Test utils.js', () => {
     redirectLoggedinPartner(fakeWindow);
     expect(fakeWindow.location.assign).not.toHaveBeenCalled();
   });
-  it('Check if partners account is expired', () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() + 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
+  describe('isRenew', () => {
+    const DAY = 24 * 60 * 60 * 1000;
+    const anniversary = (year, month, day) => Date.UTC(year, month - 1, day);
+    const setAnniversary = (accountAnniversary) => {
+      const cookieObject = {
+        CPP: {
+          primaryContact: true,
+          status: 'MEMBER',
+          level: 'registered',
+          accountAnniversary,
+        },
+      };
+      document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
     };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const { accountStatus, daysNum } = isRenew();
-    expect(accountStatus).toEqual('expired');
-    expect(daysNum).toBeLessThanOrEqual(30);
-  });
-  it('Check if partners account is suspended', () => {
-    const expiredDate = new Date();
-    expiredDate.setDate(expiredDate.getDate() - 30);
-    const cookieObject = {
-      CPP: {
-        primaryContact: true,
-        status: 'MEMBER',
-        level: 'gold',
-        accountAnniversary: expiredDate,
-      },
+    // "Today" is set in local time so the tests behave the same in every timezone.
+    const setToday = (year, month, day, hours = 12, minutes = 0) => {
+      jest.useFakeTimers().setSystemTime(new Date(year, month - 1, day, hours, minutes));
     };
-    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
-    const { accountStatus, daysNum } = isRenew();
-    expect(accountStatus).toEqual('suspended');
-    expect(daysNum).toBeLessThanOrEqual(60);
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('Shows 1 day when the membership expires tomorrow', () => {
+      setToday(2026, 10, 21, 14, 6);
+      setAnniversary(1792627200000);
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 1 });
+    });
+    it.each([
+      ['just after midnight', 0, 5],
+      ['late in the evening', 23, 55],
+    ])('Counts days from the local calendar date %s', (_, hours, minutes) => {
+      setToday(2026, 10, 21, hours, minutes);
+      setAnniversary(anniversary(2026, 10, 22));
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 1 });
+    });
+    it('Accepts a date-only anniversary string', () => {
+      setToday(2026, 10, 21);
+      setAnniversary('2026-10-31');
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 10 });
+    });
+    it('Returns whole days when the range spans a DST end (clocks go back)', () => {
+      setToday(2026, 10, 20, 10);
+      setAnniversary(anniversary(2026, 11, 1));
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 12 });
+    });
+    it('Returns whole days when the range spans a DST start (clocks go forward)', () => {
+      setToday(2027, 3, 20, 10);
+      setAnniversary(anniversary(2027, 4, 1));
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 12 });
+    });
+    it('Shows 30 days at the start of the renew window', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) + 30 * DAY);
+      expect(isRenew()).toEqual({ accountStatus: 'expired', daysNum: 30 });
+    });
+    it('Returns undefined more than 30 days before expiration', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) + 31 * DAY);
+      expect(isRenew()).toBeUndefined();
+    });
+    it('Shows the suspended banner with 90 days on the expiration day', () => {
+      setToday(2026, 10, 22, 9);
+      setAnniversary(anniversary(2026, 10, 22));
+      expect(isRenew()).toEqual({ accountStatus: 'suspended', daysNum: 90 });
+    });
+    it('Shows 89 days left the day after expiration', () => {
+      setToday(2026, 10, 23);
+      setAnniversary(anniversary(2026, 10, 22));
+      expect(isRenew()).toEqual({ accountStatus: 'suspended', daysNum: 89 });
+    });
+    it('Returns whole suspended days when the range spans a DST change', () => {
+      setToday(2026, 11, 1, 10);
+      setAnniversary(anniversary(2026, 10, 20));
+      expect(isRenew()).toEqual({ accountStatus: 'suspended', daysNum: 78 });
+    });
+    it('Shows 1 day left on the last day of the suspension window', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) - 89 * DAY);
+      expect(isRenew()).toEqual({ accountStatus: 'suspended', daysNum: 1 });
+    });
+    it('Returns undefined once the 90-day suspension window has passed', () => {
+      setToday(2026, 10, 21);
+      setAnniversary(anniversary(2026, 10, 21) - 90 * DAY);
+      expect(isRenew()).toBeUndefined();
+    });
+    it('Never returns 0 or a fraction of a day', () => {
+      setToday(2026, 10, 21, 23, 30);
+      for (let offset = -100; offset <= 40; offset += 1) {
+        setAnniversary(anniversary(2026, 10, 21) + offset * DAY);
+        const renew = isRenew();
+        if (renew) {
+          expect(Number.isInteger(renew.daysNum)).toBe(true);
+          expect(renew.daysNum).toBeGreaterThanOrEqual(1);
+        }
+      }
+    });
   });
 
   it('Update ims config if user is signed in', () => {
@@ -462,6 +528,11 @@ describe('Test utils.js', () => {
     const fakeWindow = { location: { hostname: 'partners.stage.adobe.com' } };
     expect(enableGeoPopup(fakeWindow)).toEqual('off');
   });
+  it('Disable geo popup for preview host', () => {
+    const fakeWindow = { location: { hostname: 'partnerspreview.adobe.com', search: '' } };
+    document.cookie = 'partner_data=';
+    expect(enableGeoPopup(fakeWindow)).toEqual('off');
+  });
   it('Enables geo popup for non milo urls if the user is not signed in', () => {
     const fakeWindow = { location: { hostname: 'partners.stage.adobe.com' } };
     document.cookie = 'partner_data=';
@@ -478,5 +549,73 @@ describe('Test utils.js', () => {
     );
 
     errorSpy.mockRestore();
+  });
+  it('Should return lowercased partner cookie values', () => {
+    const cookieObject = {
+      CPP: {
+        CountryCode: 'US',
+        Level: 'Gold',
+      },
+    };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+
+    expect(getPartnerCookieValue('cpp', 'countrycode')).toEqual('us');
+    expect(getPartnerCookieValue('cpp', 'level')).toEqual('gold');
+  });
+  it('Should merge partner info into partner cookie values', () => {
+    const cookieObject = { CPP: { level: 'gold' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+    document.cookie = `partner_info=${JSON.stringify({ primaryContact: true })}`;
+
+    expect(getPartnerCookieValue('cpp', 'primarycontact')).toEqual(true);
+  });
+  it('Should return undefined from renew check when anniversary is outside the renew window', () => {
+    const anniversaryDate = new Date();
+    anniversaryDate.setDate(anniversaryDate.getDate() + 120);
+    const cookieObject = {
+      CPP: {
+        primaryContact: true,
+        status: 'MEMBER',
+        level: 'gold',
+        accountAnniversary: anniversaryDate,
+      },
+    };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+
+    expect(isRenew()).toBeUndefined();
+  });
+  it('Should build langstore locale prefix and preserve rtl direction', () => {
+    const locales = {
+      '': { ietf: 'en-US', tk: 'hah7vzn.css' },
+      ar: { ietf: 'ar-SA', tk: 'arabic.css', dir: 'rtl' },
+    };
+
+    expect(getLocale(locales, '/langstore/ar/channelpartners/')).toStrictEqual({
+      ietf: 'en-US',
+      tk: 'hah7vzn.css',
+      prefix: '/langstore/ar',
+      dir: 'rtl',
+    });
+  });
+  it('Should normalize partner permission specializations', () => {
+    const cookieObject = { CPP: { permissionSpecializations: 'VIP Marketplace, Education Elite , Government' } };
+    document.cookie = `partner_data=${JSON.stringify(cookieObject)}`;
+
+    expect(getPermissionSpecializations()).toStrictEqual([
+      'vip-marketplace',
+      'education-elite',
+      'government',
+    ]);
+  });
+  it('Should use the stage chimera domain for non-production prp collections', () => {
+    window.history.pushState({}, '', '/channelpartners/');
+    document.body.innerHTML = '<div class="block"><div><div>Collection Tags</div><div><ul><li>Custom Tag</li></ul></div></div></div>';
+    const block = {
+      el: document.querySelector('.block'),
+      collectionTag: '"caas:adobe-partners/collections/prp-collection"',
+      ietf: 'en-US',
+    };
+
+    expect(getCaasUrl(block)).toContain('14257-chimera-stage.adobeioruntime.net');
   });
 });
