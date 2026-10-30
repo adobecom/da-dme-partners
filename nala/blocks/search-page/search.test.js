@@ -485,4 +485,24 @@ test.describe('Search Page validation', () => {
       await searchTest.checkCardTitle(`${data.assetTitle}`);
     });
   });
+  test(`${features[16].name}, ${features[16].tags}`, async ({ page }) => {
+    const { data, path } = features[16];
+
+    await test.step('Go to search page and sign in', async () => {
+      await page.goto(path);
+      await page.waitForLoadState('domcontentloaded');
+      await signInSearchTest.signIn(page, data.partnerLevel);
+      await searchTest.searchCard.first().waitFor({ state: 'visible', timeout: 30000 });
+    });
+
+    await test.step('Open the filter panel and click on Topic category', async () => {
+      await searchTest.filterButton.click();
+      await searchTest.filterTopic.click();
+    });
+
+    await test.step('Click outside the modal and verify that it closes', async () => {
+      await page.locator('body').click({ position: { x: 10, y: 10 } });
+      await expect(searchTest.filterModal).toBeHidden();
+    });
+  });
 });

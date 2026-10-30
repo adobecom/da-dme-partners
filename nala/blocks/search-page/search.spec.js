@@ -278,5 +278,15 @@ export default {
         assetTitle: 'MAPC stage Tag with -and-',
       },
     },
+    {
+      tcid: '17',
+      name: '@close-filter-panel-mobile-view',
+      path: '/channelpartners/home/search/?georouting=off&martech=off',
+      tags: '@dme-search @regression @circleCi @mobile',
+      data: {
+        partnerLevel: 'cpp-distributor-us:',
+        signInButtonInternationalText: 'Sign In',
+      },
+    },
   ],
 };

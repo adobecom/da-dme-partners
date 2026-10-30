@@ -218,23 +218,21 @@ export function isRenew() {
   const accountExpiration = getPartnerCookieValue(programType, 'accountanniversary');
   if (!accountExpiration) return;
 
-  const expirationDate = new Date(accountExpiration);
-  expirationDate.setHours(0, 0, 0, 0);
+  const dayInMs = 1000 * 60 * 60 * 24;
+  const expirationDay = Math.floor(new Date(accountExpiration).getTime() / dayInMs);
   const now = new Date();
-  now.setHours(0, 0, 0, 0);
+  const today = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate()) / dayInMs;
+  const daysUntilExpiration = expirationDay - today;
 
   let accountStatus;
   let daysNum;
 
-  const differenceInMilliseconds = expirationDate - now;
-  const differenceInDays = Math.abs(differenceInMilliseconds) / (1000 * 60 * 60 * 24);
-
-  if (differenceInMilliseconds > 0 && differenceInDays < 31) {
+  if (daysUntilExpiration > 0 && daysUntilExpiration <= 30) {
     accountStatus = 'expired';
-    daysNum = differenceInDays - 1;
-  } else if (differenceInMilliseconds < 0 && differenceInDays <= 90) {
+    daysNum = daysUntilExpiration;
+  } else if (daysUntilExpiration <= 0 && daysUntilExpiration > -90) {
     accountStatus = 'suspended';
-    daysNum = Math.floor(90 - differenceInDays);
+    daysNum = 90 + daysUntilExpiration;
   } else {
     return;
   }

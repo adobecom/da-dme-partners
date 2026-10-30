@@ -257,4 +257,29 @@ test.describe('Validate banners', () => {
       await expect(bannersPage.bannerTitleWithImage).toHaveText(data.bannerTitle);
     });
   });
+  [21, 22].forEach((index) => {
+    test(`${features[index].name},${features[index].tags}`, async ({ page }) => {
+      const { data, path } = features[index];
+      await test.step('Go to public page', async () => {
+        await page.goto(`${path}`);
+        await page.waitForLoadState('domcontentloaded');
+        const signInButtonInt = await signInPage.getSignInButton(`${data.signInButtonInternationalText}`);
+        await signInButtonInt.click();
+      });
+
+      await test.step('Sign in', async () => {
+        await signInPage.signIn(page, `${data.partnerLevel}`);
+        await page.waitForLoadState('domcontentloaded');
+        await signInPage.profileIconButton.waitFor({ state: 'visible', timeout: 30000 });
+      });
+
+      await test.step('Verify global banner with image', async () => {
+        await expect(bannersPage.renewBannerCertifiedUS).toBeVisible();
+        await expect(bannersPage.renewBannerCertifiedUS).toHaveText(data.bannerText);
+        await expect(bannersPage.renewBannerCertifiedUS).toHaveText(data.bannerText);
+        const renewBanner = await bannersPage.bannerLink;
+        await expect(renewBanner).toBeHidden();
+      });
+    });
+  });
 });
