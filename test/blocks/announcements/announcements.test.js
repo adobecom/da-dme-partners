@@ -10,6 +10,9 @@ const cards = JSON.parse(cardsString);
 
 describe('announcements block', () => {
   beforeEach(async () => {
+    const fetchStub = sinon.stub(window, 'fetch').callThrough();
+    fetchStub.withArgs(sinon.match((url) => String(url).includes('/placeholders.json')))
+      .resolves(new Response(JSON.stringify({ data: [] })));
     sinon.stub(PartnerCards.prototype, 'fetchData').resolves({ cards });
 
     // eslint-disable-next-line no-underscore-dangle
@@ -26,6 +29,7 @@ describe('announcements block', () => {
   });
 
   afterEach(() => {
+    window.fetch.restore();
     PartnerCards.prototype.fetchData.restore();
     PartnerCards.prototype.firstUpdated.restore();
   });
@@ -61,6 +65,26 @@ describe('announcements block', () => {
 
     return { announcementsWrapper };
   };
+
+  it('uses the fallback background when a card image fails to load', () => {
+    const image = { src: '', onerror: null };
+    const imageStub = sinon.stub(window, 'Image').returns(image);
+    try {
+      const card = document.createElement('single-partner-card');
+      [card.data] = cards;
+      const header = document.createElement('div');
+
+      card.checkBackgroundImage(header);
+
+      expect(image.src).to.equal(card.imageUrl);
+      expect(header.style.backgroundImage).to.equal('');
+      image.onerror();
+      expect(header.style.backgroundImage)
+        .to.equal('url("https://partners.stage.adobe.com/content/dam/solution/en/images/card-collection/sample_default.png")');
+    } finally {
+      imageStub.restore();
+    }
+  });
 
   describe('AnnouncementsCards filtering logic', () => {
     const cardFactory = ({ id, cardDate, endDate = '', tags = [{ id: 'caas:adobe-partners/collections/announcements' }] }) => ({
@@ -131,6 +155,30 @@ describe('announcements block', () => {
 
       instance.handleDateFilterAction();
       expect(instance.cards.map((card) => card.id)).to.deep.equal(['previous']);
+    });
+
+    it('includes the last-90-days boundaries and excludes older and future announcements', () => {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const start = new Date(today);
+      start.setDate(start.getDate() - 90);
+      const beforeStart = new Date(start);
+      beforeStart.setDate(beforeStart.getDate() - 1);
+      const tomorrow = new Date(today);
+      tomorrow.setDate(tomorrow.getDate() + 1);
+
+      const instance = new Announcements();
+      instance.cards = [
+        cardFactory({ id: 'start', cardDate: start.toISOString() }),
+        cardFactory({ id: 'today', cardDate: today.toISOString() }),
+        cardFactory({ id: 'older', cardDate: beforeStart.toISOString() }),
+        cardFactory({ id: 'future', cardDate: tomorrow.toISOString() }),
+      ];
+      instance.selectedDateFilter = { key: 'last-90-days' };
+
+      instance.handleDateFilterAction();
+
+      expect(instance.cards.map((card) => card.id)).to.deep.equal(['start', 'today']);
     });
   });
 

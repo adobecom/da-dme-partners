@@ -9,7 +9,9 @@ describe('yukon-chat block', () => {
   let init;
 
   beforeEach(async () => {
-    setLibs('/libs');
+    const miloLibs = setLibs('/libs');
+    const { setConfig } = await import(`${miloLibs}/utils/utils.js`);
+    setConfig({ miloLibs, locales: { '': { ietf: 'en-US' } } });
 
     window.matchMedia = sinon.stub().returns({
       matches: false,

@@ -3,6 +3,12 @@ import { expect } from '@esm-bundle/chai';
 import sinon from 'sinon';
 import { setLibs } from '../../../edsdme/scripts/utils.js';
 
+async function openFeedbackDialog(button) {
+  button.click();
+  await Promise.all([...document.querySelectorAll('.feedback-dialog sp-field-label, .feedback-dialog sp-textfield')]
+    .map((element) => element.updateComplete));
+}
+
 describe('feedback block', () => {
   let fetchStub;
   beforeEach(async () => {
@@ -79,6 +85,7 @@ describe('feedback block', () => {
     });
 
     it('should handle fetch errors gracefully', async () => {
+      const consoleErrorStub = sinon.stub(console, 'error');
       const meta = document.createElement('meta');
       meta.name = 'feedback';
       meta.content = 'true';
@@ -92,9 +99,15 @@ describe('feedback block', () => {
 
       const { setFeedback } = await import('../../../edsdme/scripts/utils.js');
       const getConfig = () => ({ locale: { prefix: '' } });
-      const result = await setFeedback(getConfig);
-
-      expect(result).to.be.null;
+      try {
+        const result = await setFeedback(getConfig);
+        expect(result).to.be.null;
+        expect(consoleErrorStub.calledOnce).to.be.true;
+        expect(consoleErrorStub.firstCall.args[0]).to.equal('Error fetching plain html of feedback fragment:');
+        expect(consoleErrorStub.firstCall.args[1].message).to.equal('Response was not ok Not Found');
+      } finally {
+        consoleErrorStub.restore();
+      }
     });
   });
 
@@ -110,7 +123,7 @@ describe('feedback block', () => {
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
       expect(stickyButton).to.exist;
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const dialog = document.querySelector('.feedback-dialog');
       expect(dialog).to.exist;
@@ -127,7 +140,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const emailField = document.querySelector('#feedback-email');
       const emailLabel = document.querySelector('.feedback-email-wrapper .feedback-label-text');
@@ -145,7 +158,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const emailField = document.querySelector('#feedback-email');
       expect(emailField).to.not.exist;
@@ -159,7 +172,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       const mouseEnterEvent = new Event('mouseenter');
@@ -185,7 +198,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -212,7 +225,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[2].click();
@@ -222,7 +235,7 @@ describe('feedback block', () => {
 
       expect(document.querySelector('.feedback-dialog')).to.not.exist;
 
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const selectedStars = document.querySelectorAll('sp-action-button[selected]');
       expect(selectedStars.length).to.equal(3);
@@ -239,7 +252,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -261,7 +274,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -293,7 +306,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -316,7 +329,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -341,7 +354,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -377,7 +390,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -400,7 +413,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -439,7 +452,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -469,7 +482,7 @@ describe('feedback block', () => {
       await init(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();
@@ -505,7 +518,7 @@ describe('feedback block', () => {
       await feedbackModule.default(block);
 
       const stickyButton = document.querySelector('.sticky-feedback-button');
-      stickyButton.click();
+      await openFeedbackDialog(stickyButton);
 
       const stars = document.querySelectorAll('sp-action-button[data-rating]');
       stars[3].click();

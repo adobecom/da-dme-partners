@@ -35,6 +35,8 @@ describe('search-full block', () => {
       ok: true,
       json: () => Promise.resolve(mockSearchResponse),
     });
+    fetchStub.withArgs(sinon.match((url) => String(url).includes('/placeholders.json')))
+      .resolves(new Response(JSON.stringify({ data: [] })));
 
     sinon.stub(Search.prototype, 'fetchData').callsFake(async () => {
     });

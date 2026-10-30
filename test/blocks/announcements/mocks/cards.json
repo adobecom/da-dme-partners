@@ -7,7 +7,7 @@
     },
     "styles": {
       "typeOverride": "default",
-      "backgroundImage": "https://main--dme-partners--adobecom.aem.live/default-meta-image.png?width=1200&format=pjpg&optimize=medium",
+      "backgroundImage": "https://main--dme-partners--adobecom.aem.live/edsdme/img/icons/star.svg",
       "backgroundAltText": "Test1",
       "mnemonic": "",
       "icon": "",
@@ -111,7 +111,7 @@
     },
     "styles": {
       "typeOverride": "default",
-      "backgroundImage": "https://main--dme-partners--adobecom.aem.page/default-meta-image.png?width=1200&format=pjpg&optimize=medium",
+      "backgroundImage": "https://main--dme-partners--adobecom.aem.page/edsdme/img/icons/star.svg",
       "backgroundAltText": "Test1",
       "mnemonic": "",
       "icon": "",
