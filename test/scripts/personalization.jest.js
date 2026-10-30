@@ -333,4 +333,39 @@ describe('Test personalization.js', () => {
       });
     });
   });
+
+  describe('personalizationUtils COOKIE_OBJECT', () => {
+    function importCookieObject() {
+      // eslint-disable-next-line global-require
+      return require('../../edsdme/scripts/personalizationUtils.js').COOKIE_OBJECT;
+    }
+
+    beforeEach(() => {
+      document.cookie = 'partner_info=; Max-Age=0;';
+    });
+
+    afterEach(() => {
+      document.cookie = 'partner_data=; Max-Age=0;';
+      jest.restoreAllMocks();
+    });
+
+    it('Returns partner cookie object for valid cookie', () => {
+      jest.isolateModules(() => {
+        document.cookie = `partner_data=${JSON.stringify({ CPP: { status: 'MEMBER' } })}`;
+        expect(importCookieObject()).toEqual({ status: 'MEMBER' });
+      });
+    });
+
+    it('Falls back to empty object and logs error for malformed cookie', () => {
+      const consoleErrorSpy = jest.spyOn(console, 'error').mockImplementation(() => {});
+      jest.isolateModules(() => {
+        document.cookie = 'partner_data=invalid-json-data';
+        expect(importCookieObject()).toEqual({});
+        expect(consoleErrorSpy).toHaveBeenCalledWith(
+          'Error parsing partner cookie object:',
+          expect.any(SyntaxError),
+        );
+      });
+    });
+  });
 });
