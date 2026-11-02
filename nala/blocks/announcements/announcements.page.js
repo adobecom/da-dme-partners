@@ -21,6 +21,7 @@ export default class AnnouncementsPage {
     this.pageNumButton = page.locator('button.page-btn');
     this.learnMoreButton = page.getByRole('link', { name: 'Learn more' });
     this.announcemntCollection = page.locator('.partner-cards-collection');
+    // test
   }
 
   async clickPageNumButton(pageNum) {
