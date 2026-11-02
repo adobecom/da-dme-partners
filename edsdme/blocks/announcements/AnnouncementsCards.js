@@ -13,6 +13,7 @@ export function filterExpiredAnnouncements(cards, blockData) {
     if (isNeverExpires) return !blockData.isArchive;
     const cardDate = new Date(card.cardDate);
     const cardEndDate = card.endDate ? new Date(card.endDate) : null;
+    console.log('End data for card:', cardEndDate, card.contentArea.title, cardDate.toString(), card.id, 'API URL:', window.location);
     const now = Date.now();
     if (blockData.isArchive) {
       return cardEndDate ? cardEndDate < now : cardDate <= startDate;
