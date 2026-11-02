@@ -261,18 +261,19 @@ export default {
     {
       tcid: '21',
       name: '@sso-integration-between-apc-and-finder',
-      path: '/na/channelpartners/home/#?georouting=on&martech=off',
+      path: '/na/channelpartners/#?georouting=on&martech=off',
       tags: '@dme-smoke-test',
       data: {
         partnerLevel: 'cpp-distributor-us:',
-        expectedSalesForceURL: '/s/directory/channel?lang=en&view=distributor',
+        signInButtonInternationalText: 'Sign In',
         expectedFindURL: '/s/directory/channel?lang=en&view=distributor',
+        expectedPartnerURL: '/s/directory/channel',
       },
     },
     {
       tcid: '22',
       name: '@na-footer-and-gnav-validation',
-      path: '/channelpartners/#?georouting=off&martech=off',
+      path: '/channelpartners/?georouting=off&martech=off',
       tags: '@dme-smoke-test',
       data: {
         defaultURL: '/na/channelpartners/',
@@ -283,7 +284,7 @@ export default {
     {
       tcid: '23',
       name: '@kr-footer-and-gnav-validation',
-      path: '/channelpartners/#?georouting=off&martech=off',
+      path: '/channelpartners/?georouting=off&martech=off',
       tags: '@dme-smoke-test',
       data: {
         defaultURL: '/kr/channelpartners/',

@@ -13,9 +13,6 @@ test.describe('Validate announcements block', () => {
   test.beforeEach(async ({ page, browserName, baseURL, context }) => {
     announcementsPage = new AnnouncementsPage(page);
     singInPage = new SignInPage(page);
-    page.on('console', (msg) => {
-      console.log(`${msg.type()}: ${msg.text()}`, msg.type() === 'error' ? msg.location().url : null);
-    });
     if (!baseURL.includes('partners.stage.adobe.com')) {
       await context.setExtraHTTPHeaders({ authorization: `token ${process.env.MILO_AEM_API_KEY}` });
     }
@@ -25,18 +22,9 @@ test.describe('Validate announcements block', () => {
           'https://www.adobe.com/chimera-api',
           'https://14257-chimera.adobeioruntime.net/api/v1/web/chimera-0.0.1',
         );
-        console.log('Rerouting to new url: ', newUrl);
         route.continue({ url: newUrl });
       });
     }
-
-    // Print the exact API URL used to fetch cards
-    page.on('request', (req) => {
-      const url = req.url();
-      if (url.includes('/collection')) {
-        console.log('[CARDS API URL]:', url);
-      }
-    });
   });
 
   test(`${features[0].name},${features[0].tags}`, async ({ page, baseURL }) => {
@@ -45,39 +33,33 @@ test.describe('Validate announcements block', () => {
       await page.goto(`${baseURL}${features[0].path}`, { waitUntil: 'domcontentloaded' });
       console.log(baseURL, features[0].path);
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Enter Automation regression announcements card worldwide no1 in search field', async () => {
       await announcementsPage.searchField.fill(data.firstCardTitle);
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfMatchingTitleCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingTitleCards}\\s`));
     });
 
     await test.step('Clear search field on X', async () => {
       await announcementsPage.clearSearchSelector.click();
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Enter Automation regression announcements card worldwide no2 in search field', async () => {
       await announcementsPage.searchField.fill(data.secondCardTitle);
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfMatchingTitleCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingTitleCards}\\s`));
     });
 
     await test.step('Clear all', async () => {
       await announcementsPage.clearAllSelector.click();
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Enter Automation regression in search field', async () => {
       await announcementsPage.searchField.fill(data.searchCards);
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfMatchingDescCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingDescCards}\\s`));
     });
   });
 
@@ -86,15 +68,13 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[1].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Select Oldest sort option', async () => {
       await announcementsPage.searchField.fill(data.searchCards);
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfMatchingDescCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingDescCards}\\s`));
       await announcementsPage.sortBtn.click();
       await announcementsPage.oldestOption.click();
       const paginationText = await announcementsPage.paginationText.textContent();
@@ -112,7 +92,7 @@ test.describe('Validate announcements block', () => {
       const firstCardDate = new Date(await announcementsPage.firstCardDate.textContent()).getTime();
       const lastCardDate = new Date(await announcementsPage.lastCardDate.textContent()).getTime();
       await expect(firstCardDate).toBeLessThan(lastCardDate);
-      await expect(await announcementsPage.cardCount.count()).toBe(data.numberOfMatchingDescCards);
+      await expect(announcementsPage.cardCount).toHaveCount(data.numberOfMatchingDescCards);
     });
   });
 
@@ -121,12 +101,10 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[2].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      const result = await announcementsPage.resultNumber.textContent();
-      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
       await announcementsPage.searchField.fill(data.searchCards);
-      const filteredCards = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(filteredCards.split(' ')[0], 10)).toBe(data.numberOfMatchingDescCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingDescCards}\\s`));
     });
 
     await test.step('Verify pagination buttons', async () => {
@@ -136,7 +114,7 @@ test.describe('Validate announcements block', () => {
       await expect(paginationPrevButton).toHaveClass(/disabled/);
       const paginationNextButton = await announcementsPage.paginationNextButton;
       await expect(paginationNextButton).not.toHaveClass(/disabled/);
-      await expect(await announcementsPage.pageCount.count()).toBe(data.totalPageCount);
+      await expect(announcementsPage.pageCount).toHaveCount(data.totalPageCount);
       await announcementsPage.clickPageNumButton(data.pageButtonNumber);
       paginationText = await announcementsPage.paginationText.textContent();
       await expect(paginationText.toLowerCase()).toBe(data.secondPageResult);
@@ -155,57 +133,44 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[3].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Test audience filter', async () => {
       await announcementsPage.expandFilterOptions(data.filterAudience);
       await announcementsPage.clickFilterOptions(data.filterSales);
-      const resultAfterSalesFilterApplied = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterSalesFilterApplied.split(' ')[0], 10)).toBe(data.cardsWithSales);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithSales}\\s`));
       await announcementsPage.clickFilterOptions(data.filterPracticeLead);
-      const resultAfterPracticeLeadFilterApplied = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterPracticeLeadFilterApplied.split(' ')[0], 10)).toBe(data.cardsWithSalesAndPracticeLead);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithSalesAndPracticeLead}\\s`));
       await announcementsPage.clearFilter(data.filterAudience, data.numberOfAudienceFiltersSelected);
-      const resultAfterClearingAudienceFilter = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterClearingAudienceFilter.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Test marketing filter', async () => {
       await announcementsPage.expandFilterOptions(data.filterMarketing);
       await announcementsPage.clickFilterOptions(data.filterAdvertising);
       await announcementsPage.clickFilterOptions(data.filterSolutions);
-      const resultAfterMarketingFilter = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterMarketingFilter.split(' ')[0], 10)).toBe(data.cardsWithAdvertisingAndSolutions);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithAdvertisingAndSolutions}\\s`));
       await announcementsPage.clickFilterOptions(data.filterSolutions);
-      const resultAfterClearingFilter = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterClearingFilter.split(' ')[0], 10)).toBe(data.cardsWithAdvertising);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithAdvertising}\\s`));
       await announcementsPage.clearSideBarFilterButton(data.filterAdvertising);
-      const resultAfterClearingAllFilters = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterClearingAllFilters.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Test different filter combinations', async () => {
       await announcementsPage.clickFilterOptions(data.filterProduct);
-      const resultAfterProductFilter = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterProductFilter.split(' ')[0], 10)).toBe(data.cardsWithProduct);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithProduct}\\s`));
       await announcementsPage.clickFilterOptions(data.filterSales);
-      const resultAfterSalesFilters = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterSalesFilters.split(' ')[0], 10)).toBe(data.cardsWithSales);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithSales}\\s`));
       await announcementsPage.clearAllSelector.click();
-      const resultAfterClearingAllFilters = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterClearingAllFilters.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Test date filter', async () => {
       await announcementsPage.expandFilterOptions(data.filterDate);
       await announcementsPage.clickDateFilterOptions(data.filterLastNinetyDays);
-      await announcementsPage.clickFilterOptions(data.filterLastNinetyDays);
-      await page.waitForNetworkIdle({ timeout: 10000 });
-      const resultAfterDateFilter = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterDateFilter.split(' ')[0], 10)).toBe(data.cardsWithLastNinetyDays);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithLastNinetyDays}\\s`));
       const firstCardTitle = await announcementsPage.firstCardTitle.textContent();
       await expect(firstCardTitle).toBe(data.titleOfDateFilteredCard);
     });
@@ -216,9 +181,9 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[4].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
+      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
       await announcementsPage.searchField.fill(data.searchCardTitle);
-      const resultAfterSearch = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultAfterSearch.split(' ')[0], 10)).toBe(data.numberOfMatchingTitleCards);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingTitleCards}\\s`));
     });
 
     await test.step('Read now', async () => {
@@ -234,33 +199,26 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[5].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.partnerCards.waitFor({ state: 'visible', timeout: 30000 });
-      const result = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(result.split(' ')[0], 10)).toBe(data.numberOfPublicCards);
+      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
     await test.step('Edge cases search bar', async () => {
       await announcementsPage.searchField.fill(data.specialCharsTitleSearch);
-      const resultSpecialCharsCard = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultSpecialCharsCard.split(' ')[0], 10)).toBe(data.cardsWithSpecialChars);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithSpecialChars}\\s`));
       await announcementsPage.searchField.fill(data.dateInPastTitleSearch);
-      const resultDateInPastCard = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultDateInPastCard.split(' ')[0], 10)).toBe(data.cardsWithDateInPast);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithDateInPast}\\s`));
       await announcementsPage.searchField.fill(data.eventEndedTitleSearch);
-      const resultEventEndedCard = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultEventEndedCard.split(' ')[0], 10)).toBe(data.cardsWithEventEnded);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithEventEnded}\\s`));
       await announcementsPage.searchField.fill(data.tooLongTitleSearch);
-      const resultWorldwideLongTitleCard = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultWorldwideLongTitleCard.split(' ')[0], 10)).toBe(data.cardsWithTooLongTitle);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithTooLongTitle}\\s`));
       await announcementsPage.searchField.fill(data.noCollectionTagTitleSearch);
-      const resultWithoutCollectionTagCard = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultWithoutCollectionTagCard.split(' ')[0], 10)).toBe(data.cardsWithoutCollectionTag);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithoutCollectionTag}\\s`));
       await announcementsPage.clearAllSelector.click();
       const firstCardTitle = await announcementsPage.firstCardTitle;
       await expect(firstCardTitle).toContainText(data.defaultCardTitle);
       await announcementsPage.searchField.fill(data.noTitleSearch);
-      const resultWithoutTitleCard = await announcementsPage.resultNumber.textContent();
-      await expect(parseInt(resultWithoutTitleCard.split(' ')[0], 10)).toBe(data.cardsWithoutTitle);
+      await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.cardsWithoutTitle}\\s`));
     });
   });
 
@@ -277,50 +235,18 @@ test.describe('Validate announcements block', () => {
           context,
         );
         await page.reload({ waitUntil: 'domcontentloaded' });
+        await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
       });
 
       await test.step(`Verify card titled ${feature.data.partnerLevelCardTitle} is present on page`, async () => {
-        // const cardN1 = page.getByText('card-metadata | Adobe Partner');
-        // await expect(cardN1).toBeVisible();
-        // const cardN2 = page.getByText('Automation regression').first();
-        // await expect(cardN2).toBeVisible();
-        // const loadMoreButton = page.getByLabel('Load more');
-        // await loadMoreButton.click();
-        // const cardN3 = page.getByText('Automation regression announcements card Worldwide too long title too long').first();
-        // await expect(cardN3).toBeVisible();
-        // const cardN4 = page.getByText('Automation regression announcements card Worldwide no3', { exact: true });
-        // await expect(cardN4).toBeVisible();
-        // await loadMoreButton.click();
-        // const cardN5 = page.getByText('Automation regression announcements card Worldwide no3', { exact: true });
-        // await expect(cardN5).toBeVisible();
-        // const cardN6 = page.getByText('Automation regression announcements card Worldwide no1', { exact: true });
-        // await expect(cardN6).toBeVisible();
-        // await loadMoreButton.click();
-        // await page.waitForTimeout(10000);
-        // // const cardN7 = page.getByText('CPP Gold Europe East');
-        // // await expect(cardN7).toBeVisible();
-        // const cardN8 = page.getByText('CPP Gold UK, Europe West');
-        // await expect(cardN8).toBeVisible();
-        // await loadMoreButton.click();
-        // const cardN9 = page.getByText('CPP Gold Latin America');
-        // await expect(cardN9).toBeVisible();
-        // const cardN10 = page.getByText('CPP Gold Spain Announcement');
-        // await expect(cardN10).toBeVisible();
-        // // await loadMoreButton.click();
-        // const cardN11 = page.getByText('Automation regression announcements card Worldwide no4', { exact: true });
-        // await expect(cardN11).toBeVisible();
-        // // await page.waitForTimeout(10000);
-        const resultTotal = await announcementsPage.resultNumber.textContent();
-        await expect(parseInt(resultTotal.split(' ')[0], 10)).toBe(feature.data.totalNumberOfCards);
+        await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${feature.data.totalNumberOfCards}\\s`));
         await announcementsPage.searchField.fill(`${feature.data.partnerLevelCardTitle}`);
-        const resultSearch = await announcementsPage.resultNumber.textContent();
-        await expect(parseInt(resultSearch.split(' ')[0], 10)).toBe(feature.data.numberOfPartnerLevelCards);
+        await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${feature.data.numberOfPartnerLevelCards}\\s`));
       });
 
       await test.step(`Verify card titled ${feature.data.higherPartnerLevelCardTitle} is not present on page`, async () => {
         await announcementsPage.searchField.fill(`${feature.data.higherPartnerLevelCardTitle}`);
-        const resultSearch = await announcementsPage.resultNumber.textContent();
-        await expect(parseInt(resultSearch.split(' ')[0], 10)).toBe(feature.data.numberOfHigherPartnerLevelCards);
+        await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${feature.data.numberOfHigherPartnerLevelCards}\\s`));
       });
     });
   });

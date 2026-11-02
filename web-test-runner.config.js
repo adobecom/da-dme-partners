@@ -16,6 +16,8 @@ function customReporter() {
   };
 }
 export default {
+  // Test files share cookies/storage on the same origin; run them serially to avoid cross-file leaks.
+  concurrency: 1,
   coverageConfig: {
     exclude: [
       '**/mocks/**',
