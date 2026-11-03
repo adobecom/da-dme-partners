@@ -26,7 +26,7 @@ test.describe('Validate announcements block', () => {
       });
     }
   });
-
+// test
   test(`${features[0].name},${features[0].tags}`, async ({ page, baseURL }) => {
     const { data } = features[0];
     await test.step('Go to Announcements page', async () => {
