@@ -20,6 +20,7 @@ export default class AnnouncementsPage {
     this.paginationNextButton = page.locator('button.pagination-next-btn');
     this.pageNumButton = page.locator('button.page-btn');
     this.learnMoreButton = page.getByRole('link', { name: 'Learn more' });
+    this.cardCollection = page.locatoru('.partner-cards-collection');
   }
 
   async clickPageNumButton(pageNum) {
