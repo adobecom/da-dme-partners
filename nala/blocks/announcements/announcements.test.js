@@ -33,7 +33,7 @@ test.describe('Validate announcements block', () => {
       await page.goto(`${baseURL}${features[0].path}`, { waitUntil: 'domcontentloaded' });
       console.log(baseURL, features[0].path);
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await announcementsPage.cardCollection.waitFor({ state: 'visible' });
       await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
@@ -68,7 +68,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[1].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await announcementsPage.cardCollection.waitFor({ state: 'visible' });
       await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
@@ -101,7 +101,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[2].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await announcementsPage.cardCollection.waitFor({ state: 'visible' });
       await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
       await announcementsPage.searchField.fill(data.searchCards);
       await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingDescCards}\\s`));
@@ -133,7 +133,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[3].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await announcementsPage.cardCollection.waitFor({ state: 'visible' });
       await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
@@ -181,7 +181,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[4].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await announcementsPage.cardCollection.waitFor({ state: 'visible' });
       await announcementsPage.searchField.fill(data.searchCardTitle);
       await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfMatchingTitleCards}\\s`));
     });
@@ -199,7 +199,7 @@ test.describe('Validate announcements block', () => {
     await test.step('Go to Announcements page', async () => {
       await page.goto(`${baseURL}${features[5].path}`, { waitUntil: 'domcontentloaded' });
       await announcementsPage.learnMoreButton.waitFor({ state: 'visible' });
-      await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+      await announcementsPage.cardCollection.waitFor({ state: 'visible' });
       await expect(announcementsPage.resultNumber).toHaveText(new RegExp(`^${data.numberOfPublicCards}\\s`));
     });
 
@@ -235,7 +235,7 @@ test.describe('Validate announcements block', () => {
           context,
         );
         await page.reload({ waitUntil: 'domcontentloaded' });
-        await announcementsPage.announcemntCollection.waitFor({ state: 'visible' });
+        await announcementsPage.cardCollection.waitFor({ state: 'visible' });
       });
 
       await test.step(`Verify card titled ${feature.data.partnerLevelCardTitle} is present on page`, async () => {
