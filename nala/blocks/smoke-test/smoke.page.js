@@ -61,6 +61,9 @@ export default class SmokeTest {
     this.feedbackSendButton = page.locator('.feedback-dialog-button.cta');
     this.feedBackStars3 = page.locator('sp-action-button[data-rating="3"]');
     this.partnersCardsCollection = page.locator('.single-marketing-resources-card').nth(0);
+    this.vipMarketplaceFirstLink = page.getByRole('link', { name: 'What is VIP Marketplace' });
+    this.acrobatStudioBrief = page.getByRole('link', { name: 'Acrobat Studio Solutions Brief' });
+    this.visitCBCbutton = page.getByRole('link', { name: 'Visit CBC' });
   }
 
   async smokeSignIn(page, baseURL, partnerLevel) {
