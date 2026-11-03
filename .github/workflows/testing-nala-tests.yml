@@ -18,7 +18,7 @@ jobs:
       - name: Run Nala
         uses: adobecom/da-dme-partners@nala # Change if doing dev work
         env:
-          labels: ${{ '@anonymous' }}
+          labels: ${{ '@dme-announcements' }}
           branch: ${{ github.event.pull_request.head.ref }}
           repoName: ${{ github.repository }}
           prUrl: ${{ github.event.pull_request.head.repo.html_url }}

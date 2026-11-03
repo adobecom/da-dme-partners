@@ -1,3 +1,5 @@
+import { expect } from '@playwright/test';
+
 export default class AnnouncementsPage {
   constructor(page) {
     this.page = page;
@@ -32,7 +34,10 @@ export default class AnnouncementsPage {
   }
 
   async clickFilterOptions(filterOption) {
-    await this.page.locator(`sp-checkbox:text-is("${filterOption}")`).click();
+    const checkBox = this.page.locator(`sp-checkbox:text-is("${filterOption}")`);
+    await expect(checkBox).toBeVisible();
+    await expect(checkBox).toBeEnabled();
+    await checkBox.click();
   }
 
   async clickDateFilterOptions(dateFilterOption) {
