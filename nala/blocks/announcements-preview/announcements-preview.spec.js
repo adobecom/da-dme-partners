@@ -5,7 +5,7 @@ export default {
       tcid: '1',
       name: '@desc-regression-announcements-preview-platinum-user',
       path: '/channelpartners/drafts/automation/regression/announcement-preview?georouting=off&martech=off',
-      tags: '@dme-announcements-preview @regression @anonymous',
+      // tags: '@dme-announcements-preview @regression @anonymous',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -21,7 +21,7 @@ export default {
       tcid: '2',
       name: '@desc-regression-announcements-preview-registered-user',
       path: '/channelpartners/drafts/automation/regression/announcement-preview?georouting=off&martech=off',
-      tags: '@dme-announcements-preview @regression @anonymous',
+      // tags: '@dme-announcements-preview @regression @anonymous',
       data: {
         partnerData: {
           partnerPortal: 'CPP',
@@ -37,7 +37,7 @@ export default {
       tcid: '3',
       name: '@desc-regression-announcements-preview-gold-user',
       path: '/channelpartners/drafts/automation/regression/announcement-preview?georouting=off&martech=off',
-      tags: '@dme-announcements-preview @regression @anonymous',
+      // tags: '@dme-announcements-preview @regression @anonymous',
       data: {
         partnerData: {
           partnerPortal: 'CPP',

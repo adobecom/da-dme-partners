@@ -230,6 +230,8 @@ export default class PartnerCards extends LitElement {
     if (this.blockData.sort.items.length) this.selectedSortOrder = this.blockData.sort.default;
     if (this.blockData.cardsPerPage) this.cardsPerPage = this.blockData.cardsPerPage;
     this.additionalFirstUpdated();
+    console.log('All Cards after first update:', JSON.stringify(this.allCards));
+    console.log('Cards after first update:', JSON.stringify(this.cards));
     this.initUrlSearchParams();
     this.handleActions();
 
@@ -338,10 +340,18 @@ export default class PartnerCards extends LitElement {
         this.blockData.caasUrl,
         this.getFetchOptions(),
       );
+      const executionID = Math.floor(Math.random() * 10000);
+      console.log('Block Data: ', this.blockData.caasUrl, executionID);
+      console.log('Fetch actual URL: ', response.url, executionID);
+      console.log(
+        'Fetch API Headers New Log:',
+        JSON.stringify(Object.fromEntries(response.headers.entries()), null, 2)
+      );
       if (!response.ok) {
         throw new Error(`HTTP error! Status: ${response.status}`);
       }
       apiData = await response.json();
+      console.log('API Cards are test: ', JSON.stringify(apiData), executionID);
       const cardsEvent = new Event('partner-cards-loaded');
       document.dispatchEvent(cardsEvent);
       if (apiData?.cards) {
