@@ -101,8 +101,8 @@ export function getRuntimeActionUrl(action, type = 'dx') {
 
   const domains = {
     dx: {
-      stage: 'https://io-partners-dx.stage.adobe.com',
-      prod: 'https://io-partners-dx.adobe.com',
+      stage: 'https://partners.stage.adobe.com',
+      prod: 'https://partners.adobe.com',
     },
     tooling: {
       stage: 'https://io-partners-tooling.stage.adobe.com',
