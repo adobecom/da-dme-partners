@@ -3,3 +3,4 @@
 LICENSE
 test/*
 !tools/sidekick/config.json
+tools/fragment-origins/*
