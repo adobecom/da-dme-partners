@@ -20,6 +20,9 @@ const getCardIds = (filteredCards) => filteredCards.map((card) => card.id);
 
 describe('PRP Collection block', () => {
   beforeEach(async () => {
+    const fetchStub = sinon.stub(window, 'fetch').callThrough();
+    fetchStub.withArgs(sinon.match((url) => String(url).includes('/placeholders.json')))
+      .resolves(new Response(JSON.stringify({ data: [] })));
     sinon.stub(PartnerCards.prototype, 'fetchData').resolves({ cards });
 
     // eslint-disable-next-line no-underscore-dangle
@@ -36,6 +39,7 @@ describe('PRP Collection block', () => {
   });
 
   afterEach(() => {
+    window.fetch.restore();
     PartnerCards.prototype.fetchData.restore();
     PartnerCards.prototype.firstUpdated.restore();
   });

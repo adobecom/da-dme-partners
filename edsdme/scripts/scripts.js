@@ -132,8 +132,6 @@ async function loadPage() {
   await loadArea();
   applyPagePersonalization();
   rewriteLinks(document);
-  // eslint-disable-next-line no-console
-  console.log('if window.location.host add sidekickListener');
   if (previewHosts.includes(window.location.host)) {
     sidekickListener(CONFIG.locales);
   }
