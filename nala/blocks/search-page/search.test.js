@@ -335,18 +335,29 @@ test.describe('Search Page validation', () => {
       await signInButtonInt.click();
 
       await signInSearchTest.signIn(page, `${features[12].data.partnerLevel}`);
+      await page.waitForLoadState('domcontentloaded');
       await signInSearchTest.profileIconButton.waitFor({ state: 'visible', timeout: 20000 });
     });
 
-    await test.step('Search for assets ', async () => {
+    await test.step('Search for assets', async () => {
+      await searchTest.searchSpotlight.waitFor({ state: 'visible', timeout: 30000 });
       await searchTest.searchForAsset(data.searchText);
-      await page.waitForLoadState('domcontentloaded');
-      await searchTest.checkNumberOfAssets();
+      await expect.poll(
+        () => searchTest.checkNumberOfAssets(),
+        { timeout: 40000 },
+      ).toBeGreaterThan(0);
+
       const numberOfAssets = await searchTest.checkNumberOfAssets();
+
       await searchTest.clearAll();
       await searchTest.searchAsset(data.searchText);
-      await page.waitForLoadState('load');
-      await searchTest.searchCard.first().waitFor({ state: 'visible', timeout: 40000 });
+      await page.getByText('View all results').click();
+
+      await expect.poll(
+        () => searchTest.checkNumberOfAssets(),
+        { timeout: 40000 },
+      ).toBe(numberOfAssets);
+
       const numberOfAssetsAfterSearch = await searchTest.checkNumberOfAssets();
       expect(numberOfAssets).toBe(numberOfAssetsAfterSearch);
     });
@@ -405,11 +416,13 @@ test.describe('Search Page validation', () => {
 
     await test.step('Search for assets ', async () => {
       await searchTest.searchAsset(`${data.searchKeyWord}`);
+      await page.waitForLoadState('domcontentloaded');
       await searchTest.partnerCardsColl.first().waitFor({ state: 'visible', timeout: 30000 });
     });
 
     await test.step('Check asset icons', async () => {
       // check if asset announcement icon is displayed
+      await expect(searchTest.partnerCardsColl.first()).toContainText(data.expectedAssetTitle, { timeout: 30000 });
       await searchTest.checkFileIcon(`${data.iconAnnouncement}`);
 
       // check if the download icon is disabled
@@ -503,6 +516,27 @@ test.describe('Search Page validation', () => {
     await test.step('Click outside the modal and verify that it closes', async () => {
       await page.locator('body').click({ position: { x: 10, y: 10 } });
       await expect(searchTest.filterModal).toBeHidden();
+    });
+  });
+  test(`${features[17].name}, ${features[17].tags}`, async ({ page }) => {
+    const { data, path } = features[17];
+
+    await test.step('Go to search page and sign in', async () => {
+      await page.goto(path);
+      await page.waitForLoadState('domcontentloaded');
+      await signInSearchTest.signIn(page, data.partnerLevel);
+      await searchTest.searchCard.first().waitFor({ state: 'visible', timeout: 40000 });
+    });
+
+    await test.step('Search for asset', async () => {
+      await searchTest.searchAsset(data.searchKeyWord);
+      await page.waitForLoadState('domcontentloaded');
+      await searchTest.checkCardTitle(data.assetTitle);
+    });
+
+    await test.step('Open search card and verify PRP tag is not present', async () => {
+      await searchTest.openCard(data.assetTitle);
+      await searchTest.checkPrpTagNotPresent(data.assetTitle, data.prpTag);
     });
   });
 });
