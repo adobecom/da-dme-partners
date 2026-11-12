@@ -11,7 +11,7 @@ From your newly created project
 1. Install the [Helix Bot](https://github.com/apps/helix-bot/installations/new).
 2. Change the fstab.yaml file to point to your content.
 3. Add the project to the [Helix Sidekick](https://github.com/adobe/helix-sidekick).
-4. Start creating your content.
+4. Start creating your content
 
 ## Developing
 1. Install the [Helix CLI](https://github.com/adobe/helix-cli): `sudo npm install -g @adobe/helix-cli`
