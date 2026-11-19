@@ -328,5 +328,17 @@ export default {
         feedbackTextArea: 'Automation Test Keywords',
       },
     },
+    {
+      tcid: '27',
+      name: '@vip-marketplace-cbc-link-validation',
+      path: '/channelpartners/?georouting=off&martech=off',
+      tags: '@dme-smoke-test',
+      data: {
+        partnerLevel: 'cpp-distributor-us:',
+        signInButtonInternationalText: 'Sign In',
+        cbcProd: 'https://cbconnection.adobe.com',
+        cbcStage: 'https://cbconnection-stage.adobe.com',
+      },
+    },
   ],
 };

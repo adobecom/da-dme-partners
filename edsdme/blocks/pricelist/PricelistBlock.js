@@ -179,11 +179,6 @@ export default class Pricelist extends PartnerCards {
     return filtersFromPricelistData.includes(key) ? arbitraryTag[key] : arbitraryTag[key].replaceAll(' ', '-');
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  getFetchOptions() {
-    return { credentials: 'include' };
-  }
-
   get partnerCards() {
     if (this.paginatedCards.length) {
       return html`

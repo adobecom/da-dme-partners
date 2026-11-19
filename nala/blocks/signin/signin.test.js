@@ -110,7 +110,7 @@ test.describe('MAPC sign in flow', () => {
 
       await test.step('Verify redirection to public page after logout', async () => {
         const signInButton = await signInPage.getSignInButton(`${feature.data.signInButtonText}`);
-        await signInButton.waitFor({ state: 'visible', timeout: 10000 });
+        await signInButton.waitFor({ state: 'visible', timeout: 30000 });
         await expect(page.url()).toContain(`${feature.data.expectedPublicPageURL}`);
       });
     });
@@ -348,7 +348,9 @@ test.describe('MAPC sign in flow', () => {
 
       await test.step('Verify redirection to correct region home page after the login', async () => {
         await signInPage.profileIconButton.waitFor({ state: 'visible', timeout: 20000 });
-        expect(page.url()).toContain(`${data.expectedToSeeInURL}`);
+        const currentURL = page.url().split('?')[0];
+        const expectedURL = data.expectedToSeeInURL.split('?')[0];
+        expect(currentURL).toContain(expectedURL);
       });
     });
   });

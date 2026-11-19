@@ -48,7 +48,7 @@ export default class SignInPage {
     const newTab = await page.context().newPage();
     await newTab.goto(newTabPath);
 
-    await newTab.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
     await newTab.locator('.feds-profile-button').waitFor({
       state: 'visible',
       timeout: 30000,

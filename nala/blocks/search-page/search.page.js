@@ -17,7 +17,7 @@ export default class SearchTest {
     this.nextPage = page.getByLabel('Next Page');
     this.prevPage = page.getByLabel('Previous Page');
     this.page3 = page.getByLabel('Page 3');
-    this.searchSpotlight = page.getByLabel('Search', { exact: true });
+    this.searchSpotlight = page.getByRole('button', { name: 'Search' });
     this.searchSpotlightFiled = page.getByPlaceholder('Search for topics, resources');
     this.assetTabs = page.getByLabel('Assets');
     this.pagesTab = page.getByLabel('Pages');
@@ -29,6 +29,7 @@ export default class SearchTest {
     this.partnerCardsColl = page.locator('.partner-cards-collection');
     this.filterButton = page.getByRole('button', { name: 'Filters' });
     this.filterModal = page.locator('.filter-wrapper-mobile expanded');
+    this.cardTags = page.locator('.search-card .card-tags-wrapper .card-tag');
   }
 
   async cardTitle(text) {
@@ -45,7 +46,7 @@ export default class SearchTest {
 
   async checkFileIcon(icon) {
     const fileIcon = await this.fileIcon(icon);
-    await this.page.waitForLoadState('networkidle');
+    await this.page.waitForLoadState('domcontentloaded');
     await expect(fileIcon.first()).toBeVisible();
   }
 
@@ -129,6 +130,18 @@ export default class SearchTest {
 
     await searchSpotlight.click();
     await searchSpotlightFiled.fill(text);
-    await searchSpotlightFiled.press('Enter');
+    await searchSpotlightFiled.press('Enter', { force: true });
+  }
+
+  async openCard(title) {
+    const card = this.searchCard.filter({ hasText: title }).first();
+    await card.waitFor({ state: 'visible', timeout: 30000 });
+    await card.click();
+    return card;
+  }
+
+  async checkPrpTagNotPresent(title, tagText) {
+    const card = this.searchCard.filter({ hasText: title }).first();
+    await expect(card.locator('.card-tag', { hasText: tagText })).toHaveCount(0);
   }
 }

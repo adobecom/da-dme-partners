@@ -9,7 +9,9 @@ describe('yukon-chat block', () => {
   let init;
 
   beforeEach(async () => {
-    setLibs('/libs');
+    const miloLibs = setLibs('/libs');
+    const { setConfig } = await import(`${miloLibs}/utils/utils.js`);
+    setConfig({ miloLibs, locales: { '': { ietf: 'en-US' } } });
 
     window.matchMedia = sinon.stub().returns({
       matches: false,
@@ -322,12 +324,17 @@ describe('yukon-chat block', () => {
 
       expect(fetchStub.called).to.be.true;
 
-      const calledUrl = fetchStub.getCalls().find((call) => {
+      const requestCall = fetchStub.getCalls().find((call) => {
         const url = call.args[0];
         const urlStr = url?.toString?.() ?? String(url);
         return urlStr.includes('yukonAIAssistant');
-      })?.args[0];
+      });
+      const calledUrl = requestCall?.args[0];
       expect(calledUrl).to.exist;
+      const requestOptions = requestCall.args[1];
+      expect(requestOptions).to.not.have.property('credentials');
+      expect(requestOptions.method).to.equal('GET');
+      expect(requestOptions.signal).to.be.instanceOf(AbortSignal);
       const urlStr = calledUrl?.toString?.() ?? String(calledUrl);
 
       expect(urlStr).to.include('/services/gravity/yukonAIAssistant');

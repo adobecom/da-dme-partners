@@ -244,6 +244,7 @@ export default {
       data: {
         partnerLevel: 'cpp-distributor-us:',
         signInButtonInternationalText: 'Sign In',
+        expectedAssetTitle: 'VIP, CLP, and TLP Sunset',
         searchKeyWord: 'sunset',
         assetURL: '/na/channelpartners/home/announcements/sunset',
         iconAnnouncement: 'announcement',
@@ -286,6 +287,18 @@ export default {
       data: {
         partnerLevel: 'cpp-distributor-us:',
         signInButtonInternationalText: 'Sign In',
+      },
+    },
+    {
+      tcid: '18',
+      name: '@search-page-prp-tags-not-present',
+      path: '/channelpartners/home/search/',
+      tags: '@dme-search @regression @circleCi',
+      data: {
+        partnerLevel: 'cpp-distributor-us:',
+        searchKeyWord: 'Black Friday',
+        assetTitle: 'Black Friday',
+        prpTag: 'PRP',
       },
     },
   ],
