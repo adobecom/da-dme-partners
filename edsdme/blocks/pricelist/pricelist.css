@@ -45,7 +45,31 @@ pricelist-block td {
 
 pricelist-block .table-container {
     overflow-x: clip;
-    margin: 20px 0;
+    margin: 0 0 20px;
+}
+
+pricelist-block .pricelist-table-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 24px;
+    margin-top: 20px;
+}
+
+pricelist-block .pricelist-table-toolbar sp-switch {
+    margin: 0;
+}
+
+pricelist-block .pricelist-results-summary {
+    margin-left: auto;
+    font-size: 14px;
+    line-height: 17px;
+    text-align: right;
+}
+
+pricelist-block .pricelist-results-separator {
+    margin: 0 4px;
 }
 
 pricelist-block tr td:nth-child(5),
@@ -144,10 +168,6 @@ pricelist-block .partner-cards-header .partner-cards-sort-wrapper .filters-btn-m
 
 pricelist-block .search-wrapper sp-field-label {
     color: #747474;
-}
-
-pricelist-block .partner-cards-sidebar .sidebar-slider {
-    margin-top: 25px;
 }
 
 pricelist-block .pagination-wrapper-load-more .load-more-btn {

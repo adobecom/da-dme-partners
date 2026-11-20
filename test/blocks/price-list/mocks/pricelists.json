@@ -1,0 +1,42 @@
+{
+  "cards": [
+    {
+      "id": "vip-apac-usd",
+      "contentArea": { "url": "https://partners.adobe.com/pricelists/vip-apac-usd.xlsx", "filename": "vip-apac-usd.xlsx" },
+      "arbitrary": [
+        { "buying_program_type": "VIP Commercial" },
+        { "region": "Asia Pacific" },
+        { "currency": "USD" },
+        { "month": "November 2026" }
+      ]
+    },
+    {
+      "id": "vip-japan-jpy",
+      "contentArea": { "url": "https://partners.adobe.com/pricelists/vip-japan-jpy.xlsx", "filename": "vip-japan-jpy.xlsx" },
+      "arbitrary": [
+        { "buying_program_type": "VIP Commercial" },
+        { "region": "Japan" },
+        { "currency": "JPY" },
+        { "month": "November 2026" }
+      ]
+    },
+    {
+      "id": "vip-apac-usd-end-user",
+      "contentArea": { "url": "https://partners.adobe.com/pricelists/vip-apac-usd-eu.xlsx", "filename": "vip-apac-usd-eu.xlsx" },
+      "arbitrary": [
+        { "buying_program_type": "VIP Commercial" },
+        { "region": "Asia Pacific" },
+        { "currency": "USD" },
+        { "month": "November 2026" },
+        { "include_end_user_pricelist": "true" }
+      ]
+    }
+  ],
+  "filters": [
+    { "name": "region", "tags": ["Asia Pacific", "Japan"] },
+    { "name": "month", "tags": ["November 2026"] },
+    { "name": "currency", "tags": ["USD", "JPY"] },
+    { "name": "buying_program_type", "tags": ["VIP Commercial"] },
+    { "name": "unsupported_filter", "tags": ["Ignored"] }
+  ]
+}
