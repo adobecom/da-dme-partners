@@ -223,7 +223,7 @@ export default class SmokeTest {
 
     const { specializationButton } = this;
     await specializationButton.click();
-    await this.page.waitForLoadState('networkidle');
+    await page.waitForLoadState('domcontentloaded');
 
     const { education } = this;
     const { educationElite } = this;

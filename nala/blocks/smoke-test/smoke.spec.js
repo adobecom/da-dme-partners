@@ -249,7 +249,7 @@ export default {
     {
       tcid: '20',
       name: '@sso-integration-between-apc-and-cbc',
-      path: '/na/channelpartners/home/#?georouting=on&martech=off',
+      path: '/na/channelpartners/home/?georouting=off&martech=off',
       tags: '@dme-smoke-test',
       data: {
         partnerLevel: 'cpp-distributor-us:',
@@ -261,7 +261,7 @@ export default {
     {
       tcid: '21',
       name: '@sso-integration-between-apc-and-finder',
-      path: '/na/channelpartners/#?georouting=on&martech=off',
+      path: '/na/channelpartners/?georouting=off&martech=off',
       tags: '@dme-smoke-test',
       data: {
         partnerLevel: 'cpp-distributor-us:',
