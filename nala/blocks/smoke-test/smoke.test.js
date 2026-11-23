@@ -235,9 +235,8 @@ test.describe('Smoke Tests', () => {
     await test.step('Sing In, verify user redirection', async () => {
       // entering user email and password
       await smokeTest.smokeSignIn(page, baseURL, data.partnerLevel);
-      await page.waitForLoadState('domcontentloaded');
-      const currentURL = await page.evaluate(() => window.location.href);
-      expect(currentURL).toContain(data.expectedPublicPageURL);
+      const escaped = data.expectedPublicPageURL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      await expect(page).toHaveURL(new RegExp(escaped), { timeout: 30000 });
     });
   });
   // @announcement-page-validation-smoke-test
@@ -685,7 +684,7 @@ test.describe('Smoke Tests', () => {
 
     await test.step('Verify logo redirection for protected page', async () => {
       const signInButtonInt = await signInSmokeTest.getSignInButton(`${features[23].data.signInButtonInternationalText}`);
-      await smokeTest.profileIcon.waitFor({ state: 'visible', timeout: 30000 });
+      await expect(smokeTest.signInButton).toBeVisible({ timeout: 30000 });
       await signInButtonInt.click();
       await smokeTest.smokeSignIn(page, baseURL, `${data.partnerLevel}`);
       await page.waitForLoadState('domcontentloaded');
