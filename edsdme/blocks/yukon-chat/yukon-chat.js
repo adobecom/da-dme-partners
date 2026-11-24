@@ -331,7 +331,6 @@ const sendMessage = async (textArea, chatHistory, sharedInputField, scrollToBott
 
     const resp = await fetch(url, {
       method: 'GET',
-      credentials: 'include',
       signal,
     });
 

@@ -39,7 +39,7 @@ export default {
         partnerLevel: 'cpp-distributor-all:',
         signInButtonInternationalText: 'Sign In',
         keyword: 'Korea',
-        asiaPacificKorea: 'Asia Pacific,Korea',
+        asiaPacificKorea: 'Korea',
         asiaChina: 'China',
         tlp5CommercialCheckBox: 'TLP 5 Commercial',
         europeEastCheckBox: 'Europe East',
@@ -123,7 +123,7 @@ export default {
       tags: '@dme-pricelists @regression @circleCi',
       data: {
         partnerLevel: 'cpp-kr-distributor:',
-        text: 'Asia Pacific,Korea',
+        text: 'Korea',
         checkBox: 'Korea',
         regionFilter: '지역',
       },

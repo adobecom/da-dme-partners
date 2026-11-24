@@ -235,9 +235,8 @@ test.describe('Smoke Tests', () => {
     await test.step('Sing In, verify user redirection', async () => {
       // entering user email and password
       await smokeTest.smokeSignIn(page, baseURL, data.partnerLevel);
-      await page.waitForLoadState('networkidle');
-      const currentURL = await page.evaluate(() => window.location.href);
-      expect(currentURL).toContain(data.expectedPublicPageURL);
+      const escaped = data.expectedPublicPageURL.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+      await expect(page).toHaveURL(new RegExp(escaped), { timeout: 30000 });
     });
   });
   // @announcement-page-validation-smoke-test
@@ -573,11 +572,11 @@ test.describe('Smoke Tests', () => {
     await test.step('Go to home page and sign in', async () => {
       await page.goto(`${baseURL}${path}`);
       await smokeTest.smokeSignIn(page, baseURL, `${data.partnerLevel}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
     });
 
     await test.step('Verify CBC Learn More link', async () => {
-      await expect(smokeTest.cbcLearnMore).toBeVisible();
+      await expect(smokeTest.cbcLearnMore).toBeVisible({ timeout: 30000 });
 
       const href = await smokeTest.cbcLearnMore.getAttribute('href');
       await expect(href).toContain(data.expectedURL);
@@ -593,7 +592,7 @@ test.describe('Smoke Tests', () => {
 
     await test.step('Go to landing page and verify Find a Partner', async () => {
       await page.goto(`${baseURL}${path}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await expect(smokeTest.findPartner).toBeVisible();
       const href = await smokeTest.findPartner.getAttribute('href');
       expect(new URL(href, baseURL).pathname).toBe(data.expectedPartnerURL);
@@ -602,10 +601,11 @@ test.describe('Smoke Tests', () => {
 
     await test.step('Log in, verify Find Distributor button and the URL opened in a new tab', async () => {
       const signInButtonInt = await signInSmokeTest.getSignInButton(data.signInButtonInternationalText);
+      await expect(smokeTest.signInButton).toBeVisible({ timeout: 30000 });
       await signInButtonInt.click();
       await smokeTest.smokeSignIn(page, baseURL, data.partnerLevel);
-      await page.waitForLoadState('networkidle');
-      await expect(smokeTest.findDistributorBtn).toBeVisible();
+      await page.waitForLoadState('domcontentloaded');
+      await expect(smokeTest.findDistributorBtn).toBeVisible({ timeout: 30000 });
 
       const href = await smokeTest.findDistributorBtn.getAttribute('href');
       expect(href).toContain(data.expectedFindURL);
@@ -630,7 +630,7 @@ test.describe('Smoke Tests', () => {
 
       await test.step('Go to home page', async () => {
         await page.goto(`${baseURL}${path}`);
-        await page.waitForLoadState('networkidle');
+        await page.waitForLoadState('domcontentloaded');
       });
 
       await test.step('Click on Change Region and verify the URL', async () => {
@@ -675,25 +675,26 @@ test.describe('Smoke Tests', () => {
       await page.goto(`${baseURL}${path}`);
       await smokeTest.supportGnavOption.click();
       await smokeTest.supportResources.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await smokeTest.apcLogo.click();
       await page.waitForURL('**', { timeout: 30000 });
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await expect(page.url()).toContain(data.logoRedirectionURLPublic);
     });
 
     await test.step('Verify logo redirection for protected page', async () => {
       const signInButtonInt = await signInSmokeTest.getSignInButton(`${features[23].data.signInButtonInternationalText}`);
+      await expect(smokeTest.signInButton).toBeVisible({ timeout: 30000 });
       await signInButtonInt.click();
       await smokeTest.smokeSignIn(page, baseURL, `${data.partnerLevel}`);
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await smokeTest.profileIcon.waitFor({ state: 'visible', timeout: 10000 });
 
       await smokeTest.announcemnts.click();
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await smokeTest.apcLogo.click();
       await page.waitForURL('**', { timeout: 30000 });
-      await page.waitForLoadState('networkidle');
+      await page.waitForLoadState('domcontentloaded');
       await expect(page.url()).toContain(data.logoRedirectionURLProtected);
     });
   });

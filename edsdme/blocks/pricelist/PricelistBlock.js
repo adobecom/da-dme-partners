@@ -93,18 +93,49 @@ export default class Pricelist extends PartnerCards {
     );
   }
 
-  getSlider() {
+  getEndUserToggle() {
     return html`
-        <sp-theme class="search-wrapper" theme="spectrum" color="light" scale="medium">
-            <div class="sidebar-slider">
-                <sp-switch size="m"
-                           ?checked=${this.includeEndUser}
-                           @change=${this.handleSlider}>
-                    ${this.blockData.localizedText[`{{${priceListKeyWords.INCLUDE_EU_PRICELIST}}}`]}
-                </sp-switch>
-            </div>
+        <sp-theme class="pricelist-toggle-wrapper" theme="spectrum" color="light" scale="medium">
+            <sp-switch size="m"
+                       ?checked=${this.includeEndUser}
+                       @change=${this.handleSlider}>
+                ${this.blockData.localizedText[`{{${priceListKeyWords.INCLUDE_EU_PRICELIST}}}`]}
+            </sp-switch>
         </sp-theme>
     `;
+  }
+
+  getResultsSummary() {
+    const total = this.cards.length;
+    const endUser = this.cards.filter((card) => this.isEndUserPricelist(card)).length;
+    const direct = total - endUser;
+    const { localizedText } = this.blockData;
+    return html`
+        <div class="pricelist-results-summary" aria-live="polite">
+            <strong>${localizedText['{{results}}']}:</strong>
+            ${total} ${localizedText['{{total}}']}
+            <span class="pricelist-results-separator" aria-hidden="true">|</span>
+            ${direct} ${localizedText['{{direct}}']}
+            <span class="pricelist-results-separator" aria-hidden="true">|</span>
+            ${endUser} ${localizedText['{{end-user}}']}
+        </div>
+    `;
+  }
+
+  getTableToolbar() {
+    return html`
+        <div class="pricelist-table-toolbar">
+            ${this.getEndUserToggle()}
+            ${this.getResultsSummary()}
+        </div>
+    `;
+  }
+
+  // eslint-disable-next-line class-methods-use-this
+  isEndUserPricelist(card) {
+    return !!card.arbitrary?.some(
+      (o) => Object.prototype.hasOwnProperty.call(o, priceListKeyWords.INCLUDE_EU_PRICELIST),
+    );
   }
 
   handleSlider(event) {
@@ -161,10 +192,7 @@ export default class Pricelist extends PartnerCards {
   additionalActions() {
     this.cards = this.cards.filter((card) => {
       if (!card.arbitrary.length) return false;
-      const isEndUser = card.arbitrary.some(
-        (o) => Object.prototype.hasOwnProperty.call(o, priceListKeyWords.INCLUDE_EU_PRICELIST),
-      );
-      return this.includeEndUser || !isEndUser;
+      return this.includeEndUser || !this.isEndUserPricelist(card);
     });
   }
 
@@ -179,14 +207,10 @@ export default class Pricelist extends PartnerCards {
     return filtersFromPricelistData.includes(key) ? arbitraryTag[key] : arbitraryTag[key].replaceAll(' ', '-');
   }
 
-  // eslint-disable-next-line class-methods-use-this
-  getFetchOptions() {
-    return { credentials: 'include' };
-  }
-
   get partnerCards() {
     if (this.paginatedCards.length) {
       return html`
+            ${this.getTableToolbar()}
             <div class="table-container" tabindex="0" role="region" aria-label="Scrollable table with data"">
             <table>
                 <thead>
@@ -215,6 +239,7 @@ export default class Pricelist extends PartnerCards {
     }
 
     return html`
+        ${this.getTableToolbar()}
         <div class="no-results">
             <strong class="no-results-title">${this.blockData.localizedText['{{no-results-title}}']}</strong>
             <p class="no-results-description">${this.blockData.localizedText['{{no-results-description}}']}</p>
@@ -252,7 +277,6 @@ export default class Pricelist extends PartnerCards {
     : ''
 }
                             </button>
-                            ${this.getSlider()}
 `
     : ''
 }

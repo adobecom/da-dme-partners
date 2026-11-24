@@ -101,8 +101,8 @@ export function getRuntimeActionUrl(action, type = 'dx') {
 
   const domains = {
     dx: {
-      stage: 'https://io-partners-dx.stage.adobe.com',
-      prod: 'https://io-partners-dx.adobe.com',
+      stage: 'https://partners.stage.adobe.com',
+      prod: 'https://partners.adobe.com',
     },
     tooling: {
       stage: 'https://io-partners-tooling.stage.adobe.com',
@@ -134,7 +134,6 @@ export function generateRequestForSearchAPI(pageOptions, body) {
     method: 'POST',
     headers,
     body: JSON.stringify(body),
-    credentials: 'include',
   });
 }
 
@@ -170,6 +169,10 @@ export async function sidekickListener(locales) {
       sidekick.addEventListener('custom:previewtoallsites', previewToAllSites, { once: true });
       // eslint-disable-next-line no-use-before-define
       sidekick.addEventListener('custom:publishtoallsites', publishToAllSites, { once: true });
+      // eslint-disable-next-line no-use-before-define
+      sidekick.addEventListener('custom:unpublishfromallsites', unpublishFromAllSites, { once: true });
+      // eslint-disable-next-line no-use-before-define
+      sidekick.addEventListener('custom:unpublishfromcurrentsite', unpublishFromCurrentSite, { once: true });
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error('Sidekick not found within timeout.', error);
@@ -241,7 +244,7 @@ export async function sidekickListener(locales) {
   const isUserAdobeSignIn = () => {
     if (!window.adobeIMS.isSignedInUser()) {
       showToast(
-        ['You are not logged in with an Adobe ID. Redirecting to login, please "publish to all sites again" after signing in with your @adobe.com account.'],
+        ['You are not logged in with an Adobe ID. Redirecting to login, please try the Sidekick action again after signing in with your @adobe.com account.'],
         'info',
       );
       window.setTimeout(() => {
@@ -341,5 +344,45 @@ export async function sidekickListener(locales) {
     }
   };
 
-  initSidekickListener();
+  const unpublishFromSites = async (allSites) => {
+    try {
+      if (!isUserAdobeSignIn()) return;
+      showToast(['Starting the CaaS unpublishing process'], 'info');
+
+      const unpublishHeaders = new Headers(headers);
+      unpublishHeaders.set('Authorization', window.adobeIMS.getAccessToken().token);
+      const url = getRuntimeActionUrl('/api/v1/web/dx-partners-runtime-tooling/unpublish-cards-from-caas', 'tooling');
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: unpublishHeaders,
+        body: JSON.stringify({ cardPath: window.location.pathname, allSites }),
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        // eslint-disable-next-line no-console
+        console.error('CaaS Unpublish Failed:', response.status, errorText);
+        await showToast([`CaaS unpublishing failed: ${errorText}`], 'negative');
+        return;
+      }
+
+      const { successfulIds, errors } = await response.json();
+      const messages = ['Unpublish from CaaS:', 'The following cards were successfully unpublished:', ...successfulIds];
+      if (errors.length > 0) {
+        messages.push('The following errors occurred:', ...errors);
+      }
+      const errorVariant = successfulIds.length > 0 ? 'info' : 'negative';
+      const variant = errors.length > 0 ? errorVariant : 'positive';
+      await showToast(messages, variant);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error('Unexpected Error:', error);
+      await showToast([`Unexpected error: ${error.message || error}`], 'negative');
+    }
+  };
+
+  const unpublishFromAllSites = () => unpublishFromSites(true);
+  const unpublishFromCurrentSite = () => unpublishFromSites(false);
+
+  await initSidekickListener();
 }
