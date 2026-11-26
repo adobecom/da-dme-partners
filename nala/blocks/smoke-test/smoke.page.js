@@ -291,7 +291,7 @@ export default class SmokeTest {
   }
 
   async indiaCalVerify() {
-    const calIndiaRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'INDIA' });
+    const calIndiaRequest = this.page.locator('#request-a-cal-httpsmain--da-dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'INDIA' });
     await calIndiaRequest.isVisible();
     let calIndiaRequestlink = await calIndiaRequest.getAttribute('href');
     if (calIndiaRequestlink?.includes('#_blank')) {
@@ -305,7 +305,7 @@ export default class SmokeTest {
   }
 
   async seabdCalVerify() {
-    const calSeabdRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'SEA/BD' });
+    const calSeabdRequest = this.page.locator('#request-a-cal-httpsmain--da-dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'SEA/BD' });
     await calSeabdRequest.isVisible();
     const calSeabdRequestlink = await calSeabdRequest.getAttribute('href');
     const calSeabdSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("SEA/BD")');
@@ -316,7 +316,7 @@ export default class SmokeTest {
   }
 
   async hktCalVerify() {
-    const calHktRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'HKT' });
+    const calHktRequest = this.page.locator('#request-a-cal-httpsmain--da-dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'HKT' });
     await calHktRequest.isVisible();
     const calHktRequestlink = await calHktRequest.getAttribute('href');
     const calHktSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("HKT")');
@@ -327,7 +327,7 @@ export default class SmokeTest {
   }
 
   async chinaCalVerify() {
-    const calChinaRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'China' });
+    const calChinaRequest = this.page.locator('#request-a-cal-httpsmain--da-dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'China' });
     await calChinaRequest.isVisible();
     const calChinaRequestlink = await calChinaRequest.getAttribute('href');
     const calChinaSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("China")');
@@ -338,7 +338,7 @@ export default class SmokeTest {
   }
 
   async anzCalVerify() {
-    const calAnzRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'ANZ' });
+    const calAnzRequest = this.page.locator('#request-a-cal-httpsmain--da-dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'ANZ' });
     await calAnzRequest.isVisible();
     const calAnzRequestlink = await calAnzRequest.getAttribute('href');
     const calAnzSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("ANZ")');
@@ -349,7 +349,7 @@ export default class SmokeTest {
   }
 
   async koreaCalVerify() {
-    const calKoreaRequest = this.page.locator('#request-a-cal-httpsmain--dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'Korea' });
+    const calKoreaRequest = this.page.locator('#request-a-cal-httpsmain--da-dme-partners--adobecomaemliveedsdmepartners-sharedfragmentscommondistributor-cal-links-1').getByRole('link', { name: 'Korea' });
     await calKoreaRequest.isVisible();
     const calKoreaRequestlink = await calKoreaRequest.getAttribute('href');
     const calKoreaSubmit = this.page.locator('#submit-a-channel-authorization-letter + p a:has-text("Korea")');
